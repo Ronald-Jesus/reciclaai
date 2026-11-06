@@ -6,6 +6,8 @@ from PIL import Image
 from torch import nn
 from torchvision import models, transforms
 
+import rvm
+
 BASE_DIR = Path(__file__).resolve().parent
 MODEL_PATH = BASE_DIR / "model" / "reciclaai.pth"
 
@@ -57,24 +59,25 @@ def load_model() -> None:
     print(f"Modelo carregado ({device}). Classes: {_classes}")
 
 
-@app.route("/")
-def index():
-    return render_template("index.html")
+def display(cls: str) -> dict:
+    info = DISPLAY_INFO.get(cls, {})
+    return {"label": info.get("label", cls), "color": info.get("color", "#888888")}
 
 
-@app.route("/predict", methods=["POST"])
-def predict():
-    if _model is None:
-        return jsonify({"error": "Modelo não carregado no servidor."}), 500
+class BadImage(Exception):
+    pass
 
+
+def classify_upload() -> list[dict]:
+    """Lê a imagem do request e devolve o ranking de classes (maior confiança primeiro)."""
     file = request.files.get("image")
     if file is None or file.filename == "":
-        return jsonify({"error": "Nenhuma imagem enviada."}), 400
+        raise BadImage("Nenhuma imagem enviada.")
 
     try:
         image = Image.open(file.stream).convert("RGB")
     except Exception:
-        return jsonify({"error": "Arquivo de imagem inválido."}), 400
+        raise BadImage("Arquivo de imagem inválido.")
 
     tensor = _transform(image).unsqueeze(0).to(device)
 
@@ -82,23 +85,101 @@ def predict():
         outputs = _model(tensor)
         probabilities = torch.softmax(outputs, dim=1)[0]
 
-    ranked = sorted(
+    return sorted(
         (
-            {
-                "class": cls,
-                "label": DISPLAY_INFO.get(cls, {}).get("label", cls),
-                "color": DISPLAY_INFO.get(cls, {}).get("color", "#888888"),
-                "confidence": round(prob.item() * 100, 1),
-            }
+            {"class": cls, **display(cls), "confidence": round(prob.item() * 100, 1)}
             for cls, prob in zip(_classes, probabilities)
         ),
         key=lambda item: item["confidence"],
         reverse=True,
     )
 
+
+@app.errorhandler(BadImage)
+def handle_bad_image(err: BadImage):
+    return jsonify({"error": str(err)}), 400
+
+
+@app.errorhandler(rvm.SessionError)
+def handle_session_error(err: rvm.SessionError):
+    return jsonify({"error": str(err)}), 409
+
+
+@app.before_request
+def ensure_model():
+    if _model is None and request.endpoint in {"predict", "insert"}:
+        return jsonify({"error": "Modelo não carregado no servidor."}), 500
+
+
+# ---------------------------------------------------------------- telas
+
+@app.route("/")
+def index():
+    accepted = [
+        {"class": cls, **display(cls), "value": cfg["value"]}
+        for cls, cfg in rvm.ACCEPTED.items()
+    ]
+    return render_template("index.html", accepted=accepted, min_confidence=rvm.MIN_CONFIDENCE)
+
+
+@app.route("/admin")
+def admin():
+    return render_template("admin.html", labels={k: v["label"] for k, v in DISPLAY_INFO.items()})
+
+
+# ---------------------------------------------------- classificador puro
+
+@app.route("/predict", methods=["POST"])
+def predict():
+    ranked = classify_upload()
     return jsonify({"prediction": ranked[0], "ranking": ranked})
 
 
+# ----------------------------------------------------------- máquina RVM
+
+@app.route("/api/session", methods=["POST"])
+def start_session():
+    return jsonify({"session_id": rvm.start_session()})
+
+
+@app.route("/api/session/<session_id>/insert", methods=["POST"], endpoint="insert")
+def insert(session_id: str):
+    ranked = classify_upload()
+    top = ranked[0]
+    result = rvm.insert_item(session_id, top["class"], top["confidence"])
+    return jsonify({"prediction": top, "ranking": ranked, **result})
+
+
+@app.route("/api/session/<session_id>/finish", methods=["POST"])
+def finish_session(session_id: str):
+    result = rvm.finish_session(session_id)
+    result["items"] = [
+        {"class": cls, **display(cls), "count": n} for cls, n in result["items"].items()
+    ]
+    return jsonify(result)
+
+
+# ------------------------------------------------------------- operador
+
+@app.route("/api/admin/status")
+def admin_status():
+    return jsonify({"bins": rvm.bin_status(), "stats": rvm.stats()})
+
+
+@app.route("/api/admin/bins/<material>/empty", methods=["POST"])
+def admin_empty_bin(material: str):
+    if not rvm.empty_bin(material):
+        return jsonify({"error": "Compartimento inexistente."}), 404
+    return jsonify({"ok": True})
+
+
+@app.route("/api/vouchers/<code>/redeem", methods=["POST"])
+def redeem(code: str):
+    result = rvm.redeem_voucher(code)
+    return jsonify(result), (200 if result["ok"] else 400)
+
+
 if __name__ == "__main__":
+    rvm.init_db()
     load_model()
     app.run(debug=True, host="0.0.0.0", port=5000)
