@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ReciclaAI — Painel do Operador</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f6f3ec;
+    --card: #ffffff;
+    --ink: #1f2421;
+    --muted: #6b6f6a;
+    --line: #e4e0d6;
+    --leaf: #3a5a40;
+    --leaf-dark: #2c4632;
+    --warn: #b7791f;
+    --bad: #b3261e;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: 'Inter', sans-serif; padding: 32px 16px;
+  }
+  main { max-width: 960px; margin: 0 auto; }
+  .eyebrow {
+    font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--leaf); font-weight: 600; margin: 0 0 6px;
+  }
+  h1 { font-family: 'Space Grotesk', sans-serif; font-size: 26px; margin: 0 0 4px; }
+  h2 { font-family: 'Space Grotesk', sans-serif; font-size: 17px; margin: 0 0 12px; }
+  .sub { color: var(--muted); font-size: 14px; margin: 0 0 24px; }
+  .sub a { color: var(--leaf); }
+
+  .card {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 16px; padding: 20px; margin-bottom: 16px;
+  }
+
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .kpi { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
+  .kpi .lbl { font-size: 12px; color: var(--muted); }
+  .kpi .val {
+    font-family: 'Space Grotesk', sans-serif; font-size: 24px; font-weight: 700;
+    margin-top: 4px; font-variant-numeric: tabular-nums;
+  }
+
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+
+  .bin { padding: 10px 0; }
+  .bin + .bin { border-top: 1px solid var(--line); }
+  .bin-head { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+  .bin-head .count { margin-left: auto; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .badge { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; color: #fff; }
+  .badge.warn { background: var(--warn); }
+  .badge.full { background: var(--bad); }
+  .track { height: 8px; background: var(--line); border-radius: 4px; overflow: hidden; margin: 8px 0; }
+  .fill { height: 100%; background: var(--leaf); border-radius: 4px; }
+  .fill.warn { background: var(--warn); }
+  .fill.full { background: var(--bad); }
+
+  button {
+    border: 1px solid var(--line); background: #fff; color: var(--ink);
+    border-radius: 8px; padding: 6px 12px; font-size: 13px; cursor: pointer;
+  }
+  button:hover { background: #fafaf8; }
+  button.primary { background: var(--leaf); color: #fff; border: none; }
+  button.primary:hover { background: var(--leaf-dark); }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; color: var(--muted); font-weight: 500; padding: 6px 4px; border-bottom: 1px solid var(--line); }
+  td { padding: 6px 4px; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+  td.num, th.num { text-align: right; }
+  .ok { color: var(--leaf); font-weight: 600; }
+  .no { color: var(--bad); font-weight: 600; }
+  .table-wrap { overflow-x: auto; }
+
+  .redeem { display: flex; gap: 8px; }
+  .redeem input {
+    flex: 1; min-width: 0; padding: 8px 10px; border: 1px solid var(--line);
+    border-radius: 8px; font-size: 14px; text-transform: uppercase;
+  }
+  #redeemMsg { font-size: 13px; margin-top: 8px; min-height: 18px; }
+</style>
+</head>
+<body>
+<main>
+  <p class="eyebrow">ReciclaAI · Operador</p>
+  <h1>Painel da máquina</h1>
+  <p class="sub">Atualiza a cada 5 segundos · <a href="/">voltar para a máquina</a></p>
+
+  <div class="kpis">
+    <div class="kpi"><div class="lbl">Itens aceitos</div><div class="val" id="kAccepted">–</div></div>
+    <div class="kpi"><div class="lbl">Itens devolvidos</div><div class="val" id="kRejected">–</div></div>
+    <div class="kpi"><div class="lbl">Taxa de aceitação</div><div class="val" id="kRate">–</div></div>
+    <div class="kpi"><div class="lbl">Créditos emitidos</div><div class="val" id="kPaid">–</div></div>
+    <div class="kpi"><div class="lbl">Vouchers a resgatar</div><div class="val" id="kPending">–</div></div>
+  </div>
+
+  <div class="grid2">
+    <section class="card">
+      <h2>Compartimentos</h2>
+      <div id="bins"></div>
+    </section>
+
+    <section class="card">
+      <h2>Por material</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Material</th><th class="num">Aceitos</th><th class="num">Devolvidos</th></tr></thead>
+          <tbody id="byMaterial"></tbody>
+        </table>
+      </div>
+
+      <h2 style="margin-top: 20px">Resgatar voucher</h2>
+      <div class="redeem">
+        <input id="voucherInput" placeholder="RVM-XXXXXX-XXXXXX">
+        <button class="primary" id="redeemBtn">Resgatar</button>
+      </div>
+      <div id="redeemMsg"></div>
+    </section>
+  </div>
+
+  <section class="card">
+    <h2>Últimas inserções</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Horário</th><th>Material</th><th class="num">Confiança</th><th>Resultado</th><th class="num">Crédito</th></tr></thead>
+        <tbody id="recent"></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<script>
+  const LABELS = {{ labels | tojson }};
+  const $ = (id) => document.getElementById(id);
+  const brl = (v) => 'R$ ' + v.toFixed(2).replace('.', ',');
+  const label = (m) => LABELS[m] || m;
+
+  function cell(text, cls) {
+    const td = document.createElement('td');
+    td.textContent = text;
+    if (cls) td.className = cls;
+    return td;
+  }
+
+  function renderBins(bins) {
+    const box = $('bins');
+    box.innerHTML = '';
+    bins.forEach((b) => {
+      const state = b.full ? 'full' : (b.warning ? 'warn' : '');
+      const div = document.createElement('div');
+      div.className = 'bin';
+
+      const head = document.createElement('div');
+      head.className = 'bin-head';
+      const name = document.createElement('strong');
+      name.textContent = label(b.material);
+      head.appendChild(name);
+      if (state) {
+        const badge = document.createElement('span');
+        badge.className = 'badge ' + state;
+        badge.textContent = b.full ? 'cheio' : 'quase cheio';
+        head.appendChild(badge);
+      }
+      const count = document.createElement('span');
+      count.className = 'count';
+      count.textContent = `${b.count}/${b.capacity} (${b.percent}%)`;
+      head.appendChild(count);
+
+      const track = document.createElement('div');
+      track.className = 'track';
+      const fill = document.createElement('div');
+      fill.className = 'fill ' + state;
+      fill.style.width = Math.min(b.percent, 100) + '%';
+      track.appendChild(fill);
+
+      const btn = document.createElement('button');
+      btn.textContent = 'Esvaziar';
+      btn.addEventListener('click', async () => {
+        if (!confirm(`Confirmar que o compartimento de ${label(b.material)} foi esvaziado?`)) return;
+        await fetch(`/api/admin/bins/${b.material}/empty`, { method: 'POST' });
+        refresh();
+      });
+
+      div.append(head, track, btn);
+      box.appendChild(div);
+    });
+  }
+
+  function renderStats(s) {
+    $('kAccepted').textContent = s.items_accepted;
+    $('kRejected').textContent = s.items_rejected;
+    $('kRate').textContent = s.items_total ? Math.round(100 * s.items_accepted / s.items_total) + '%' : '–';
+    $('kPaid').textContent = brl(s.credits_paid);
+    $('kPending').textContent = brl(s.vouchers_pending);
+
+    const bm = $('byMaterial');
+    bm.innerHTML = '';
+    s.by_material.forEach((r) => {
+      const tr = document.createElement('tr');
+      tr.append(cell(label(r.material)), cell(r.accepted, 'num'), cell(r.rejected, 'num'));
+      bm.appendChild(tr);
+    });
+    if (!s.by_material.length) bm.innerHTML = '<tr><td colspan="3">Nenhum item ainda.</td></tr>';
+
+    const rc = $('recent');
+    rc.innerHTML = '';
+    s.recent.forEach((r) => {
+      const tr = document.createElement('tr');
+      const when = new Date(r.created_at).toLocaleTimeString('pt-BR');
+      tr.append(
+        cell(when),
+        cell(label(r.material)),
+        cell(r.confidence.toFixed(1) + '%', 'num'),
+        cell(r.accepted ? 'aceito' : 'devolvido', r.accepted ? 'ok' : 'no'),
+        cell(r.accepted ? brl(r.value) : '–', 'num'),
+      );
+      tr.title = r.reason;
+      rc.appendChild(tr);
+    });
+    if (!s.recent.length) rc.innerHTML = '<tr><td colspan="5">Nenhum item ainda.</td></tr>';
+  }
+
+  async function refresh() {
+    try {
+      const res = await fetch('/api/admin/status');
+      const data = await res.json();
+      renderBins(data.bins);
+      renderStats(data.stats);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  $('redeemBtn').addEventListener('click', async () => {
+    const code = $('voucherInput').value.trim();
+    if (!code) return;
+    const res = await fetch(`/api/vouchers/${encodeURIComponent(code)}/redeem`, { method: 'POST' });
+    const data = await res.json();
+    const msg = $('redeemMsg');
+    msg.className = data.ok ? 'ok' : 'no';
+    msg.textContent = data.ok ? `Voucher válido: pagar ${brl(data.amount)}.` : data.error;
+    if (data.ok) { $('voucherInput').value = ''; refresh(); }
+  });
+
+  refresh();
+  setInterval(refresh, 5000);
+</script>
+</body>
+</html>
