@@ -41,15 +41,15 @@ explica o sistema e uma demonstração onde a IA do projeto funciona de verdade.
 **Anti-objetivos (seria um fracasso mesmo funcionando)**
 - Um site genérico com cara de modelo pronto ou "feito por IA".
 - Animações que travam o celular ou impedem a leitura.
-- Números sem fonte, que o aluno não consiga defender na arguição.
+- Números sem fonte, impossíveis de defender na arguição.
 - Usar marca, logotipo ou visual de fabricantes reais de máquinas ou de supermercados.
-- Código que o aluno não sabe explicar.
+- Código sem justificativa clara, difícil de explicar na arguição.
 
 ## 4. Restrições
 
-- **Prazo:** defesa em 03/12/2026. O aluno trabalha sozinho, cerca de 10 h por semana, com apoio de
-  um assistente de IA no desenvolvimento.
-- **Processo:** construção em etapas pequenas. Cada etapa é mostrada ao aluno, aprovada e enviada
+- **Prazo:** defesa em 03/12/2026. Projeto individual, com cerca de 10 h de trabalho por
+  semana.
+- **Processo:** construção em etapas pequenas. Cada etapa é revisada, aprovada e enviada
   ao GitHub com branch e pull request próprios, formando o histórico de construção que a rubrica avalia.
 - **Rubrica:** o site faz parte do MVP. Também valem BPMN, requisitos com MoSCoW, UML, testes no
   pipeline, gestão (TAP, EAP, RACI, riscos), release e defesa.
@@ -168,7 +168,7 @@ A troca para React é uma mudança de arquitetura e será registrada num ADR.
 
 - **Na defesa:** o site fica publicado num endereço **HTTPS público** (Hugging Face Spaces,
   como previsto na issue #28), para o professor abrir no próprio celular e a câmera funcionar,
-  porque navegadores só liberam a câmera em HTTPS. **Plano B:** rodar no notebook do aluno
+  porque navegadores só liberam a câmera em HTTPS. **Plano B:** rodar no notebook
   (localhost), com a câmera do notebook.
 - **O modelo ainda não está treinado nesta cópia** (`model/` e `dataset/` ficam fora do Git). O
   treino com a classe **orgânico** faz parte do trabalho (issues #15 e #16). Enquanto o modelo não
