@@ -3,3 +3,4 @@ model
 rvm.db
 __pycache__
 venv
+.superpowers/
