@@ -71,7 +71,7 @@ um arquivo temporário e chama `rvm.init_db()`.
 passo testado numa instalação limpa (Python 3.12).
 
 ## Parte 2 · Esqueleto React servido pelo Flask (com ADR)
-**Issue nova** · **Estimativa:** 1,5
+**Issue:** #38 · **Estimativa:** 1,5
 
 **Arquivos:** `frontend/` (Vite + React, `vitest`) · `app.py` (rotas `/` e `/lixeira` servem
 `frontend/dist/index.html`; a tela atual da máquina vai para `/maquina`) ·
@@ -88,7 +88,7 @@ ambas com conteúdo provisório; comando `npm run build` gera `frontend/dist/`.
 **Pronto quando:** `flask run` abre o React em `/`, a máquina em `/maquina` e o painel em `/admin`.
 
 ## Parte 3 · Identidade visual e layout base
-**Issue nova** · **Estimativa:** 1
+**Issue:** #39 · **Estimativa:** 1
 
 **Arquivos:** `frontend/src/estilo/tokens.css` (cores acima, tipografia, espaçamentos) ·
 `frontend/src/componentes/Topo.jsx`, `Rodape.jsx`, `Botao.jsx`, `Icone.jsx` ·
@@ -104,7 +104,7 @@ cor e lixeira` · `Topo tem link para a lixeira pessoal`.
 **Pronto quando:** página inicial com topo, rodapé e tipografia definitiva, sem visual genérico.
 
 ## Parte 4 · Abertura com o problema e contraste Brasil × Alemanha
-**Issue nova** · **Estimativa:** 1,5 (inclui escolher as fotos)
+**Issue:** #40 · **Estimativa:** 1,5 (inclui escolher as fotos)
 
 **Arquivos:** `frontend/src/secoes/Problema.jsx`, `Contraste.jsx` · `frontend/public/fotos/`
 (3 a 5 fotos) · `frontend/src/dados/creditos.js` (foto, autor, link, licença)
@@ -116,7 +116,7 @@ mostram a fonte` (97,3% e +96% com link).
 e créditos no rodapé.
 
 ## Parte 5 · Ilustração da máquina em camadas
-**Issue nova** · **Estimativa:** 1
+**Issue:** #41 · **Estimativa:** 1
 
 **Arquivos:** `frontend/src/maquina/MaquinaSVG.jsx` · `frontend/src/maquina/pecas.js`
 
@@ -130,7 +130,7 @@ em que cada peça é um `<g data-peca={id}>`.
 **Pronto quando:** a máquina estática aparece completa e pode ser desenhada peça por peça.
 
 ## Parte 6 · Montagem animada ao rolar e fechamento
-**Issue nova** · **Estimativa:** 1,5
+**Issue:** #42 · **Estimativa:** 1,5
 
 **Arquivos:** `frontend/src/secoes/Montagem.jsx` · `frontend/src/secoes/Fechamento.jsx`
 
@@ -162,7 +162,7 @@ nova em `items`) · `test_upload_acima_de_5mb_da_413` · `test_arquivo_que_nao_e
 `test_sem_modelo_da_503_com_mensagem` · `test_organico_vai_para_lixeira_marrom`.
 
 ## Parte 8 · Subpágina: foto e análise
-**Issue nova** · **Estimativa:** 1,5
+**Issue:** #43 · **Estimativa:** 1,5
 
 **Arquivos:** `frontend/src/lixeira/Captura.jsx` · `frontend/src/lixeira/validarArquivo.js` ·
 `frontend/src/lixeira/api.js`
@@ -178,7 +178,7 @@ nova em `items`) · `test_upload_acima_de_5mb_da_413` · `test_arquivo_que_nao_e
 animação de leitura com "Analisando…" e botão cancelar.
 
 ## Parte 9 · Subpágina: retorno e sacola
-**Issue nova** · **Estimativa:** 1,5
+**Issue:** #44 · **Estimativa:** 1,5
 
 **Arquivos:** `frontend/src/lixeira/Resultado.jsx` · `frontend/src/lixeira/Sacola.jsx` ·
 `frontend/src/lixeira/sacola.js`
@@ -193,7 +193,7 @@ animação de leitura com "Analisando…" e botão cancelar.
 sacola com miniaturas e total; legenda das lixeiras sempre visível.
 
 ## Parte 10 · Subpágina: mapa do mercado mais próximo
-**Issue nova** · **Estimativa:** 1,5
+**Issue:** #45 · **Estimativa:** 1,5
 
 **Arquivos:** `frontend/src/lixeira/Mapa.jsx` · `frontend/src/lixeira/geo.js` ·
 `frontend/src/dados/mercados-brasilia.json` (extraído do OpenStreetMap, com atribuição)
@@ -209,7 +209,7 @@ sempre visível`.
 os mercados não são parceiros e crédito ao OpenStreetMap.
 
 ## Parte 11 · Documento das heurísticas de Nielsen
-**Issue nova** · **Estimativa:** 1
+**Issue:** #46 · **Estimativa:** 1
 
 **Arquivos:** `docs/heuristicas-nielsen.md` · `docs/prints/`
 
@@ -221,7 +221,7 @@ os mercados não são parceiros e crédito ao OpenStreetMap.
 
 | Extra | O que é | Horas |
 |---|---|---|
-| E1 | Depósito simulado com voucher na subpágina (visão 7.5) | 1 |
-| E2 | Seções de impacto com simulador, para quem, painel e dúvidas (6.4 a 6.7), com números aprovados antes | 1,5 |
-| E3 | Busca real de mercados próximos no OpenStreetMap | 0,5 |
-| E4 | Rolagem suave (Lenis) e fundo 3D no topo (Vanta) | 0,5 |
+| E1 (#47) | Depósito simulado com voucher na subpágina (visão 7.5) | 1 |
+| E2 (#48) | Seções de impacto com simulador, para quem, painel e dúvidas (6.4 a 6.7), com números aprovados antes | 1,5 |
+| E3 (#49) | Busca real de mercados próximos no OpenStreetMap | 0,5 |
+| E4 (#50) | Rolagem suave (Lenis) e fundo 3D no topo (Vanta) | 0,5 |
