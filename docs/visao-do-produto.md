@@ -50,7 +50,7 @@ explica o sistema e uma demonstração onde a IA do projeto funciona de verdade.
 - **Prazo:** defesa em 03/12/2026. Projeto individual, com cerca de 10 h de trabalho por
   semana, com apoio de um assistente de IA no desenvolvimento.
 - **Processo:** construção em etapas pequenas. Cada etapa é revisada, aprovada e enviada
-  ao GitHub com branch e pull request próprios, formando o histórico de construção que a rubrica avalia.
+  ao GitHub pela branch develop, com um pull request para a main ao fim de cada issue, formando o histórico de construção que a rubrica avalia.
 - **Rubrica:** o site faz parte do MVP. Também valem BPMN, requisitos com MoSCoW, UML, testes no
   pipeline, gestão (TAP, EAP, RACI, riscos), release e defesa.
 - **Licenças:** fotos de bancos gratuitos (Unsplash, Pexels) com crédito ao fotógrafo; mapa com
@@ -185,7 +185,6 @@ A troca para React é uma mudança de arquitetura e será registrada num ADR.
   servidor.
 - **Números da seção 6.4:** as fontes são pesquisadas e aprovadas antes de construir
   a seção; nenhum número entra sem fonte.
-- O rascunho antigo da branch `feat/site-promocional` foi abandonado e não será usado.
 
 ## 9. Heurísticas de Nielsen (onde cada uma aparece)
 

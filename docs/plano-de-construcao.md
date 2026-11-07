@@ -1,7 +1,7 @@
 # ReciclaAI · Plano de construção do site
 
 **Objetivo:** construir o site de vendas da ReciclaAI e a subpágina Lixeira Pessoal descritos na
-visão do produto, em partes pequenas, cada uma com issue, branch, pull request e aprovação.
+visão do produto, em partes pequenas, cada uma com issue, pull request e aprovação.
 
 **Arquitetura:** o front-end vira um projeto React (Vite) na pasta `frontend/`. O Flask continua
 como servidor único: serve o React compilado em `/` e `/lixeira`, mantém a IA (`/predict`), as
@@ -17,8 +17,8 @@ em caso de dúvida, a visão manda.
 
 ## Regras que valem para todas as partes
 
-- Cada parte é uma issue no GitHub, uma branch (`feat/<numero>-<nome>`) e um pull request que
-  fecha a issue (`Closes #N`). Nada vai para a `main` sem revisão e aprovação.
+- Todo o trabalho é feito na branch `develop`. Ao terminar cada issue, um pull request
+  `develop` → `main` fecha a issue (`Closes #N`). Nada vai para a `main` sem revisão e aprovação.
 - Ciclo de cada parte: teste que falha → código mínimo → testes passando → revisão →
   commit e PR.
 - Cores de material (CONAMA 275), as mesmas em todo o site: plástico `#c8453a` (vermelha),
