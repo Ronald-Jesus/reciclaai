@@ -1,0 +1,428 @@
+/* ==========================================================================
+   ReciclaAI · tokens do sistema de design
+   Neo-brutalismo + Material Design 3 (Material You)
+
+   Cor semente: #C6F432 (verde-limão: reciclagem + tecnologia)
+   Paletas tonais geradas com @material/material-color-utilities 0.3.0 (HCT):
+     primary    = matiz da semente (124,1), croma 75,7
+     secondary  = mesma matiz, croma 16
+     tertiary   = matiz 344,1 (semente + 220°, rosa-magenta), croma 40
+   A semente tem tom 90,3: o limão vivo é o tom 90 (primary-container),
+   exposto como --rc-brand. O primary (tom 40, oliva) fica para texto,
+   links e foco, onde o limão não teria contraste sobre fundo claro.
+     neutral    = mesma matiz, croma 3   · neutral-variant = croma 8
+     error      = paleta de erro padrão do M3 (matiz 25, croma 84)
+   Cores dos materiais: Resolução CONAMA 275, fixas. Containers gerados na
+   mesma matiz e croma da cor base (tom 90 / tom 10).
+
+   Convenção de nomes
+     --md-ref-palette-*   tons de referência (não use direto em componentes)
+     --md-sys-*           papéis do M3 (cor, tipo, forma, movimento)
+     --rc-*               decisões do ReciclaAI (borda, sombra, espaço, materiais)
+   ========================================================================== */
+
+:root {
+  /* ---------------------------------------------------------------------
+     1. Paletas tonais de referência
+     --------------------------------------------------------------------- */
+  --md-ref-palette-primary0: #000000;
+  --md-ref-palette-primary10: #161f00;
+  --md-ref-palette-primary20: #283500;
+  --md-ref-palette-primary30: #3b4d00;
+  --md-ref-palette-primary40: #506600;
+  --md-ref-palette-primary50: #658100;
+  --md-ref-palette-primary60: #7c9c00;
+  --md-ref-palette-primary70: #93b900;
+  --md-ref-palette-primary80: #aad600;
+  --md-ref-palette-primary90: #c5f331;
+  --md-ref-palette-primary95: #daff70;
+  --md-ref-palette-primary99: #faffe2;
+  --md-ref-palette-primary100: #ffffff;
+
+  --md-ref-palette-secondary0: #000000;
+  --md-ref-palette-secondary10: #181e09;
+  --md-ref-palette-secondary20: #2d331c;
+  --md-ref-palette-secondary30: #434930;
+  --md-ref-palette-secondary40: #5b6147;
+  --md-ref-palette-secondary50: #747a5e;
+  --md-ref-palette-secondary60: #8d9476;
+  --md-ref-palette-secondary70: #a8ae8f;
+  --md-ref-palette-secondary80: #c3caa9;
+  --md-ref-palette-secondary90: #dfe6c4;
+  --md-ref-palette-secondary95: #eef4d2;
+  --md-ref-palette-secondary99: #faffe2;
+  --md-ref-palette-secondary100: #ffffff;
+
+  --md-ref-palette-tertiary0: #000000;
+  --md-ref-palette-tertiary10: #39032d;
+  --md-ref-palette-tertiary20: #531a43;
+  --md-ref-palette-tertiary30: #6d315b;
+  --md-ref-palette-tertiary40: #894873;
+  --md-ref-palette-tertiary50: #a5618d;
+  --md-ref-palette-tertiary60: #c27aa8;
+  --md-ref-palette-tertiary70: #df94c3;
+  --md-ref-palette-tertiary80: #feaedf;
+  --md-ref-palette-tertiary90: #ffd8ed;
+  --md-ref-palette-tertiary95: #ffecf4;
+  --md-ref-palette-tertiary99: #fffbff;
+  --md-ref-palette-tertiary100: #ffffff;
+
+  --md-ref-palette-neutral0: #000000;
+  --md-ref-palette-neutral10: #1b1c18;
+  --md-ref-palette-neutral20: #30312d;
+  --md-ref-palette-neutral30: #474743;
+  --md-ref-palette-neutral40: #5f5e5a;
+  --md-ref-palette-neutral50: #787772;
+  --md-ref-palette-neutral60: #92918c;
+  --md-ref-palette-neutral70: #adaba6;
+  --md-ref-palette-neutral80: #c8c6c1;
+  --md-ref-palette-neutral87: #dcdad4;
+  --md-ref-palette-neutral90: #e5e2dc;
+  --md-ref-palette-neutral92: #eae8e2;
+  --md-ref-palette-neutral94: #f0eee8;
+  --md-ref-palette-neutral95: #f3f0ea;
+  --md-ref-palette-neutral96: #f6f3ed;
+  --md-ref-palette-neutral98: #fcf9f3;
+  --md-ref-palette-neutral100: #ffffff;
+
+  --md-ref-palette-neutral-variant30: #46483c;
+  --md-ref-palette-neutral-variant50: #76786b;
+  --md-ref-palette-neutral-variant80: #c6c8b8;
+  --md-ref-palette-neutral-variant90: #e3e4d3;
+
+  --md-ref-palette-error10: #410002;
+  --md-ref-palette-error30: #93000a;
+  --md-ref-palette-error40: #ba1a1a;
+  --md-ref-palette-error80: #ffb4ab;
+  --md-ref-palette-error90: #ffdad6;
+  --md-ref-palette-error100: #ffffff;
+
+  /* ---------------------------------------------------------------------
+     2. Papéis de cor do M3 (tema claro)
+     Contraste medido (WCAG): primary/on-primary 6,5:1 · primary/surface 6,2:1 ·
+     primary-container (limão)/on-primary-container 13,2:1 · limão/preto 16,4:1 ·
+     limão/branco 1,28:1 (proibido) · tertiary-container/on-tertiary-container 13,3:1 ·
+     surface/on-surface-variant 8,9:1 · inverse-surface/inverse-primary 7,7:1
+     --------------------------------------------------------------------- */
+  --md-sys-color-primary: var(--md-ref-palette-primary40);
+  --md-sys-color-on-primary: var(--md-ref-palette-primary100);
+  --md-sys-color-primary-container: var(--rc-brand);          /* = tom 90, a semente */
+  --md-sys-color-on-primary-container: var(--md-ref-palette-primary10);
+  --md-sys-color-inverse-primary: var(--md-ref-palette-primary80);
+
+  --md-sys-color-secondary: var(--md-ref-palette-secondary40);
+  --md-sys-color-on-secondary: var(--md-ref-palette-secondary100);
+  --md-sys-color-secondary-container: var(--md-ref-palette-secondary90);
+  --md-sys-color-on-secondary-container: var(--md-ref-palette-secondary10);
+
+  --md-sys-color-tertiary: var(--md-ref-palette-tertiary40);
+  --md-sys-color-on-tertiary: var(--md-ref-palette-tertiary100);
+  --md-sys-color-tertiary-container: var(--md-ref-palette-tertiary90);
+  --md-sys-color-on-tertiary-container: var(--md-ref-palette-tertiary10);
+
+  --md-sys-color-error: var(--md-ref-palette-error40);
+  --md-sys-color-on-error: var(--md-ref-palette-error100);
+  --md-sys-color-error-container: var(--md-ref-palette-error90);
+  --md-sys-color-on-error-container: var(--md-ref-palette-error10);
+
+  --md-sys-color-surface: var(--md-ref-palette-neutral98);
+  --md-sys-color-surface-dim: var(--md-ref-palette-neutral87);
+  --md-sys-color-surface-bright: var(--md-ref-palette-neutral98);
+  --md-sys-color-surface-container-lowest: var(--md-ref-palette-neutral100);
+  --md-sys-color-surface-container-low: var(--md-ref-palette-neutral96);
+  --md-sys-color-surface-container: var(--md-ref-palette-neutral94);
+  --md-sys-color-surface-container-high: var(--md-ref-palette-neutral92);
+  --md-sys-color-surface-container-highest: var(--md-ref-palette-neutral90);
+  --md-sys-color-on-surface: var(--md-ref-palette-neutral10);
+  --md-sys-color-on-surface-variant: var(--md-ref-palette-neutral-variant30);
+  --md-sys-color-outline: var(--md-ref-palette-neutral-variant50);
+  --md-sys-color-outline-variant: var(--md-ref-palette-neutral-variant80);
+  --md-sys-color-inverse-surface: var(--md-ref-palette-neutral20);
+  --md-sys-color-inverse-on-surface: var(--md-ref-palette-neutral95);
+  --md-sys-color-scrim: var(--md-ref-palette-neutral0);
+  --md-sys-color-shadow: var(--md-ref-palette-neutral0);
+
+  /* Cor da marca: o limão vivo da semente. Texto sobre ele sempre escuro
+     (--rc-on-brand ou on-primary-container), nunca branco. */
+  --rc-brand: #c6f432;
+  --rc-on-brand: #000000;
+
+  /* Tinta: preto puro. Bordas e sombras duras usam sempre esta cor. */
+  --rc-ink: #000000;
+
+  /* Camadas de estado (M3): opacidade de currentColor sobre o componente */
+  --md-sys-state-hover-opacity: 0.08;
+  --md-sys-state-focus-opacity: 0.10;
+  --md-sys-state-pressed-opacity: 0.12;
+  --md-sys-state-dragged-opacity: 0.16;
+  --md-sys-state-disabled-content-opacity: 0.38;
+  --md-sys-state-disabled-container-opacity: 0.12;
+
+  /* Foco visível: anel rosa-magenta do tertiary (6,5:1 sobre branco), distinto
+     da borda preta e do limão. Sobre fundo escuro: limão (10,2:1). */
+  --rc-focus-ring-color: var(--md-sys-color-tertiary);
+  --rc-focus-ring-color-on-dark: var(--rc-brand);
+  --rc-focus-ring-width: 3px;
+  --rc-focus-ring-offset: 3px;
+
+  /* ---------------------------------------------------------------------
+     3. Cores dos materiais (CONAMA 275) — só identificam materiais
+     base: cor oficial da lixeira · on: texto sobre a base (AA)
+     container: fundo claro · on-container: texto sobre o container (13:1)
+     strong: tom 30, para texto/ícone do material sobre fundo claro (7:1)
+     --------------------------------------------------------------------- */
+  --rc-material-plastico: #c8453a;
+  --rc-material-plastico-on: #ffffff;           /* 4,8:1 */
+  --rc-material-plastico-container: #ffdad5;
+  --rc-material-plastico-on-container: #410001;
+  --rc-material-plastico-strong: #8b1814;
+
+  --rc-material-metal: #c99700;
+  --rc-material-metal-on: #000000;              /* 7,9:1 */
+  --rc-material-metal-container: #ffdf9e;
+  --rc-material-metal-on-container: #261a00;
+  --rc-material-metal-strong: #5b4300;
+
+  --rc-material-vidro: #2e8b57;
+  --rc-material-vidro-on: #000000;              /* 4,95:1 (branco daria 4,25) */
+  --rc-material-vidro-container: #9af6b8;
+  --rc-material-vidro-on-container: #00210f;
+  --rc-material-vidro-strong: #00522d;
+
+  --rc-material-papel: #2f6db5;
+  --rc-material-papel-on: #ffffff;              /* 5,3:1 */
+  --rc-material-papel-container: #d4e3ff;
+  --rc-material-papel-on-container: #001c3a;
+  --rc-material-papel-strong: #004785;
+
+  --rc-material-organico: #8a5a36;
+  --rc-material-organico-on: #ffffff;           /* 5,8:1 */
+  --rc-material-organico-container: #ffdcc5;
+  --rc-material-organico-on-container: #301400;
+  --rc-material-organico-strong: #673d1b;
+
+  --rc-material-rejeito: #6b6f6a;
+  --rc-material-rejeito-on: #ffffff;            /* 5,1:1 */
+  --rc-material-rejeito-container: #e1e3de;
+  --rc-material-rejeito-on-container: #191c19;
+  --rc-material-rejeito-strong: #454744;
+
+  /* ---------------------------------------------------------------------
+     4. Tipografia
+     Display/headline/title: Bricolage Grotesque (peso alto, eixo opsz)
+     Body/label: Atkinson Hyperlegible Next (legibilidade, números claros)
+     Tamanhos do M3; display e headline-large crescem com a tela e
+     cabem em 360 px.
+     --------------------------------------------------------------------- */
+  --md-ref-typeface-brand: "Bricolage Grotesque", "Arial Black", system-ui, sans-serif;
+  --md-ref-typeface-plain: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --md-ref-typeface-icon: "Material Symbols Rounded";
+
+  --md-sys-typescale-display-large-font: var(--md-ref-typeface-brand);
+  --md-sys-typescale-display-large-size: clamp(2.75rem, 1.6rem + 5vw, 4.5rem);   /* 44 → 72 */
+  --md-sys-typescale-display-large-line-height: 1.0;
+  --md-sys-typescale-display-large-weight: 800;
+  --md-sys-typescale-display-large-tracking: -0.03em;
+
+  --md-sys-typescale-display-medium-font: var(--md-ref-typeface-brand);
+  --md-sys-typescale-display-medium-size: clamp(2.25rem, 1.5rem + 3.2vw, 3.5rem); /* 36 → 56 */
+  --md-sys-typescale-display-medium-line-height: 1.04;
+  --md-sys-typescale-display-medium-weight: 800;
+  --md-sys-typescale-display-medium-tracking: -0.025em;
+
+  --md-sys-typescale-display-small-font: var(--md-ref-typeface-brand);
+  --md-sys-typescale-display-small-size: clamp(2rem, 1.6rem + 1.6vw, 2.75rem);    /* 32 → 44 */
+  --md-sys-typescale-display-small-line-height: 1.08;
+  --md-sys-typescale-display-small-weight: 800;
+  --md-sys-typescale-display-small-tracking: -0.02em;
+
+  --md-sys-typescale-headline-large-font: var(--md-ref-typeface-brand);
+  --md-sys-typescale-headline-large-size: clamp(1.75rem, 1.5rem + 1vw, 2rem);     /* 28 → 32 */
+  --md-sys-typescale-headline-large-line-height: 1.15;
+  --md-sys-typescale-headline-large-weight: 800;
+  --md-sys-typescale-headline-large-tracking: -0.015em;
+
+  --md-sys-typescale-headline-medium-font: var(--md-ref-typeface-brand);
+  --md-sys-typescale-headline-medium-size: 1.75rem;   /* 28 */
+  --md-sys-typescale-headline-medium-line-height: 2.25rem;
+  --md-sys-typescale-headline-medium-weight: 700;
+  --md-sys-typescale-headline-medium-tracking: -0.01em;
+
+  --md-sys-typescale-headline-small-font: var(--md-ref-typeface-brand);
+  --md-sys-typescale-headline-small-size: 1.5rem;     /* 24 */
+  --md-sys-typescale-headline-small-line-height: 2rem;
+  --md-sys-typescale-headline-small-weight: 700;
+  --md-sys-typescale-headline-small-tracking: -0.01em;
+
+  --md-sys-typescale-title-large-font: var(--md-ref-typeface-brand);
+  --md-sys-typescale-title-large-size: 1.375rem;      /* 22 */
+  --md-sys-typescale-title-large-line-height: 1.75rem;
+  --md-sys-typescale-title-large-weight: 700;
+  --md-sys-typescale-title-large-tracking: 0;
+
+  --md-sys-typescale-title-medium-font: var(--md-ref-typeface-plain);
+  --md-sys-typescale-title-medium-size: 1rem;         /* 16 */
+  --md-sys-typescale-title-medium-line-height: 1.5rem;
+  --md-sys-typescale-title-medium-weight: 700;
+  --md-sys-typescale-title-medium-tracking: 0.01em;
+
+  --md-sys-typescale-title-small-font: var(--md-ref-typeface-plain);
+  --md-sys-typescale-title-small-size: 0.875rem;      /* 14 */
+  --md-sys-typescale-title-small-line-height: 1.25rem;
+  --md-sys-typescale-title-small-weight: 700;
+  --md-sys-typescale-title-small-tracking: 0.01em;
+
+  --md-sys-typescale-body-large-font: var(--md-ref-typeface-plain);
+  --md-sys-typescale-body-large-size: 1rem;           /* 16 */
+  --md-sys-typescale-body-large-line-height: 1.5rem;
+  --md-sys-typescale-body-large-weight: 400;
+  --md-sys-typescale-body-large-tracking: 0.01em;
+
+  --md-sys-typescale-body-medium-font: var(--md-ref-typeface-plain);
+  --md-sys-typescale-body-medium-size: 0.875rem;      /* 14 */
+  --md-sys-typescale-body-medium-line-height: 1.25rem;
+  --md-sys-typescale-body-medium-weight: 400;
+  --md-sys-typescale-body-medium-tracking: 0.015em;
+
+  --md-sys-typescale-body-small-font: var(--md-ref-typeface-plain);
+  --md-sys-typescale-body-small-size: 0.75rem;        /* 12 */
+  --md-sys-typescale-body-small-line-height: 1rem;
+  --md-sys-typescale-body-small-weight: 400;
+  --md-sys-typescale-body-small-tracking: 0.02em;
+
+  --md-sys-typescale-label-large-font: var(--md-ref-typeface-plain);
+  --md-sys-typescale-label-large-size: 0.875rem;      /* 14 */
+  --md-sys-typescale-label-large-line-height: 1.25rem;
+  --md-sys-typescale-label-large-weight: 700;
+  --md-sys-typescale-label-large-tracking: 0.01em;
+
+  --md-sys-typescale-label-medium-font: var(--md-ref-typeface-plain);
+  --md-sys-typescale-label-medium-size: 0.75rem;      /* 12 */
+  --md-sys-typescale-label-medium-line-height: 1rem;
+  --md-sys-typescale-label-medium-weight: 700;
+  --md-sys-typescale-label-medium-tracking: 0.02em;
+
+  --md-sys-typescale-label-small-font: var(--md-ref-typeface-plain);
+  --md-sys-typescale-label-small-size: 0.6875rem;     /* 11 */
+  --md-sys-typescale-label-small-line-height: 1rem;
+  --md-sys-typescale-label-small-weight: 700;
+  --md-sys-typescale-label-small-tracking: 0.03em;
+
+  /* ---------------------------------------------------------------------
+     5. Formas (escala do M3)
+     --------------------------------------------------------------------- */
+  --md-sys-shape-corner-none: 0;
+  --md-sys-shape-corner-extra-small: 4px;
+  --md-sys-shape-corner-small: 8px;
+  --md-sys-shape-corner-medium: 12px;
+  --md-sys-shape-corner-large: 16px;
+  --md-sys-shape-corner-extra-large: 28px;
+  --md-sys-shape-corner-full: 9999px;
+
+  /* ---------------------------------------------------------------------
+     6. Bordas e sombras duras (neo-brutalismo)
+     Sombras sem desfoque, sempre em --rc-ink, deslocadas para baixo-direita.
+     O deslocamento fica em variável para que o estado pressionado
+     desloque o componente exatamente o mesmo valor ("afunda" na sombra).
+     --------------------------------------------------------------------- */
+  --rc-border-thin: 2px;     /* chips, badges, tags, indicador da nav */
+  --rc-border: 3px;          /* padrão: botões, cards, campos, snackbar */
+  --rc-border-thick: 4px;    /* destaque raro: hero, FAB grande */
+
+  --rc-shadow-offset-sm: 3px;
+  --rc-shadow-offset-md: 6px;
+  --rc-shadow-offset-lg: 10px;
+
+  --rc-shadow-none: 0 0 0 0 var(--rc-ink);
+  --rc-shadow-sm: var(--rc-shadow-offset-sm) var(--rc-shadow-offset-sm) 0 0 var(--rc-ink);
+  --rc-shadow-md: var(--rc-shadow-offset-md) var(--rc-shadow-offset-md) 0 0 var(--rc-ink);
+  --rc-shadow-lg: var(--rc-shadow-offset-lg) var(--rc-shadow-offset-lg) 0 0 var(--rc-ink);
+
+  /* Estados de elevação: repouso → hover (sobe 2px, sombra cresce) → pressionado (encosta) */
+  --rc-lift-hover: -2px;
+  --rc-shadow-rest: var(--rc-shadow-sm);
+  --rc-shadow-hover: calc(var(--rc-shadow-offset-sm) + 2px) calc(var(--rc-shadow-offset-sm) + 2px) 0 0 var(--rc-ink);
+  --rc-shadow-pressed: var(--rc-shadow-none);
+  --rc-shadow-card-rest: var(--rc-shadow-md);
+  --rc-shadow-card-hover: calc(var(--rc-shadow-offset-md) + 2px) calc(var(--rc-shadow-offset-md) + 2px) 0 0 var(--rc-ink);
+
+  /* ---------------------------------------------------------------------
+     7. Espaçamento (grade de 4 px)
+     --------------------------------------------------------------------- */
+  --rc-space-0: 0;
+  --rc-space-1: 4px;
+  --rc-space-2: 8px;
+  --rc-space-3: 12px;
+  --rc-space-4: 16px;
+  --rc-space-5: 20px;
+  --rc-space-6: 24px;
+  --rc-space-7: 32px;
+  --rc-space-8: 40px;
+  --rc-space-9: 48px;
+  --rc-space-10: 64px;
+  --rc-space-11: 80px;
+  --rc-space-12: 96px;
+  --rc-space-13: 128px;
+
+  --rc-gutter: 16px;               /* margem lateral no celular */
+  --rc-content-max: 1200px;
+  --rc-measure: 68ch;              /* linha de texto corrido */
+  --rc-touch-target: 48px;         /* alvo mínimo de toque */
+
+  /* ---------------------------------------------------------------------
+     8. Movimento (M3)
+     --------------------------------------------------------------------- */
+  --md-sys-motion-duration-short1: 50ms;
+  --md-sys-motion-duration-short2: 100ms;
+  --md-sys-motion-duration-short3: 150ms;
+  --md-sys-motion-duration-short4: 200ms;
+  --md-sys-motion-duration-medium1: 250ms;
+  --md-sys-motion-duration-medium2: 300ms;
+  --md-sys-motion-duration-medium4: 400ms;
+  --md-sys-motion-duration-long2: 500ms;
+  --md-sys-motion-duration-long4: 600ms;
+
+  --md-sys-motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --md-sys-motion-easing-standard-accelerate: cubic-bezier(0.3, 0, 1, 1);
+  --md-sys-motion-easing-standard-decelerate: cubic-bezier(0, 0, 0, 1);
+  --md-sys-motion-easing-emphasized: cubic-bezier(0.2, 0, 0, 1);
+  --md-sys-motion-easing-emphasized-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --md-sys-motion-easing-emphasized-accelerate: cubic-bezier(0.3, 0, 0.8, 0.15);
+
+  /* Atalhos do ReciclaAI */
+  --rc-motion-press: var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
+  --rc-motion-hover: var(--md-sys-motion-duration-short3) var(--md-sys-motion-easing-standard);
+  --rc-motion-enter: var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized-decelerate);
+  --rc-motion-exit: var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-emphasized-accelerate);
+  --rc-motion-distance: 1;         /* multiplicador para deslocamentos animados (GSAP) */
+
+  /* ---------------------------------------------------------------------
+     9. Camadas (z-index)
+     --------------------------------------------------------------------- */
+  --rc-z-base: 0;
+  --rc-z-sticky: 100;
+  --rc-z-navbar: 200;
+  --rc-z-fab: 250;
+  --rc-z-snackbar: 300;
+  --rc-z-dialog: 400;
+}
+
+/* Movimento reduzido: durações quase zero, sem deslocamento de hover.
+   O "afundar" do pressionado continua (é resposta imediata ao toque),
+   mas sem transição. Scripts (GSAP/Lenis/Vanta) devem ler
+   --rc-motion-distance = 0 ou a media query e desligar animações. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --md-sys-motion-duration-short1: 0.01ms;
+    --md-sys-motion-duration-short2: 0.01ms;
+    --md-sys-motion-duration-short3: 0.01ms;
+    --md-sys-motion-duration-short4: 0.01ms;
+    --md-sys-motion-duration-medium1: 0.01ms;
+    --md-sys-motion-duration-medium2: 0.01ms;
+    --md-sys-motion-duration-medium4: 0.01ms;
+    --md-sys-motion-duration-long2: 0.01ms;
+    --md-sys-motion-duration-long4: 0.01ms;
+    --rc-lift-hover: 0px;
+    --rc-motion-distance: 0;
+  }
+}

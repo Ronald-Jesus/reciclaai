@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Comparação de cor semente</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Atkinson+Hyperlegible+Next:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --ink: #111; --cream: #fbf6ea; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #e9e4d6; color: var(--ink); font-family: 'Atkinson Hyperlegible Next', system-ui, sans-serif; padding: 24px 16px 48px; }
+  h1 { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; margin: 0 0 6px; font-size: 28px; }
+  .sub { margin: 0 0 24px; color: #444; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; }
+  .opt { background: var(--cream); border: 3px solid var(--ink); box-shadow: 8px 8px 0 var(--ink); border-radius: 16px; overflow: hidden; }
+  .tag { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-bottom: 3px solid var(--ink); font-weight: 700; background: #fff; }
+  .tag code { font-size: 13px; }
+  .hero { background: var(--p); padding: 22px 18px 26px; border-bottom: 3px solid var(--ink); }
+  .eyebrow { display: inline-block; background: var(--ink); color: var(--p); font-weight: 700; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; }
+  .hero h2 { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 34px; line-height: 1.02; margin: 12px 0 10px; color: var(--onp); }
+  .hero p { margin: 0 0 16px; color: var(--onp); font-size: 15.5px; }
+  .btns { display: flex; flex-wrap: wrap; gap: 10px; }
+  .btn { font: inherit; font-weight: 700; border: 3px solid var(--ink); border-radius: 999px; padding: 10px 18px; box-shadow: 3px 3px 0 var(--ink); cursor: pointer; }
+  .btn:active { transform: translate(3px, 3px); box-shadow: none; }
+  .b1 { background: var(--ink); color: var(--p); }
+  .b2 { background: #fff; color: var(--ink); }
+  .body { padding: 18px; display: grid; gap: 14px; }
+  .card { border: 3px solid var(--ink); border-radius: 12px; background: #fff; box-shadow: 6px 6px 0 var(--ink); padding: 14px; }
+  .stat { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 38px; line-height: 1; }
+  .stat-row { display: flex; gap: 12px; align-items: center; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; border: 2px solid var(--ink); border-radius: 8px; padding: 4px 10px; font-weight: 700; font-size: 13px; background: #fff; }
+  .chip.sel { background: var(--t); }
+  .dot { width: 14px; height: 14px; border-radius: 4px; border: 2px solid var(--ink); }
+  .bins { display: flex; flex-wrap: wrap; gap: 8px; }
+  .bar { height: 14px; border: 2px solid var(--ink); border-radius: 999px; background: #fff; overflow: hidden; }
+  .bar span { display: block; height: 100%; width: 33%; background: var(--p); border-right: 2px solid var(--ink); }
+  .verdict { font-size: 14px; color: #333; padding: 0 18px 18px; }
+  .verdict b { display: block; margin-bottom: 4px; }
+</style>
+</head>
+<body>
+<h1>Qual cor semente combina mais com a ReciclaAI?</h1>
+<p class="sub">Mesmo layout, mesmas fontes e mesmas regras neo-brutalistas. Muda só a cor principal (e a de destaque). As cores das lixeiras ficam iguais nas três.</p>
+
+<div class="grid">
+
+  <section class="opt" style="--p:#B5179E; --onp:#fff; --t:#9be7ff">
+    <div class="tag"><span>A · Magenta (atual)</span><code>#B5179E</code></div>
+    <div class="hero">
+      <span class="eyebrow">Máquina de retorno com IA</span>
+      <h2>Sua embalagem vale dinheiro.</h2>
+      <p>A câmera reconhece o material e a máquina paga cada garrafa com um voucher.</p>
+      <div class="btns"><button class="btn b1">Testar a IA</button><button class="btn b2">Como funciona</button></div>
+    </div>
+    <div class="body">
+      <div class="card stat-row"><div class="stat">97,3%</div><div>das latas são recicladas no Brasil, porque têm valor.</div></div>
+      <div class="bins"><span class="chip sel">Todos</span><span class="chip"><i class="dot" style="background:#c8453a"></i>Plástico</span><span class="chip"><i class="dot" style="background:#c99700"></i>Metal</span><span class="chip"><i class="dot" style="background:#2e8b57"></i>Vidro</span></div>
+      <div><small><b>3 de 9 peças</b></small><div class="bar"><span></span></div></div>
+    </div>
+    <p class="verdict"><b>Prós:</b> marcante e longe das cores das lixeiras. <b>Contra:</b> lembra moda e cosméticos, não reciclagem.</p>
+  </section>
+
+  <section class="opt" style="--p:#C6F432; --onp:#111; --t:#ffd6f0">
+    <div class="tag"><span>B · Verde-limão (recomendada)</span><code>#C6F432</code></div>
+    <div class="hero">
+      <span class="eyebrow">Máquina de retorno com IA</span>
+      <h2>Sua embalagem vale dinheiro.</h2>
+      <p>A câmera reconhece o material e a máquina paga cada garrafa com um voucher.</p>
+      <div class="btns"><button class="btn b1">Testar a IA</button><button class="btn b2">Como funciona</button></div>
+    </div>
+    <div class="body">
+      <div class="card stat-row"><div class="stat">97,3%</div><div>das latas são recicladas no Brasil, porque têm valor.</div></div>
+      <div class="bins"><span class="chip sel">Todos</span><span class="chip"><i class="dot" style="background:#c8453a"></i>Plástico</span><span class="chip"><i class="dot" style="background:#c99700"></i>Metal</span><span class="chip"><i class="dot" style="background:#2e8b57"></i>Vidro</span></div>
+      <div><small><b>3 de 9 peças</b></small><div class="bar"><span></span></div></div>
+    </div>
+    <p class="verdict"><b>Prós:</b> "eco + tecnologia" de cara, visual clássico do neo-brutalismo, texto preto bem legível. <b>Contra:</b> é a escolha mais comum no estilo.</p>
+  </section>
+
+  <section class="opt" style="--p:#FF6B4A; --onp:#111; --t:#c6f0ff">
+    <div class="tag"><span>C · Laranja-coral</span><code>#FF6B4A</code></div>
+    <div class="hero">
+      <span class="eyebrow">Máquina de retorno com IA</span>
+      <h2>Sua embalagem vale dinheiro.</h2>
+      <p>A câmera reconhece o material e a máquina paga cada garrafa com um voucher.</p>
+      <div class="btns"><button class="btn b1">Testar a IA</button><button class="btn b2">Como funciona</button></div>
+    </div>
+    <div class="body">
+      <div class="card stat-row"><div class="stat">97,3%</div><div>das latas são recicladas no Brasil, porque têm valor.</div></div>
+      <div class="bins"><span class="chip sel">Todos</span><span class="chip"><i class="dot" style="background:#c8453a"></i>Plástico</span><span class="chip"><i class="dot" style="background:#c99700"></i>Metal</span><span class="chip"><i class="dot" style="background:#2e8b57"></i>Vidro</span></div>
+      <div><small><b>3 de 9 peças</b></small><div class="bar"><span></span></div></div>
+    </div>
+    <p class="verdict"><b>Prós:</b> quente, chama atenção, transmite urgência. <b>Contra:</b> fica perto do vermelho da lixeira de plástico.</p>
+  </section>
+
+</div>
+</body>
+</html>

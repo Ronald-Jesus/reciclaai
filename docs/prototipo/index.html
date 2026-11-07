@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ReciclaAI · Protótipo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Atkinson+Hyperlegible+Next:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="sistema/tokens.css">
+<link rel="stylesheet" href="sistema/componentes.css">
+<style>
+  body { margin: 0; background: var(--md-sys-color-surface); color: var(--md-sys-color-on-surface); }
+  main { max-width: 960px; margin: 0 auto; padding: 32px 16px 56px; }
+  .topo { background: var(--rc-brand); color: var(--rc-on-brand); border: var(--rc-border-width, 3px) solid var(--rc-ink, #000); box-shadow: 8px 8px 0 var(--rc-ink, #000); border-radius: 16px; padding: 24px; margin-bottom: 32px; }
+  .topo h1 { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: clamp(32px, 6vw, 52px); line-height: 1; margin: 0 0 10px; }
+  .topo p { margin: 0; font-size: 17px; max-width: 620px; }
+  .grade { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+  .item { display: block; text-decoration: none; color: inherit; padding: 20px; }
+  .item h2 { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 22px; margin: 0 0 6px; }
+  .item p { margin: 0; }
+  .nota { margin-top: 28px; font-size: 14px; }
+</style>
+</head>
+<body>
+<main>
+  <header class="topo">
+    <h1>ReciclaAI · Protótipo</h1>
+    <p>Máquina de retorno de embalagens com IA. Protótipo navegável do site de vendas e do app, com dados de exemplo.</p>
+  </header>
+  <div class="grade">
+    <a class="rc-card item" href="landing/index.html"><h2>Página de vendas</h2><p>Vanta, Lenis, GSAP e a montagem da máquina no palco escuro.</p></a>
+    <a class="rc-card item" href="app/index.html"><h2>App Lixeira Pessoal</h2><p>Foto, resultado, sacola, mapa com mercados reais e voucher.</p></a>
+    <a class="rc-card item" href="sistema/especime.html"><h2>Sistema de design</h2><p>Cores Material You, tipografia e componentes neo-brutalistas.</p></a>
+    <a class="rc-card item" href="maquina/montagem-demo.html"><h2>Montagem da máquina</h2><p>As 9 peças se encaixando conforme a rolagem.</p></a>
+    <a class="rc-card item" href="comparacao-cores.html"><h2>Escolha da cor</h2><p>Magenta, verde-limão e coral lado a lado.</p></a>
+  </div>
+  <p class="nota">Projeto Integrador · Engenharia de Software · CEUB 2026. Detalhes em <a href="https://github.com/Ronald-Jesus/reciclaai">github.com/Ronald-Jesus/reciclaai</a>.</p>
+</main>
+</body>
+</html>

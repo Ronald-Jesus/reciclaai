@@ -1,0 +1,565 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ReciclaAI · máquina que paga pela embalagem</title>
+<meta name="description" content="ReciclaAI: máquina de retorno de embalagens com câmera e IA. Reconhece garrafa plástica, lata e vidro e paga com um voucher que só vale no caixa do local.">
+<script>document.documentElement.classList.add("js");</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,400;0,700;1,400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..700,0..1,0&display=block">
+<link rel="stylesheet" href="../sistema/tokens.css">
+<link rel="stylesheet" href="../sistema/componentes.css">
+<link rel="stylesheet" href="landing.css">
+</head>
+<body class="rc-base">
+<a class="skip" href="#conteudo">Pular para o conteúdo</a>
+
+<header class="topo" id="topo">
+  <div class="topo__in">
+    <a class="marca" href="#conteudo" aria-label="ReciclaAI, início">
+      <span class="marca__selo" aria-hidden="true"><span class="rc-icon rc-icon--fill">recycling</span></span>
+      <span class="marca__nome">ReciclaAI</span>
+    </a>
+    <button class="topo__menu rc-btn rc-btn--outlined rc-btn--small" type="button" aria-expanded="false" aria-controls="nav-principal">
+      <span class="rc-icon" aria-hidden="true">menu</span><span>Menu</span>
+    </button>
+    <nav class="topo__nav" id="nav-principal" aria-label="Principal">
+      <ul>
+        <li><a href="#maquina">Como funciona</a></li>
+        <li><a href="#para-quem">Para quem</a></li>
+        <li><a href="#simulador">Simulador</a></li>
+        <li><a href="#duvidas">Dúvidas</a></li>
+        <li><a class="topo__app" href="../app/index.html"><span class="rc-icon" aria-hidden="true">photo_camera</span>Testar o app</a></li>
+      </ul>
+    </nav>
+    <a class="topo__cta rc-btn rc-btn--filled rc-btn--small" href="#maquina">Ver a máquina por dentro</a>
+  </div>
+</header>
+
+<main id="conteudo" tabindex="-1">
+
+  <!-- 6.1 Abertura com o problema -->
+  <section class="hero" id="problema" aria-labelledby="hero-titulo">
+    <div class="hero__fundo" id="vanta" aria-hidden="true"></div>
+    <div class="hero__in">
+      <p class="hero__sobre">Máquina de retorno de embalagens com câmera e IA</p>
+      <!-- React Bits: SplitText (o título entra palavra por palavra) -->
+      <h1 class="hero__titulo" id="hero-titulo" data-split>Toda garrafa aqui já teve dono.</h1>
+      <p class="hero__lead">Depois de beber, ninguém volta para buscar. Para quem joga fora, a embalagem não vale nada. Por isso ela fica na rua.</p>
+      <div class="hero__acoes">
+        <a class="rc-btn rc-btn--filled" href="#maquina">Ver a máquina por dentro</a>
+        <a class="rc-btn rc-btn--outlined" href="#contraste">Por que funciona</a>
+      </div>
+    </div>
+    <a class="hero__rolar" href="#fotos"><span class="rc-icon" aria-hidden="true">south</span>Role para ver</a>
+  </section>
+
+  <section class="fotos" id="fotos" aria-label="O problema, em fotos">
+    <figure class="foto foto--a">
+      <div class="foto__img" role="img" aria-label="Lugar reservado para foto: garrafas plásticas e latas jogadas na calçada de uma rua.">
+        <span class="rc-icon" aria-hidden="true">image</span>
+        <span class="foto__aviso">Foto a escolher: garrafas e latas na calçada</span>
+      </div>
+      <figcaption class="foto__credito">Foto: autor · Unsplash</figcaption>
+    </figure>
+    <!-- React Bits: ScrollFloat (as letras sobem conforme a rolagem) -->
+    <p class="frase" data-float>Na calçada, ela vira lixo.</p>
+
+    <figure class="foto foto--b">
+      <div class="foto__img" role="img" aria-label="Lugar reservado para foto: margem de rio com garrafas presas na vegetação.">
+        <span class="rc-icon" aria-hidden="true">image</span>
+        <span class="foto__aviso">Foto a escolher: garrafas na margem de um rio</span>
+      </div>
+      <figcaption class="foto__credito">Foto: autor · Unsplash</figcaption>
+    </figure>
+    <p class="frase" data-float>A chuva leva até o rio.</p>
+
+    <figure class="foto foto--c">
+      <div class="foto__img" role="img" aria-label="Lugar reservado para foto: faixa de areia na praia com embalagens trazidas pela maré.">
+        <span class="rc-icon" aria-hidden="true">image</span>
+        <span class="foto__aviso">Foto a escolher: embalagens na areia da praia</span>
+      </div>
+      <figcaption class="foto__credito">Foto: autor · Unsplash</figcaption>
+    </figure>
+    <p class="frase" data-float>O rio entrega na praia.</p>
+
+    <p class="pergunta">E se cada garrafa valesse dinheiro <em>para quem devolve</em>?</p>
+  </section>
+
+  <!-- 6.2 Brasil × Alemanha -->
+  <section class="contraste" id="contraste" aria-labelledby="contraste-titulo">
+    <div class="secao__in">
+      <h2 class="secao__titulo" id="contraste-titulo">Quando a embalagem vale, ela volta.</h2>
+      <div class="contraste__grade">
+        <article class="numero rc-card">
+          <p class="numero__valor"><span data-count="97.3" data-decimals="1">97,3</span>%</p>
+          <p class="numero__o-que">das latas de alumínio foram recicladas no Brasil em 2024.</p>
+          <p class="numero__porque">A lata tem valor de revenda. Por isso alguém sempre recolhe.</p>
+          <p class="numero__fonte">Fonte: Recicla Latas, via <a href="https://mercadoeconsumo.com.br/14/08/2025/economia/brasil-reciclou-973-das-latinhas-de-aluminio-em-2024/" target="_blank" rel="noopener">Mercado&amp;Consumo (2025)<span class="sr-only"> (abre em nova aba)</span></a></p>
+        </article>
+        <p class="contraste__x" aria-hidden="true">×</p>
+        <article class="numero rc-card rc-card--primary">
+          <p class="numero__valor">+<span data-count="96" data-decimals="0">96</span>%</p>
+          <p class="numero__o-que">das embalagens com depósito voltam na Alemanha.</p>
+          <p class="numero__porque">Cada garrafa tem um depósito, devolvido por uma máquina no supermercado.</p>
+          <p class="numero__fonte">Fonte: <a href="https://dpg-pfandsystem.de/en/the-one-way-deposit-system/useful-information/press-releases/twenty-years-of-the-german-one-way-deposit-system-a-success-story.html" target="_blank" rel="noopener">DPG Deutsche Pfandsystem (2026)<span class="sr-only"> (abre em nova aba)</span></a></p>
+        </article>
+      </div>
+      <p class="contraste__moral">O segredo é o valor, não a lixeira.</p>
+    </div>
+  </section>
+
+  <!-- 6.3 A máquina (palco escuro) -->
+  <section class="palco" id="maquina" aria-labelledby="maquina-titulo">
+    <div class="palco__intro secao__in">
+      <h2 class="secao__titulo" id="maquina-titulo">A máquina que dá valor à embalagem.</h2>
+      <p class="palco__lead">Nove peças, montadas de baixo para cima. Role devagar: cada uma diz por que existe.</p>
+    </div>
+
+    <div class="palco__pin" id="palco-pin">
+      <div class="palco__cena">
+        <div class="palco__luz" aria-hidden="true"></div>
+        <canvas class="palco__canvas" id="palco-canvas" aria-hidden="true" hidden></canvas>
+        <div class="palco__svg" id="palco-svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 640" role="img" aria-label="Máquina de retorno de embalagens ReciclaAI, em corte, mostrando as nove peças internas" style="overflow:visible">
+  <style>
+    .rv { stroke: #111; stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
+    .rv2 { stroke: #111; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+    .rvn { fill: none; stroke: #111; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+    .tela-txt { font-family: "Archivo Black", "Arial Black", "Helvetica Neue", Arial, sans-serif; font-weight: 900; font-size: 15px; text-anchor: middle; fill: #111; }
+  </style>
+
+  <!-- Contorno: corpo da máquina vazia, tracejado -->
+  <g id="contorno">
+    <rect x="36" y="16" width="328" height="614" rx="14" fill="none" stroke="#111" stroke-width="3" stroke-dasharray="10 8" stroke-linecap="round"/>
+  </g>
+
+  <!-- 1. Compartimentos: y 538-618 -->
+  <g id="peca-1-compartimentos" data-peca="compartimentos">
+    <rect x="348" y="538" width="8" height="8" fill="#111"/>
+    <path d="M48 538 H348 V608 a10 10 0 0 1 -10 10 H58 a10 10 0 0 1 -10 -10 Z" fill="#111" transform="translate(8 8)"/>
+    <path d="M48 538 H348 V608 a10 10 0 0 1 -10 10 H58 a10 10 0 0 1 -10 -10 Z" fill="#fff1c9" class="rv"/>
+    <!-- plástico -->
+    <g id="bin-plastico">
+      <rect x="62" y="546" width="84" height="64" rx="4" fill="#c8453a" class="rv"/>
+      <rect x="58" y="546" width="92" height="12" rx="3" fill="#9c3229" class="rv"/>
+      <rect x="84" y="550" width="40" height="4" fill="#111"/>
+      <g transform="translate(104 584)"><path d="M-3 -20 h6 v6 l6 6 v22 a3 3 0 0 1 -3 3 h-12 a3 3 0 0 1 -3 -3 v-22 l6 -6 z" fill="#fff" class="rv2"/></g>
+    </g>
+    <!-- metal -->
+    <g id="bin-metal">
+      <rect x="156" y="546" width="84" height="64" rx="4" fill="#c99700" class="rv"/>
+      <rect x="152" y="546" width="92" height="12" rx="3" fill="#957000" class="rv"/>
+      <rect x="178" y="550" width="40" height="4" fill="#111"/>
+      <g transform="translate(198 584)"><rect x="-10" y="-14" width="20" height="30" rx="3" fill="#fff" class="rv2"/><path d="M-10 -8 h20 M-10 10 h20" class="rv2" fill="none"/></g>
+    </g>
+    <!-- vidro -->
+    <g id="bin-vidro">
+      <rect x="250" y="546" width="84" height="64" rx="4" fill="#2e8b57" class="rv"/>
+      <rect x="246" y="546" width="92" height="12" rx="3" fill="#1f6a41" class="rv"/>
+      <rect x="272" y="550" width="40" height="4" fill="#111"/>
+      <g transform="translate(292 584)"><path d="M-3 -20 H3 V-8 C3 -4 10 -2 10 4 V14 Q10 17 7 17 H-7 Q-10 17 -10 14 V4 C-10 -2 -3 -4 -3 -8 Z" fill="#fff" class="rv2"/></g>
+    </g>
+  </g>
+
+  <!-- 2. Separador: y 483-538 -->
+  <g id="peca-2-separador" data-peca="separador">
+    <rect x="48" y="483" width="300" height="55" fill="#111" transform="translate(8 0)"/>
+    <rect x="48" y="483" width="300" height="55" fill="#fff1c9" class="rv"/>
+    <!-- tubos (contorno preto, depois miolo cinza) -->
+    <g fill="none" stroke="#111" stroke-width="22">
+      <path d="M198 486 V500 M198 500 V536 M198 500 C198 520 104 516 104 536 M198 500 C198 520 292 516 292 536"/>
+    </g>
+    <g fill="none" stroke="#b9bec4" stroke-width="16">
+      <path d="M198 486 V500 M198 500 V536 M198 500 C198 520 104 516 104 536 M198 500 C198 520 292 516 292 536"/>
+    </g>
+    <polygon points="166,484 230,484 208,497 188,497" fill="#3cc8e0" class="rv"/>
+    <!-- motor e articulação -->
+    <path d="M296 512 L226 520" class="rvn" stroke-width="4"/>
+    <rect x="296" y="496" width="38" height="30" rx="4" fill="#2f6db5" class="rv"/>
+    <circle cx="315" cy="511" r="6" fill="#fff" class="rv2"/>
+    <!-- aba desviadora -->
+    <g transform="rotate(35 198 500)"><rect x="198" y="496.5" width="42" height="7" rx="2" fill="#ff8a00" class="rv"/></g>
+    <circle cx="198" cy="500" r="6" fill="#fff" class="rv"/>
+  </g>
+
+  <!-- 3. Compactador: y 423-483 -->
+  <g id="peca-3-compactador" data-peca="compactador">
+    <rect x="48" y="423" width="300" height="60" fill="#111" transform="translate(8 0)"/>
+    <rect x="48" y="423" width="300" height="60" fill="#fff1c9" class="rv"/>
+    <rect x="122" y="430" width="190" height="46" rx="6" fill="#e6dcb8" class="rv"/>
+    <rect x="58" y="440" width="64" height="26" rx="4" fill="#2f6db5" class="rv"/>
+    <path d="M72 440 V466 M108 440 V466" class="rv2" fill="none"/>
+    <rect x="84" y="434" width="10" height="6" fill="#d9d9d9" class="rv2"/>
+    <rect x="122" y="449" width="54" height="8" fill="#d9d9d9" class="rv"/>
+    <rect x="174" y="434" width="12" height="38" rx="2" fill="#ff8a00" class="rv"/>
+    <!-- lata amassada -->
+    <rect x="276" y="438" width="18" height="30" rx="2" fill="#c9ced3" class="rv"/>
+    <path d="M276 446 L294 450 M276 456 L294 460 M276 464 L294 466" class="rv2" fill="none"/>
+    <!-- aviso -->
+    <polygon points="318,468 330,446 342,468" fill="#ffd400" class="rv"/>
+    <path d="M330 454 V460" class="rv" fill="none"/>
+    <circle cx="330" cy="464.5" r="1.4" fill="#111"/>
+  </g>
+
+  <!-- 4. Balança: y 373-423 -->
+  <g id="peca-4-balanca" data-peca="balanca">
+    <rect x="48" y="373" width="300" height="50" fill="#111" transform="translate(8 0)"/>
+    <rect x="48" y="373" width="300" height="50" fill="#fff1c9" class="rv"/>
+    <!-- visor digital -->
+    <rect x="58" y="385" width="36" height="26" rx="3" fill="#111" class="rv"/>
+    <path d="M64 392 h12 M64 398 h20 M64 404 h8" stroke="#7ddc3c" stroke-width="3" stroke-linecap="round" fill="none"/>
+    <!-- base, molas e plataforma -->
+    <rect x="108" y="410" width="184" height="9" fill="#6b6f6a" class="rv"/>
+    <path d="M140 410 l-6 -3 12 -4 -12 -4 12 -4 -6 -3 M258 410 l-6 -3 12 -4 -12 -4 12 -4 -6 -3" class="rv2" fill="none"/>
+    <rect x="104" y="384" width="192" height="12" rx="3" fill="#3cc8e0" class="rv"/>
+    <!-- mostrador -->
+    <circle cx="322" cy="398" r="17" fill="#fff" class="rv"/>
+    <path d="M322 398 L332 389" class="rv"/>
+    <path d="M308 402 l3 0 M322 384 v3 M336 402 l-3 0" class="rv2" fill="none"/>
+  </g>
+
+  <!-- 5. Esteira: y 318-373 -->
+  <g id="peca-5-esteira" data-peca="esteira">
+    <rect x="48" y="318" width="300" height="55" fill="#111" transform="translate(8 0)"/>
+    <rect x="48" y="318" width="300" height="55" fill="#fff1c9" class="rv"/>
+    <rect x="110" y="358" width="12" height="15" fill="#9aa0a6" class="rv2"/>
+    <rect x="274" y="358" width="12" height="15" fill="#9aa0a6" class="rv2"/>
+    <!-- garrafa deitada -->
+    <rect x="182" y="322" width="46" height="14" rx="6" fill="#8fd3ff" class="rv"/>
+    <rect x="173" y="325" width="9" height="8" rx="1" fill="#c8453a" class="rv2"/>
+    <!-- correia -->
+    <rect x="62" y="336" width="272" height="24" rx="12" fill="#4a4a5a" class="rv"/>
+    <g id="esteira-marcas" stroke="#9aa0a6" stroke-width="2" stroke-linecap="round">
+      <path d="M100 340 v4 M124 340 v4 M148 340 v4 M172 340 v4 M196 340 v4 M220 340 v4 M244 340 v4 M268 340 v4 M292 340 v4 M316 340 v4"/>
+    </g>
+    <g stroke="#ffd400" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="136,343 142,348 136,353"/><polyline points="256,343 262,348 256,353"/>
+    </g>
+    <circle cx="76" cy="348" r="13" fill="#ff8a00" class="rv"/><circle cx="76" cy="348" r="3" fill="#fff"/>
+    <circle cx="320" cy="348" r="13" fill="#ff8a00" class="rv"/><circle cx="320" cy="348" r="3" fill="#fff"/>
+  </g>
+
+  <!-- 6. Leitor de código de barras: y 268-318 -->
+  <g id="peca-6-leitor" data-peca="leitor">
+    <rect x="48" y="268" width="300" height="50" fill="#111" transform="translate(8 0)"/>
+    <rect x="48" y="268" width="300" height="50" fill="#fff1c9" class="rv"/>
+    <g id="laser" stroke="#e0202a" stroke-width="2.5" stroke-dasharray="6 4" stroke-linecap="round" fill="none">
+      <path d="M136 292 L258 281 M136 292 L258 292 M136 292 L258 303"/>
+    </g>
+    <rect x="62" y="278" width="78" height="28" rx="6" fill="#ff6fb5" class="rv"/>
+    <rect x="122" y="283" width="14" height="18" rx="2" fill="#111"/>
+    <circle cx="76" cy="292" r="4" fill="#fff" class="rv2"/>
+    <rect x="262" y="277" width="70" height="30" fill="#fff" class="rv"/>
+    <g fill="#111">
+      <rect x="268" y="282" width="3" height="20"/><rect x="274" y="282" width="2" height="20"/><rect x="279" y="282" width="5" height="20"/>
+      <rect x="287" y="282" width="2" height="20"/><rect x="292" y="282" width="3" height="20"/><rect x="298" y="282" width="6" height="20"/>
+      <rect x="307" y="282" width="2" height="20"/><rect x="312" y="282" width="3" height="20"/><rect x="318" y="282" width="2" height="20"/><rect x="323" y="282" width="4" height="20"/>
+    </g>
+  </g>
+
+  <!-- 7. Câmera e IA: y 198-268 -->
+  <g id="peca-7-camera-ia" data-peca="camera-ia">
+    <rect x="48" y="198" width="300" height="70" fill="#111" transform="translate(8 0)"/>
+    <rect x="48" y="198" width="300" height="70" fill="#fff1c9" class="rv"/>
+    <path d="M110 254 V262 H316 V258" class="rvn"/>
+    <g stroke="#111" stroke-width="2.5" stroke-dasharray="5 4" stroke-linecap="round" fill="none">
+      <path d="M194 225 L238 209 M194 241 L238 257"/>
+    </g>
+    <rect x="62" y="212" width="110" height="42" rx="8" fill="#2f6db5" class="rv"/>
+    <circle cx="78" cy="221" r="3" fill="#7ddc3c" class="rv2"/><circle cx="90" cy="221" r="3" fill="#7ddc3c" class="rv2"/>
+    <circle cx="172" cy="233" r="22" fill="#111" class="rv"/>
+    <circle cx="172" cy="233" r="15" fill="#3cc8e0" class="rv"/>
+    <circle cx="172" cy="233" r="8" fill="#111"/>
+    <circle cx="169" cy="230" r="2.5" fill="#fff"/>
+    <!-- moldura de reconhecimento e lata -->
+    <rect x="252" y="220" width="18" height="26" rx="3" fill="#c9ced3" class="rv2"/>
+    <path d="M238 218 V208 H248 M274 208 H284 V218 M284 248 V258 H274 M248 258 H238 V248" class="rvn"/>
+    <!-- chip de IA -->
+    <path d="M292 224 h6 M292 233 h6 M292 242 h6 M334 224 h6 M334 233 h6 M334 242 h6 M308 208 v6 M324 208 v6 M308 252 v6 M324 252 v6" class="rvn"/>
+    <rect x="298" y="214" width="36" height="38" rx="5" fill="#b6e03c" class="rv"/>
+    <path d="M308 226 L324 233 M308 241 L324 233 M308 226 V241" class="rv2" fill="none"/>
+    <circle cx="308" cy="226" r="3.2" fill="#fff" class="rv2"/><circle cx="308" cy="241" r="3.2" fill="#fff" class="rv2"/><circle cx="324" cy="233" r="3.2" fill="#fff" class="rv2"/>
+  </g>
+
+  <!-- 8. Abertura de entrada: y 128-198 -->
+  <g id="peca-8-abertura" data-peca="abertura">
+    <rect x="48" y="128" width="300" height="70" fill="#111" transform="translate(8 0)"/>
+    <rect x="48" y="128" width="300" height="70" fill="#fff1c9" class="rv"/>
+    <rect x="76" y="138" width="168" height="50" rx="10" fill="#3cc8e0" class="rv"/>
+    <rect x="88" y="148" width="144" height="30" rx="6" fill="#1a1a24" class="rv"/>
+    <g fill="#ff8a00" class="rv2">
+      <rect x="92" y="149" width="20" height="22" rx="2"/><rect x="115" y="149" width="20" height="22" rx="2"/><rect x="138" y="149" width="20" height="22" rx="2"/>
+      <rect x="161" y="149" width="20" height="22" rx="2"/><rect x="184" y="149" width="20" height="22" rx="2"/><rect x="207" y="149" width="20" height="22" rx="2"/>
+    </g>
+    <g fill="#111"><circle cx="83" cy="144" r="2.5"/><circle cx="237" cy="144" r="2.5"/><circle cx="83" cy="182" r="2.5"/><circle cx="237" cy="182" r="2.5"/></g>
+    <rect x="268" y="140" width="56" height="46" rx="8" fill="#fff" class="rv"/>
+    <circle id="luz-estado" cx="296" cy="163" r="14" fill="#7ddc3c" class="rv"/>
+    <circle cx="291" cy="158" r="3.5" fill="#fff"/>
+  </g>
+
+  <!-- 9. Tela e impressora de voucher: y 28-128 -->
+  <g id="peca-9-tela-impressora" data-peca="tela-impressora">
+    <path d="M48 128 V38 a10 10 0 0 1 10 -10 H338 a10 10 0 0 1 10 10 V128 Z" fill="#111" transform="translate(8 0)"/>
+    <path d="M48 128 V38 a10 10 0 0 1 10 -10 H338 a10 10 0 0 1 10 10 V128 Z" fill="#fff1c9" class="rv"/>
+    <!-- voucher -->
+    <path d="M262 66 H322 V116 l-5 4 l-5 -4 l-5 4 l-5 -4 l-5 4 l-5 -4 l-5 4 l-5 -4 l-5 4 l-5 -4 l-5 4 l-5 -4 Z" fill="#fff" class="rv"/>
+    <g fill="#9aa0a6"><rect x="270" y="80" width="44" height="3"/><rect x="270" y="88" width="30" height="3"/></g>
+    <g fill="#111"><rect x="270" y="98" width="2" height="12"/><rect x="274" y="98" width="4" height="12"/><rect x="281" y="98" width="2" height="12"/><rect x="286" y="98" width="3" height="12"/><rect x="292" y="98" width="5" height="12"/><rect x="300" y="98" width="2" height="12"/><rect x="305" y="98" width="3" height="12"/></g>
+    <!-- impressora -->
+    <rect x="236" y="40" width="104" height="32" rx="6" fill="#ff6fb5" class="rv"/>
+    <rect x="248" y="64" width="80" height="8" fill="#111"/>
+    <circle cx="252" cy="51" r="4" fill="#b6e03c" class="rv2"/><circle cx="266" cy="51" r="4" fill="#ff8a00" class="rv2"/>
+    <!-- tela -->
+    <rect x="60" y="38" width="166" height="78" rx="8" fill="#111" class="rv"/>
+    <g id="tela-desligada">
+      <rect x="68" y="46" width="150" height="62" rx="4" fill="#2a2d3a"/>
+      <polygon points="68,92 68,70 120,46 150,46" fill="#3b3f50"/>
+      <polygon points="170,108 218,108 218,84" fill="#3b3f50"/>
+    </g>
+    <g id="tela-ligada" display="none">
+      <rect x="68" y="46" width="150" height="62" rx="4" fill="#d8ff8a"/>
+      <text class="tela-txt" x="143" y="74">Insira uma</text>
+      <text class="tela-txt" x="143" y="94">embalagem</text>
+    </g>
+  </g>
+</svg>
+        </div>
+      </div>
+
+      <div class="palco__painel" aria-live="polite">
+        <div class="rc-progress-label palco__contagem">
+          <span id="palco-contagem">0 de 9 peças</span>
+          <span id="palco-estado">Máquina vazia</span>
+        </div>
+        <div class="rc-progress palco__barra" role="progressbar" aria-label="Montagem da máquina" aria-valuemin="0" aria-valuemax="9" aria-valuenow="0" id="palco-barra">
+          <div class="rc-progress__bar" style="--rc-progress:0%"></div>
+        </div>
+        <p class="palco__num" id="palco-num" aria-hidden="true">00</p>
+        <h3 class="palco__nome" id="palco-nome">Só o contorno.</h3>
+        <p class="palco__porque" id="palco-porque">Role para a primeira peça entrar.</p>
+      </div>
+    </div>
+
+    <div class="palco__lista secao__in" id="palco-lista">
+      <p class="palco__aviso" id="palco-aviso" hidden></p>
+      <h3 class="palco__lista-titulo">As 9 peças, de baixo para cima</h3>
+      <ol class="pecas">
+        <li><strong>Compartimentos (PET, lata, vidro)</strong><span>Separar já na máquina deixa o material mais valioso para o reciclador.</span></li>
+        <li><strong>Separador</strong><span>Desvia cada embalagem para o compartimento certo depois da decisão da IA.</span></li>
+        <li><strong>Compactador</strong><span>Amassa PET e lata: cabe muito mais até o próximo esvaziamento. Vidro segue inteiro.</span></li>
+        <li><strong>Balança</strong><span>Confere o peso: garrafa ainda cheia é devolvida.</span></li>
+        <li><strong>Esteira</strong><span>Gira a embalagem na frente da câmera e do leitor.</span></li>
+        <li><strong>Leitor de código de barras</strong><span>Nas máquinas alemãs, confirma que a embalagem faz parte do sistema. Aqui reforça a decisão da IA.</span></li>
+        <li><strong>Câmera e IA</strong><span>O coração da máquina: identifica o material. É a IA que você testa no app.</span></li>
+        <li><strong>Abertura de entrada</strong><span>Recebe um item por vez, com luz indicando quando está pronta.</span></li>
+        <li><strong>Tela e impressora de voucher</strong><span>Mostra o resultado e entrega o crédito.</span></li>
+      </ol>
+    </div>
+
+    <div class="palco__regras secao__in">
+      <div class="regra"><span class="rc-tag rc-tag--plastico rc-tag--large"><span class="rc-tag__material">Garrafa plástica</span><span class="rc-tag__bin">R$ 0,10</span></span></div>
+      <div class="regra"><span class="rc-tag rc-tag--metal rc-tag--large"><span class="rc-tag__material">Lata</span><span class="rc-tag__bin">R$ 0,15</span></span></div>
+      <div class="regra"><span class="rc-tag rc-tag--vidro rc-tag--large"><span class="rc-tag__material">Vidro</span><span class="rc-tag__bin">R$ 0,25</span></span></div>
+      <p class="regra__nota">Papel, orgânico e rejeito são reconhecidos e devolvidos com a lixeira certa. Abaixo de 70% de certeza, a máquina devolve o item e pede para reposicionar.</p>
+    </div>
+  </section>
+
+  <!-- 6.4 Impacto + simulador -->
+  <section class="impacto" id="simulador" aria-labelledby="sim-titulo">
+    <div class="secao__in">
+      <h2 class="secao__titulo" id="sim-titulo">Faça a conta do seu local.</h2>
+      <p class="secao__lead">Mexa nos três números. O resultado é por mês, com os valores que a máquina paga.</p>
+
+      <div class="sim">
+        <form class="sim__entradas rc-card" id="sim" aria-describedby="sim-nota">
+          <div class="sim__campo">
+            <label for="sim-pessoas">Pessoas por dia no local</label>
+            <div class="sim__linha"><input type="range" id="sim-pessoas" min="100" max="5000" step="50" value="1500"><output for="sim-pessoas" id="out-pessoas">1.500</output></div>
+          </div>
+          <div class="sim__campo">
+            <label for="sim-trazem">Quantas trazem embalagens</label>
+            <div class="sim__linha"><input type="range" id="sim-trazem" min="5" max="60" step="1" value="20"><output for="sim-trazem" id="out-trazem">20%</output></div>
+          </div>
+          <div class="sim__campo">
+            <label for="sim-por">Embalagens por pessoa</label>
+            <div class="sim__linha"><input type="range" id="sim-por" min="1" max="20" step="1" value="5"><output for="sim-por" id="out-por">5</output></div>
+          </div>
+          <fieldset class="sim__campo sim__mix">
+            <legend>O que mais chega</legend>
+            <div class="rc-segmented rc-segmented--block" role="radiogroup" aria-label="Mistura de embalagens">
+              <button type="button" class="rc-segmented__btn" role="radio" aria-checked="true" data-mix="pet"><span class="rc-icon" aria-hidden="true">check</span>Mais PET</button>
+              <button type="button" class="rc-segmented__btn" role="radio" aria-checked="false" data-mix="igual"><span class="rc-icon" aria-hidden="true">check</span>Igual</button>
+              <button type="button" class="rc-segmented__btn" role="radio" aria-checked="false" data-mix="vidro"><span class="rc-icon" aria-hidden="true">check</span>Mais vidro</button>
+            </div>
+            <p class="sim__mixtxt" id="sim-mixtxt">60% PET, 30% lata, 10% vidro</p>
+          </fieldset>
+        </form>
+
+        <div class="sim__saidas" aria-live="polite">
+          <div class="saida rc-card rc-card--primary">
+            <p class="saida__rotulo">Embalagens por mês</p>
+            <!-- React Bits: CountUp (os números sobem até o novo valor) -->
+            <p class="saida__valor" id="res-mes">45.000</p>
+            <p class="saida__extra">que deixam de ir para a rua</p>
+          </div>
+          <div class="saida rc-card">
+            <p class="saida__rotulo">Crédito que volta ao caixa</p>
+            <p class="saida__valor" id="res-credito">R$ 5.850</p>
+            <p class="saida__extra">por mês, em vouchers gastos no próprio local</p>
+          </div>
+          <div class="saida rc-card rc-card--filled">
+            <p class="saida__rotulo">Em um ano</p>
+            <p class="saida__valor saida__valor--menor" id="res-ano">540.000</p>
+            <p class="saida__extra">embalagens separadas por material</p>
+          </div>
+        </div>
+      </div>
+      <p class="sim__nota" id="sim-nota">Conta: pessoas × quantas trazem × embalagens × 30 dias. Valores por embalagem: PET R$ 0,10, lata R$ 0,15, vidro R$ 0,25. É uma simulação, não uma promessa.</p>
+    </div>
+  </section>
+
+  <!-- 6.5 Para quem -->
+  <section class="quem" id="para-quem" aria-labelledby="quem-titulo">
+    <div class="secao__in">
+      <h2 class="secao__titulo" id="quem-titulo">Onde a máquina se paga.</h2>
+      <div class="quem__abas rc-segmented" role="tablist" aria-label="Tipo de local">
+        <button class="rc-segmented__btn" role="tab" id="aba-mercado" aria-controls="painel-mercado" aria-selected="true" aria-pressed="true"><span class="rc-icon" aria-hidden="true">check</span>Supermercados</button>
+        <button class="rc-segmented__btn" role="tab" id="aba-condominio" aria-controls="painel-condominio" aria-selected="false" aria-pressed="false" tabindex="-1"><span class="rc-icon" aria-hidden="true">check</span>Condomínios</button>
+        <button class="rc-segmented__btn" role="tab" id="aba-escola" aria-controls="painel-escola" aria-selected="false" aria-pressed="false" tabindex="-1"><span class="rc-icon" aria-hidden="true">check</span>Escolas</button>
+        <button class="rc-segmented__btn" role="tab" id="aba-evento" aria-controls="painel-evento" aria-selected="false" aria-pressed="false" tabindex="-1"><span class="rc-icon" aria-hidden="true">check</span>Eventos</button>
+      </div>
+
+      <div class="quem__painel rc-card" role="tabpanel" id="painel-mercado" aria-labelledby="aba-mercado">
+        <span class="rc-icon quem__icone" aria-hidden="true">shopping_cart</span>
+        <h3>Supermercados</h3>
+        <ul class="beneficios">
+          <li>O voucher só vale no seu caixa. O crédito volta como venda.</li>
+          <li>Quem traz embalagem tem um motivo a mais para voltar à loja.</li>
+        </ul>
+      </div>
+      <div class="quem__painel rc-card" role="tabpanel" id="painel-condominio" aria-labelledby="aba-condominio" hidden>
+        <span class="rc-icon quem__icone" aria-hidden="true">apartment</span>
+        <h3>Condomínios</h3>
+        <ul class="beneficios">
+          <li>Menos garrafa misturada no lixo comum.</li>
+          <li>Material já separado e compactado: a coleta busca menos vezes.</li>
+        </ul>
+      </div>
+      <div class="quem__painel rc-card" role="tabpanel" id="painel-escola" aria-labelledby="aba-escola" hidden>
+        <span class="rc-icon quem__icone" aria-hidden="true">school</span>
+        <h3>Escolas e universidades</h3>
+        <ul class="beneficios">
+          <li>A máquina vira aula: o aluno vê a câmera decidir o material.</li>
+          <li>O voucher pode virar crédito na cantina.</li>
+        </ul>
+      </div>
+      <div class="quem__painel rc-card" role="tabpanel" id="painel-evento" aria-labelledby="aba-evento" hidden>
+        <span class="rc-icon quem__icone" aria-hidden="true">festival</span>
+        <h3>Eventos</h3>
+        <ul class="beneficios">
+          <li>Lata no chão vira fila na máquina. Menos limpeza no fim.</li>
+          <li>O crédito é gasto em bebida no próprio evento.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6.6 Painel do operador -->
+  <section class="operador" id="painel" aria-labelledby="op-titulo">
+    <div class="secao__in operador__grade">
+      <div>
+        <h2 class="secao__titulo" id="op-titulo">Quem cuida da máquina sabe a hora de esvaziar.</h2>
+        <p class="secao__lead">O painel do operador mostra o nível de cada compartimento, o que entrou no dia e os vouchers resgatados no caixa.</p>
+        <a class="rc-btn rc-btn--tonal" href="/admin"><span class="rc-icon" aria-hidden="true">dashboard</span>Abrir o painel de demonstração</a>
+        <p class="operador__nota">O painel roda no servidor do projeto. Aberto direto do arquivo, o link não carrega.</p>
+      </div>
+      <div class="painel rc-card" aria-label="Exemplo do painel do operador" role="group">
+        <p class="painel__topo"><span class="rc-icon" aria-hidden="true">sensors</span>Máquina da entrada · hoje</p>
+        <ul class="niveis">
+          <li><span class="rc-tag rc-tag--plastico"><span class="rc-tag__material">Plástico</span></span><div class="nivel" style="--n:72%"><span class="rc-mat--plastico"></span></div><b>72%</b></li>
+          <li><span class="rc-tag rc-tag--metal"><span class="rc-tag__material">Metal</span></span><div class="nivel" style="--n:41%"><span class="rc-mat--metal"></span></div><b>41%</b></li>
+          <li><span class="rc-tag rc-tag--vidro"><span class="rc-tag__material">Vidro</span></span><div class="nivel" style="--n:18%"><span class="rc-mat--vidro"></span></div><b>18%</b></li>
+        </ul>
+        <p class="painel__alerta"><span class="rc-icon" aria-hidden="true">info</span>Plástico passa de 70%: esvaziar até amanhã.</p>
+        <p class="painel__exemplo">Valores de exemplo</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6.7 Dúvidas -->
+  <section class="duvidas" id="duvidas" aria-labelledby="duv-titulo">
+    <div class="secao__in duvidas__in">
+      <h2 class="secao__titulo" id="duv-titulo">Dúvidas frequentes</h2>
+      <div class="faq">
+        <details>
+          <summary>Como a IA reconhece o material?</summary>
+          <p>A câmera fotografa a embalagem na esteira. Um modelo treinado com fotos de resíduos diz se é plástico, metal, vidro, papel, papelão, orgânico ou rejeito, com uma porcentagem de certeza.</p>
+        </details>
+        <details>
+          <summary>E se ela errar?</summary>
+          <p>Abaixo de 70% de certeza, a máquina devolve o item e pede para reposicionar. A balança e o leitor de código de barras conferem a decisão. Garrafa ainda cheia também volta.</p>
+        </details>
+        <details>
+          <summary>Por que o app não paga direto?</summary>
+          <p>O crédito só existe quando a embalagem entra na máquina. O app mostra quanto ela vale, mas não paga. Assim ninguém ganha duas vezes fotografando a mesma garrafa.</p>
+        </details>
+        <details>
+          <summary>Quanto vale cada embalagem?</summary>
+          <p>Garrafa plástica R$ 0,10, lata R$ 0,15 e vidro R$ 0,25. O voucher vale no caixa do local que tem a máquina.</p>
+        </details>
+        <details>
+          <summary>E orgânico, papel e papelão?</summary>
+          <p>A máquina reconhece e devolve, indicando a lixeira certa: azul para papel e papelão, marrom para orgânico, cinza para rejeito (cores da Resolução CONAMA 275).</p>
+        </details>
+        <details>
+          <summary>As fotos ficam guardadas?</summary>
+          <p>Não. A foto serve só para a leitura. No app, ela fica na memória do seu navegador até o depósito e nunca é gravada no servidor.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6.8 Fechamento -->
+  <section class="fim" id="testar" aria-labelledby="fim-titulo">
+    <div class="secao__in fim__in">
+      <h2 class="fim__titulo" id="fim-titulo">Teste a IA dessa câmera.</h2>
+      <p class="fim__lead">Fotografe uma garrafa, uma lata ou um pote. A mesma IA da máquina diz o material, a lixeira certa e quanto vale.</p>
+      <!-- React Bits: Magnet (o botão puxa para o cursor) + ClickSpark (faíscas no clique) -->
+      <div class="fim__ima" data-magnet>
+        <a class="rc-fab rc-fab--extended rc-fab--large fim__btn" href="../app/index.html" data-spark>
+          <span class="rc-icon" aria-hidden="true">photo_camera</span><span>Abrir a Lixeira Pessoal</span>
+        </a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="rodape">
+  <div class="secao__in rodape__in">
+    <p class="rodape__marca">ReciclaAI</p>
+    <div>
+      <p><strong>Fontes</strong></p>
+      <ul>
+        <li>Latas no Brasil, 97,3% em 2024: Recicla Latas, via <a href="https://mercadoeconsumo.com.br/14/08/2025/economia/brasil-reciclou-973-das-latinhas-de-aluminio-em-2024/" target="_blank" rel="noopener">Mercado&amp;Consumo</a>.</li>
+        <li>Alemanha, mais de 96% de retorno: <a href="https://dpg-pfandsystem.de/en/the-one-way-deposit-system/useful-information/press-releases/twenty-years-of-the-german-one-way-deposit-system-a-success-story.html" target="_blank" rel="noopener">DPG Deutsche Pfandsystem</a>.</li>
+        <li>Cores da coleta seletiva: Resolução CONAMA nº 275/2001.</li>
+      </ul>
+    </div>
+    <p class="rodape__nota">Projeto Integrador · Engenharia de Software · CEUB 2026/2. A máquina é um conceito: não é fabricada nem vendida. Fotos de bancos gratuitos, com crédito ao fotógrafo.</p>
+  </div>
+</footer>
+
+<!-- Bibliotecas (versões exatas). Se alguma falhar, a página continua legível. -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vanta@0.5.24/dist/vanta.dots.min.js"></script>
+<script src="landing.js"></script>
+</body>
+</html>
