@@ -75,11 +75,11 @@ echo "Criando issues..."
 issue "Criar repositório próprio e publicar o código" "$I1" "devops,critério-4" "**Objetivo:** ter o repositório único da equipe no GitHub, preservando o histórico de commits original.
 
 **Pronto quando:**
-- [ ] Repositório público na conta do aluno, com o código e o histórico
+- [ ] Repositório público, com o código e o histórico
 - [ ] Branch main protegida (mudanças só por pull request)
 - [ ] README aponta para o objetivo do projeto (RVM)
 
-**Estimativa:** 1 h · **Quem faz:** você, com o passo a passo do Claude"
+**Estimativa:** 1 h"
 
 issue "Criar quadro Kanban, rótulos, marcos e issues" "$I1" "gestão,critério-6" "**Objetivo:** quadro de gestão coerente com o repositório (este script).
 
@@ -88,7 +88,7 @@ issue "Criar quadro Kanban, rótulos, marcos e issues" "$I1" "gestão,critério-
 - [ ] Todas as issues no quadro, com marco e rótulo
 - [ ] Justificativa da ferramenta (GitHub Projects em vez de Trello: mesmo lugar do código) registrada no plano de gestão
 
-**Estimativa:** 1 h · **Quem faz:** você roda o script"
+**Estimativa:** 1 h"
 
 issue "TAP: Termo de Abertura do Projeto" "$I1" "gestão,critério-6" "**Objetivo:** formalizar problema, objetivo, escopo, prazo (03/12/2026), equipe e critérios de sucesso.
 
@@ -96,7 +96,7 @@ issue "TAP: Termo de Abertura do Projeto" "$I1" "gestão,critério-6" "**Objetiv
 - [ ] TAP preenchido no Kit de Artefatos (XLSX) e em docs/gestao/
 - [ ] Problema descrito: baixo retorno de embalagens recicláveis; RVM como solução (exemplo do Pfand alemão)
 
-**Estimativa:** 0,5 h · **Quem faz:** Claude rascunha, você revisa"
+**Estimativa:** 0,5 h"
 
 issue "EAP: Estrutura Analítica do Projeto" "$I1" "gestão,critério-6" "**Objetivo:** decompor o projeto em entregas (gestão, requisitos, projeto, IA, site, qualidade, entrega).
 
@@ -104,7 +104,7 @@ issue "EAP: Estrutura Analítica do Projeto" "$I1" "gestão,critério-6" "**Obje
 - [ ] EAP em diagrama em docs/gestao/
 - [ ] Cada pacote de trabalho corresponde a uma ou mais issues
 
-**Estimativa:** 0,5 h · **Quem faz:** Claude rascunha, você revisa"
+**Estimativa:** 0,5 h"
 
 issue "Cronograma com caminho crítico" "$I1" "gestão,critério-6" "**Objetivo:** cronograma das 4 semanas com dependências e caminho crítico.
 
@@ -113,15 +113,15 @@ issue "Cronograma com caminho crítico" "$I1" "gestão,critério-6" "**Objetivo:
 - [ ] Caminho crítico identificado (dataset -> treino -> subpágina IA -> deploy -> release)
 - [ ] Cronograma no Kit de Artefatos
 
-**Estimativa:** 0,5 h · **Quem faz:** Claude rascunha, você revisa"
+**Estimativa:** 0,5 h"
 
 issue "RACI e plano de riscos com responsável e indicador" "$I1" "gestão,critério-6" "**Objetivo:** matriz RACI e riscos com probabilidade, impacto, responsável, indicador e plano B.
 
 **Pronto quando:**
-- [ ] RACI preenchida (aluno e Claude como apoio de desenvolvimento, professor como cliente/aprovador)
+- [ ] RACI preenchida (autor do projeto como responsável e professor como cliente e aprovador)
 - [ ] Pelo menos 5 riscos, cada um com indicador (ex.: acurácia < 80% no teste real)
 
-**Estimativa:** 0,5 h · **Quem faz:** Claude rascunha, você revisa"
+**Estimativa:** 0,5 h"
 
 issue "Linha do tempo da jornada U1 a U7 (Ficha 1)" "$I1" "documentação,critério-1" "**Objetivo:** mostrar o caminho do problema ao sistema, com um artefato verificável por etapa.
 
@@ -129,7 +129,7 @@ issue "Linha do tempo da jornada U1 a U7 (Ficha 1)" "$I1" "documentação,crité
 - [ ] Ficha 1 preenchida
 - [ ] Cada etapa aponta para o artefato no repositório (link)
 
-**Estimativa:** 0,5 h · **Quem faz:** Claude rascunha, você revisa"
+**Estimativa:** 0,5 h"
 
 issue "Processo de negócio em BPMN (atual e com a RVM)" "$I1" "requisitos,critério-2" "**Objetivo:** modelar o descarte de embalagens hoje e o processo com a RVM (inserir, classificar, aceitar/devolver, creditar, voucher, resgate).
 
@@ -137,7 +137,7 @@ issue "Processo de negócio em BPMN (atual e com a RVM)" "$I1" "requisitos,crit�
 - [ ] Diagrama BPMN feito no Bizagi ou similar (bpmn.io)
 - [ ] Imagem e arquivo-fonte em docs/processo/
 
-**Estimativa:** 1,5 h · **Quem faz:** Claude gera o .bpmn, você ajusta na ferramenta"
+**Estimativa:** 1,5 h"
 
 issue "Histórias de usuário com critérios de aceitação e MoSCoW" "$I1" "requisitos,critério-2" "**Objetivo:** backlog priorizado com MoSCoW.
 
@@ -147,7 +147,7 @@ issue "Histórias de usuário com critérios de aceitação e MoSCoW" "$I1" "req
 - [ ] Classificação Must / Should / Could / Won't
 - [ ] Mapa de requisitos (Miro ou similar)
 
-**Estimativa:** 1 h · **Quem faz:** Claude rascunha, você revisa"
+**Estimativa:** 1 h"
 
 issue "Justificar o modelo de desenvolvimento" "$I1" "requisitos,critério-2" "**Objetivo:** escolher e justificar o modelo (iterativo incremental com Kanban), citando autor e obra.
 
@@ -155,7 +155,7 @@ issue "Justificar o modelo de desenvolvimento" "$I1" "requisitos,critério-2" "*
 - [ ] Texto curto em docs/gestao/ com a escolha e a justificativa
 - [ ] Referência (ex.: Sommerville, Engenharia de Software; Anderson, Kanban)
 
-**Estimativa:** 0,5 h · **Quem faz:** Claude rascunha, você revisa"
+**Estimativa:** 0,5 h"
 
 issue "Arquitetura, modelo de dados e diagramas UML" "$I1" "projeto,critério-3" "**Objetivo:** arquitetura justificada e modelos coerentes com os requisitos.
 
@@ -166,7 +166,7 @@ issue "Arquitetura, modelo de dados e diagramas UML" "$I1" "projeto,critério-3"
 - [ ] UML: casos de uso, sequência da inserção de embalagem, classes
 - [ ] Tudo em docs/arquitetura/
 
-**Estimativa:** 1,5 h · **Quem faz:** Claude gera em Mermaid/PlantUML, você revisa"
+**Estimativa:** 1,5 h"
 
 issue "Protótipo de interface do site e da subpágina da IA" "$I1" "projeto,critério-3" "**Objetivo:** protótipo das telas antes de implementar.
 
@@ -175,7 +175,7 @@ issue "Protótipo de interface do site e da subpágina da IA" "$I1" "projeto,cri
 - [ ] Versão celular e desktop
 - [ ] Imagens em docs/prototipo/
 
-**Estimativa:** 1 h · **Quem faz:** Claude rascunha, você monta no Figma/Canva"
+**Estimativa:** 1 h"
 
 issue "Matriz de rastreabilidade (Ficha 3)" "$I1" "documentação,critério-1" "**Objetivo:** ligar requisito -> história -> issue -> código -> teste.
 
@@ -183,7 +183,7 @@ issue "Matriz de rastreabilidade (Ficha 3)" "$I1" "documentação,critério-1" "
 - [ ] Ficha 3 preenchida
 - [ ] Matriz em docs/gestao/ atualizada até a entrega
 
-**Estimativa:** 0,5 h · **Quem faz:** Claude rascunha, você revisa"
+**Estimativa:** 0,5 h"
 
 issue "Dataset com a classe orgânico e split adaptado" "$I2" "ia,critério-4" "**Objetivo:** dataset com orgânico, vidro, plástico, metal, papel, papelão e rejeito.
 
@@ -192,7 +192,7 @@ issue "Dataset com a classe orgânico e split adaptado" "$I2" "ia,critério-4" "
 - [ ] split_dataset.py mescla e renomeia as classes
 - [ ] Pasta dataset/ com train e test
 
-**Estimativa:** 2 h · **Quem faz:** Claude adapta o código, você baixa e roda"
+**Estimativa:** 2 h"
 
 issue "Treinar e avaliar o modelo" "$I2" "ia,critério-4" "**Objetivo:** modelo com qualidade medida.
 
@@ -201,16 +201,16 @@ issue "Treinar e avaliar o modelo" "$I2" "ia,critério-4" "**Objetivo:** modelo 
 - [ ] Acurácia por classe e matriz de confusão salvas em docs/
 - [ ] Melhor checkpoint salvo
 
-**Estimativa:** 2 h · **Quem faz:** Claude ajusta o treino, você roda"
+**Estimativa:** 2 h"
 
 issue "Fotos reais para teste do modelo" "$I2" "ia,qualidade,critério-5" "**Objetivo:** medir o modelo fora do dataset.
 
 **Pronto quando:**
-- [ ] Cerca de 20 fotos por classe tiradas pelo aluno
+- [ ] Cerca de 20 fotos por classe, tiradas para o projeto
 - [ ] Acurácia nas fotos reais registrada no README
 - [ ] Erros relevantes registrados como issues (rótulo bug)
 
-**Estimativa:** 2 h · **Quem faz:** você"
+**Estimativa:** 2 h"
 
 issue "Site promocional da RVM" "$I2" "frontend,critério-4" "**Objetivo:** site que vende a ideia da máquina que troca embalagens por crédito.
 
@@ -220,7 +220,7 @@ issue "Site promocional da RVM" "$I2" "frontend,critério-4" "**Objetivo:** site
 - [ ] Seções Como funciona, Impacto (com fontes), Para quem, Sobre
 - [ ] Segue o protótipo
 
-**Estimativa:** 2 h · **Quem faz:** Claude implementa, você revisa"
+**Estimativa:** 2 h"
 
 issue "Subpágina Teste a IA" "$I2" "frontend,critério-4" "**Objetivo:** enviar ou fotografar um objeto e ver o material identificado.
 
@@ -229,7 +229,7 @@ issue "Subpágina Teste a IA" "$I2" "frontend,critério-4" "**Objetivo:** enviar
 - [ ] Resultado: material, confiança, lixeira, crédito simulado e dica
 - [ ] Funciona no celular
 
-**Estimativa:** 1 h · **Quem faz:** Claude implementa, você testa"
+**Estimativa:** 1 h"
 
 issue "API: destino do descarte, validação de upload e orgânico" "$I2" "backend,critério-4" "**Objetivo:** API completa para a subpágina.
 
@@ -238,7 +238,7 @@ issue "API: destino do descarte, validação de upload e orgânico" "$I2" "backe
 - [ ] Arquivo inválido ou > 5 MB recebe erro claro
 - [ ] rvm.py trata orgânico (devolvido com orientação)
 
-**Estimativa:** 1 h · **Quem faz:** Claude implementa, você revisa o PR"
+**Estimativa:** 1 h"
 
 issue "Testes automatizados com pytest e cobertura" "$I2" "qualidade,critério-5" "**Objetivo:** suíte de testes com cobertura medida.
 
@@ -247,7 +247,7 @@ issue "Testes automatizados com pytest e cobertura" "$I2" "qualidade,critério-5
 - [ ] Testes das rotas Flask com modelo simulado
 - [ ] Cobertura medida com pytest-cov (meta >= 70%)
 
-**Estimativa:** 1 h · **Quem faz:** Claude escreve, você roda e entende"
+**Estimativa:** 1 h"
 
 issue "Pipeline no GitHub Actions" "$I2" "qualidade,devops,critério-5" "**Objetivo:** testes rodando automaticamente a cada push e pull request.
 
@@ -256,7 +256,7 @@ issue "Pipeline no GitHub Actions" "$I2" "qualidade,devops,critério-5" "**Objet
 - [ ] Selo de status no README
 - [ ] Pipeline verde na main
 
-**Estimativa:** 0,5 h · **Quem faz:** Claude escreve, você confere"
+**Estimativa:** 0,5 h"
 
 issue "Ambiente reproduzível por terceiros" "$I2" "devops,critério-4" "**Objetivo:** qualquer pessoa consegue rodar o sistema seguindo o README.
 
@@ -265,7 +265,7 @@ issue "Ambiente reproduzível por terceiros" "$I2" "devops,critério-4" "**Objet
 - [ ] Teste de instalação do zero em outra pasta (ou outro computador)
 - [ ] Passo a passo do README validado
 
-**Estimativa:** 1 h · **Quem faz:** você testa a instalação"
+**Estimativa:** 1 h"
 
 issue "Fluxo de trabalho com branches e pull requests" "$I2" "devops,critério-4" "**Objetivo:** histórico que mostra o processo.
 
@@ -274,14 +274,14 @@ issue "Fluxo de trabalho com branches e pull requests" "$I2" "devops,critério-4
 - [ ] Todo merge na main via pull request que fecha a issue (Closes #N)
 - [ ] Commits regulares durante as 4 semanas
 
-**Estimativa:** 1 h ao longo do projeto · **Quem faz:** você"
+**Estimativa:** 1 h ao longo do projeto"
 
 issue "Registrar defeitos como issues" "$I2" "qualidade,critério-5" "**Objetivo:** defeitos rastreáveis.
 
 **Pronto quando:**
 - [ ] Todo defeito encontrado vira issue com rótulo bug, passos para reproduzir e PR de correção
 
-**Estimativa:** 0,5 h ao longo do projeto · **Quem faz:** você"
+**Estimativa:** 0,5 h ao longo do projeto"
 
 issue "Burndown e atualização semanal do quadro e dos riscos" "$I2" "gestão,critério-6" "**Objetivo:** gestão viva, não um quadro estático.
 
@@ -290,14 +290,14 @@ issue "Burndown e atualização semanal do quadro e dos riscos" "$I2" "gestão,c
 - [ ] Burndown das issues por semana no Kit de Artefatos
 - [ ] Indicadores dos riscos revisados
 
-**Estimativa:** 1 h ao longo do projeto · **Quem faz:** você, com o Claude calculando"
+**Estimativa:** 1 h ao longo do projeto"
 
 issue "Fichas restantes do Caderno de Dinâmicas (2, 7 e 9)" "$I2" "documentação" "**Objetivo:** completar as fichas 1 a 10 exigidas no checklist.
 
 **Pronto quando:**
 - [ ] Fichas 2, 7 e 9 preenchidas e salvas em docs/fichas/
 
-**Estimativa:** 0,5 h · **Quem faz:** Claude rascunha, você revisa"
+**Estimativa:** 0,5 h"
 
 issue "Publicar o site online" "$I3" "devops,critério-4" "**Objetivo:** MVP acessível por link.
 
@@ -305,14 +305,14 @@ issue "Publicar o site online" "$I3" "devops,critério-4" "**Objetivo:** MVP ace
 - [ ] Site e subpágina da IA no ar (Hugging Face Spaces ou similar)
 - [ ] Link no README
 
-**Estimativa:** 1,5 h · **Quem faz:** Claude prepara, você publica"
+**Estimativa:** 1,5 h"
 
 issue "Release v1.0 no GitHub" "$I3" "devops,critério-7" "**Objetivo:** entrega rastreável.
 
 **Pronto quando:**
 - [ ] Tag v1.0.0 e release com notas (o que entrou, issues fechadas)
 
-**Estimativa:** 0,5 h · **Quem faz:** você"
+**Estimativa:** 0,5 h"
 
 issue "Roteiro de retomada, ADRs, aceite e lições aprendidas (Fichas 4, 8 e 10)" "$I3" "documentação,critério-7" "**Objetivo:** outra pessoa consegue assumir o sistema.
 
@@ -322,7 +322,7 @@ issue "Roteiro de retomada, ADRs, aceite e lições aprendidas (Fichas 4, 8 e 10
 - [ ] Termo de aceite e lições aprendidas
 - [ ] Fichas 4, 8 e 10 preenchidas
 
-**Estimativa:** 1 h · **Quem faz:** Claude rascunha, você revisa"
+**Estimativa:** 1 h"
 
 issue "Indicadores finais: burndown ou valor agregado" "$I3" "gestão,critério-6" "**Objetivo:** fechar a gestão com números.
 
@@ -330,7 +330,7 @@ issue "Indicadores finais: burndown ou valor agregado" "$I3" "gestão,critério-
 - [ ] Burndown final ou valor agregado (planejado x realizado)
 - [ ] Plano Simplificado A01 a A12 completo
 
-**Estimativa:** 0,5 h · **Quem faz:** Claude calcula, você revisa"
+**Estimativa:** 0,5 h"
 
 issue "Slides e roteiro da apresentação (15 a 20 min)" "$DF" "defesa,critério-8" "**Objetivo:** apresentação da jornada, do problema ao sistema.
 
@@ -338,16 +338,16 @@ issue "Slides e roteiro da apresentação (15 a 20 min)" "$DF" "defesa,critério
 - [ ] Slides com jornada, decisões, demo e retrospectiva
 - [ ] Roteiro com tempo por parte
 
-**Estimativa:** 1,5 h · **Quem faz:** Claude rascunha, você ajusta"
+**Estimativa:** 1,5 h"
 
 issue "Estudo para a arguição (Fichas 5 e 6)" "$DF" "defesa,critério-8" "**Objetivo:** responder sobre qualquer parte e justificar decisões citando autor e obra.
 
 **Pronto quando:**
 - [ ] Lista de perguntas prováveis com respostas
 - [ ] Fichas 5 e 6 preenchidas
-- [ ] Simulação de arguição com o Claude
+- [ ] Simulação de arguição com perguntas prováveis
 
-**Estimativa:** 3 h · **Quem faz:** você, com o Claude fazendo perguntas"
+**Estimativa:** 3 h"
 
 issue "Ensaio cronometrado da apresentação" "$DF" "defesa,critério-8" "**Objetivo:** apresentação dentro do tempo.
 
@@ -355,7 +355,7 @@ issue "Ensaio cronometrado da apresentação" "$DF" "defesa,critério-8" "**Obje
 - [ ] Dois ensaios entre 15 e 20 minutos
 - [ ] Demo testada no link publicado
 
-**Estimativa:** 1 h · **Quem faz:** você"
+**Estimativa:** 1 h"
 
 echo
 echo "Pronto. Abra o quadro em: https://github.com/users/$OWNER/projects/$PROJECT"
