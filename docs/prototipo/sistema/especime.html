@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sistema de design ReciclaAI</title>
+<meta name="description" content="Espécime de tokens e componentes do ReciclaAI: neo-brutalismo com Material Design 3.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,400;0,700;1,400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..700,0..1,0&display=block">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="componentes.css">
+<style>
+  /* Estilos só do espécime (layout da página de documentação) */
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body { padding-bottom: 120px; }
+  .wrap { max-width: var(--rc-content-max); margin: 0 auto; padding: 0 var(--rc-gutter); }
+  h1, h2, h3, p { margin: 0; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .skip { position: absolute; left: -999px; top: 8px; }
+  .skip:focus { left: 8px; z-index: 999; background: var(--md-sys-color-surface-container-lowest); padding: 8px 12px; border: 3px solid var(--rc-ink); }
+
+  /* Abertura */
+  .hero { padding: var(--rc-space-9) 0 var(--rc-space-8); border-bottom: var(--rc-border) solid var(--rc-ink); background: var(--md-sys-color-surface-container-lowest); }
+  .hero__grid { display: grid; gap: var(--rc-space-7); align-items: end; }
+  @media (min-width: 840px) { .hero__grid { grid-template-columns: 1.4fr 1fr; } }
+  .hero h1 { max-width: 12ch; }
+  .hero__lead { margin-top: var(--rc-space-5); max-width: 46ch; color: var(--md-sys-color-on-surface-variant); }
+  .seed {
+    display: grid; grid-template-columns: 1fr; border: var(--rc-border-thick) solid var(--rc-ink);
+    border-radius: var(--md-sys-shape-corner-extra-large); overflow: hidden; box-shadow: var(--rc-shadow-lg);
+    background: var(--md-sys-color-surface-container-lowest);
+  }
+  .seed__swatch { background: var(--rc-brand); color: var(--rc-on-brand); padding: var(--rc-space-6) var(--rc-space-5); min-height: 160px; display: flex; flex-direction: column; justify-content: space-between; }
+  .seed__hex { font-family: var(--md-ref-typeface-brand); font-weight: 800; font-size: clamp(2.5rem, 1.8rem + 3vw, 3.5rem); line-height: 1; letter-spacing: -0.03em; }
+  .seed__bins { display: grid; grid-template-columns: repeat(6, 1fr); border-top: var(--rc-border-thick) solid var(--rc-ink); }
+  .seed__bins span { height: 40px; border-left: var(--rc-border-thin) solid var(--rc-ink); }
+  .seed__bins span:first-child { border-left: 0; }
+
+  /* Seções */
+  .sec { padding: var(--rc-space-10) 0 0; }
+  .sec__head { display: grid; gap: var(--rc-space-3); margin-bottom: var(--rc-space-6); max-width: var(--rc-measure); }
+  .sec__head p { color: var(--md-sys-color-on-surface-variant); }
+  .sub { margin: var(--rc-space-7) 0 var(--rc-space-4); }
+  .why {
+    display: grid; gap: var(--rc-space-2); max-width: var(--rc-measure); margin-top: var(--rc-space-6);
+    padding: var(--rc-space-4) var(--rc-space-5); border: var(--rc-border) solid var(--rc-ink);
+    border-left-width: 12px; border-radius: var(--md-sys-shape-corner-small);
+    background: var(--md-sys-color-tertiary-container); color: var(--md-sys-color-on-tertiary-container);
+  }
+  .why strong { font-family: var(--md-ref-typeface-brand); font-size: 1.125rem; }
+  code, .mono { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: 0.8125rem; }
+
+  /* Paletas tonais */
+  .ramp { display: grid; grid-template-columns: repeat(13, minmax(0, 1fr)); border: var(--rc-border) solid var(--rc-ink); border-radius: var(--md-sys-shape-corner-small); overflow: hidden; margin-bottom: var(--rc-space-3); }
+  .ramp div { aspect-ratio: 1 / 1.4; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 4px; font: 700 10px/1 var(--md-ref-typeface-plain); }
+  .ramp-name { display: flex; justify-content: space-between; gap: 8px; margin-bottom: var(--rc-space-1); }
+  @media (max-width: 520px) { .ramp { grid-template-columns: repeat(7, minmax(0, 1fr)); } .ramp div { aspect-ratio: 1 / 1; } }
+
+  /* Papéis */
+  .roles { display: grid; gap: var(--rc-space-4); grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr)); }
+  .role { border: var(--rc-border) solid var(--rc-ink); border-radius: var(--md-sys-shape-corner-medium); overflow: hidden; box-shadow: var(--rc-shadow-sm); }
+  .role__main { padding: var(--rc-space-4); min-height: 88px; display: flex; flex-direction: column; justify-content: space-between; gap: 8px; }
+  .role__on { padding: var(--rc-space-2) var(--rc-space-4); border-top: var(--rc-border-thin) solid var(--rc-ink); }
+  .surfaces { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr)); border: var(--rc-border) solid var(--rc-ink); border-radius: var(--md-sys-shape-corner-medium); overflow: hidden; }
+  .surfaces div { padding: var(--rc-space-4) var(--rc-space-3); min-height: 96px; border-right: var(--rc-border-thin) solid var(--rc-ink); border-bottom: var(--rc-border-thin) solid var(--rc-ink); margin: 0 -2px -2px 0; }
+
+  /* Materiais */
+  .mats { display: grid; gap: var(--rc-space-4); grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); }
+  .mat { border: var(--rc-border) solid var(--rc-ink); border-radius: var(--md-sys-shape-corner-large); overflow: hidden; box-shadow: var(--rc-shadow-md); background: var(--rc-mat-container); color: var(--rc-mat-on-container); }
+  .mat__base { background: var(--rc-mat); color: var(--rc-mat-on); padding: var(--rc-space-4); border-bottom: var(--rc-border) solid var(--rc-ink); display: flex; justify-content: space-between; align-items: flex-end; gap: 8px; min-height: 96px; }
+  .mat__base b { font: 800 1.5rem/1.1 var(--md-ref-typeface-brand); letter-spacing: -0.01em; }
+  .mat__body { padding: var(--rc-space-3) var(--rc-space-4) var(--rc-space-4); display: grid; gap: 4px; }
+
+  /* Tipografia */
+  .type-row { display: grid; gap: var(--rc-space-2); padding: var(--rc-space-4) 0; border-bottom: var(--rc-border-thin) solid var(--rc-ink); }
+  .type-row:first-child { border-top: var(--rc-border-thin) solid var(--rc-ink); }
+  .type-meta { color: var(--md-sys-color-on-surface-variant); }
+  @media (min-width: 840px) { .type-row { grid-template-columns: 220px 1fr; align-items: baseline; } }
+  .type-sample { overflow-wrap: anywhere; }
+
+  /* Forma, borda, sombra, espaço, movimento */
+  .grid-auto { display: grid; gap: var(--rc-space-5); grid-template-columns: repeat(auto-fill, minmax(min(100%, 140px), 1fr)); }
+  .shape { height: 96px; border: var(--rc-border) solid var(--rc-ink); background: var(--md-sys-color-primary-container); box-shadow: var(--rc-shadow-sm); display: flex; align-items: flex-end; padding: 8px 10px; }
+  .shadow-box { height: 104px; border: var(--rc-border) solid var(--rc-ink); border-radius: var(--md-sys-shape-corner-medium); background: var(--md-sys-color-surface-container-lowest); display: flex; align-items: flex-end; padding: 10px; }
+  .border-box { height: 72px; border-style: solid; border-color: var(--rc-ink); border-radius: var(--md-sys-shape-corner-small); background: var(--md-sys-color-surface-container-lowest); display: flex; align-items: center; justify-content: center; }
+  .space-row { display: grid; grid-template-columns: 72px 1fr; gap: var(--rc-space-3); align-items: center; padding: 6px 0; }
+  .space-bar { height: 16px; background: var(--md-sys-color-primary); border: var(--rc-border-thin) solid var(--rc-ink); }
+  .motion-track { position: relative; height: 56px; border: var(--rc-border) solid var(--rc-ink); border-radius: var(--md-sys-shape-corner-full); background: var(--md-sys-color-surface-container-lowest); margin-bottom: var(--rc-space-3); overflow: hidden; }
+  .motion-dot { position: absolute; top: 6px; left: 6px; width: 38px; height: 38px; border: var(--rc-border) solid var(--rc-ink); border-radius: var(--md-sys-shape-corner-full); background: var(--md-sys-color-tertiary-container); transition-property: left; }
+  .motion-track.is-on .motion-dot { left: calc(100% - 44px); }
+  .motion-label { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
+
+  /* Componentes */
+  .stage { display: flex; flex-wrap: wrap; gap: var(--rc-space-4); align-items: center; padding: var(--rc-space-6) var(--rc-space-5); border: var(--rc-border) dashed var(--md-sys-color-outline); border-radius: var(--md-sys-shape-corner-large); background: var(--md-sys-color-surface-container-low); }
+  .stage--col { flex-direction: column; align-items: stretch; }
+  .note { color: var(--md-sys-color-on-surface-variant); margin-top: var(--rc-space-2); max-width: var(--rc-measure); }
+  .cards { display: grid; gap: var(--rc-space-6); grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); }
+  .price { font: 800 2.25rem/1 var(--md-ref-typeface-brand); letter-spacing: -0.02em; }
+  .phone { position: relative; max-width: 380px; width: 100%; border: var(--rc-border-thick) solid var(--rc-ink); border-radius: var(--md-sys-shape-corner-extra-large); overflow: hidden; background: var(--md-sys-color-surface); box-shadow: var(--rc-shadow-lg); }
+  .phone__screen { height: 260px; padding: var(--rc-space-5) var(--rc-space-4); display: grid; align-content: start; gap: var(--rc-space-3); }
+  .phone .rc-fab--docked { position: absolute; bottom: calc(80px + 16px); }
+  .rules { display: grid; gap: var(--rc-space-3); padding-left: 1.2em; max-width: var(--rc-measure); }
+  footer { margin-top: var(--rc-space-11); border-top: var(--rc-border) solid var(--rc-ink); padding: var(--rc-space-6) 0; color: var(--md-sys-color-on-surface-variant); }
+</style>
+</head>
+<body class="rc-base">
+<a class="skip" href="#conteudo">Pular para o conteúdo</a>
+
+<header class="hero">
+  <div class="wrap hero__grid">
+    <div>
+      <h1 class="rc-display-large">Sistema de design ReciclaAI</h1>
+      <p class="hero__lead rc-body-large">Tokens e componentes para o site e para o app Lixeira Pessoal. Neo-brutalismo nas bordas e sombras, Material Design 3 nos papéis de cor, na tipografia e nos componentes.</p>
+      <div class="rc-card__actions">
+        <a class="rc-btn rc-btn--filled" href="#cores">Ver as cores</a>
+        <a class="rc-btn rc-btn--outlined" href="#componentes">Ver os componentes</a>
+      </div>
+    </div>
+    <figure class="seed" style="margin:0" aria-label="Cor semente ao lado das seis cores de material">
+      <div class="seed__swatch">
+        <span class="rc-label-large">Cor semente</span>
+        <span class="seed__hex">#C6F432</span>
+      </div>
+      <div class="seed__bins" aria-hidden="true">
+        <span style="background:var(--rc-material-plastico)"></span>
+        <span style="background:var(--rc-material-metal)"></span>
+        <span style="background:var(--rc-material-vidro)"></span>
+        <span style="background:var(--rc-material-papel)"></span>
+        <span style="background:var(--rc-material-organico)"></span>
+        <span style="background:var(--rc-material-rejeito)"></span>
+      </div>
+    </figure>
+  </div>
+</header>
+
+<main id="conteudo" class="wrap">
+
+  <!-- ========================= CORES ========================= -->
+  <section class="sec" id="cores" aria-labelledby="t-cores">
+    <div class="sec__head">
+      <h2 id="t-cores" class="rc-headline-large">Paletas tonais</h2>
+      <p class="rc-body-large">Todas geradas a partir de uma única cor semente, no espaço HCT do Material You. Tons de 0 a 100; os componentes usam os papéis, não os tons.</p>
+    </div>
+    <div id="ramps"></div>
+
+    <aside class="why">
+      <strong>Por que verde-limão</strong>
+      <p class="rc-body-medium">O limão diz reciclagem e tecnologia ao mesmo tempo, e é a cor clara que mais contrasta com as linhas pretas: 16,4:1 com texto preto. Ele não se confunde com os materiais: o verde do vidro (#2e8b57) é escuro e azulado, o ocre do metal (#c99700) é amarelo queimado; o limão é muito mais claro e saturado. O limão vivo é o tom 90 da paleta (primary-container, ou --rc-brand) e cobre as ações: botão principal, FAB, badge, progresso. O primary tom 40 (oliva) fica para links e textos, porque limão sobre fundo claro tem só 1,3:1. O terciário rosa-magenta (semente + 220°) marca seleção e foco.</p>
+    </aside>
+
+    <h3 class="rc-title-large sub">Papéis de cor (tema claro)</h3>
+    <div class="roles" id="roles"></div>
+
+    <h3 class="rc-title-large sub">Superfícies</h3>
+    <div class="surfaces" id="surfaces"></div>
+  </section>
+
+  <!-- ========================= MATERIAIS ========================= -->
+  <section class="sec" id="materiais" aria-labelledby="t-mat">
+    <div class="sec__head">
+      <h2 id="t-mat" class="rc-headline-large">Cores dos materiais</h2>
+      <p class="rc-body-large">Resolução CONAMA 275. A cor base é fixa e identifica o material. Container e on-container servem para fundo e texto. Nunca use essas cores para botões, links ou decoração.</p>
+    </div>
+    <div class="mats" id="mats"></div>
+  </section>
+
+  <!-- ========================= TIPOGRAFIA ========================= -->
+  <section class="sec" id="tipografia" aria-labelledby="t-tipo">
+    <div class="sec__head">
+      <h2 id="t-tipo" class="rc-headline-large">Tipografia</h2>
+      <p class="rc-body-large">Escala do M3. Display, headline e title-large em Bricolage Grotesque; o resto em Atkinson Hyperlegible Next.</p>
+    </div>
+    <div id="types"></div>
+    <aside class="why">
+      <strong>Por que essas fontes</strong>
+      <p class="rc-body-medium">Bricolage Grotesque no peso 800 tem o desenho largo e um pouco irregular que o neo-brutalismo pede, e o eixo de tamanho óptico deixa os títulos enormes compactos sem perder leitura. Atkinson Hyperlegible Next foi desenhada para baixa visão: 1, l e I são diferentes, e os números do voucher (R$ 0,25) não se confundem. Os pesos 700 dela formam os rótulos dos botões.</p>
+    </aside>
+  </section>
+
+  <!-- ========================= FORMA, BORDA, SOMBRA ========================= -->
+  <section class="sec" id="forma" aria-labelledby="t-forma">
+    <div class="sec__head">
+      <h2 id="t-forma" class="rc-headline-large">Forma, borda e sombra</h2>
+      <p class="rc-body-large">Cantos da escala do M3. Bordas e sombras duras sempre em preto puro, sem desfoque.</p>
+    </div>
+    <h3 class="rc-title-large sub">Cantos</h3>
+    <div class="grid-auto" id="shapes"></div>
+
+    <h3 class="rc-title-large sub">Bordas</h3>
+    <div class="grid-auto">
+      <div><div class="border-box" style="border-width:var(--rc-border-thin)"><span class="rc-label-large">2 px</span></div><p class="rc-body-small note"><code>--rc-border-thin</code> chips, tags, badges</p></div>
+      <div><div class="border-box" style="border-width:var(--rc-border)"><span class="rc-label-large">3 px</span></div><p class="rc-body-small note"><code>--rc-border</code> padrão</p></div>
+      <div><div class="border-box" style="border-width:var(--rc-border-thick)"><span class="rc-label-large">4 px</span></div><p class="rc-body-small note"><code>--rc-border-thick</code> hero, FAB grande</p></div>
+    </div>
+
+    <h3 class="rc-title-large sub">Sombras duras e estados</h3>
+    <div class="grid-auto">
+      <div><div class="shadow-box" style="box-shadow:var(--rc-shadow-sm)"><span class="rc-label-large">sm 3 px</span></div><p class="rc-body-small note">repouso de botões</p></div>
+      <div><div class="shadow-box" style="box-shadow:var(--rc-shadow-md)"><span class="rc-label-large">md 6 px</span></div><p class="rc-body-small note">cards, FAB</p></div>
+      <div><div class="shadow-box" style="box-shadow:var(--rc-shadow-lg)"><span class="rc-label-large">lg 10 px</span></div><p class="rc-body-small note">peça principal da tela</p></div>
+      <div><div class="shadow-box" style="box-shadow:var(--rc-shadow-hover);transform:translate(-2px,-2px)"><span class="rc-label-large">hover</span></div><p class="rc-body-small note">sobe 2 px, sombra +2 px</p></div>
+      <div><div class="shadow-box" style="box-shadow:var(--rc-shadow-pressed);transform:translate(3px,3px)"><span class="rc-label-large">pressionado</span></div><p class="rc-body-small note">desloca o valor da sombra; sombra some</p></div>
+    </div>
+    <aside class="why">
+      <strong>Por que misturar brutalismo e M3</strong>
+      <p class="rc-body-medium">O M3 dá a lógica: papéis de cor com contraste garantido, escala de tipo, estados de hover, foco e pressão. O neo-brutalismo dá a presença física: no lugar da elevação por sombra suave, uma sombra dura que mostra onde clicar. Ao pressionar, o botão encosta no chão, como apertar o botão da máquina de retorno. A camada de estado do M3 continua por cima, então nada depende só do movimento.</p>
+    </aside>
+  </section>
+
+  <!-- ========================= ESPAÇO E MOVIMENTO ========================= -->
+  <section class="sec" id="espaco" aria-labelledby="t-esp">
+    <div class="sec__head">
+      <h2 id="t-esp" class="rc-headline-large">Espaçamento e movimento</h2>
+      <p class="rc-body-large">Grade de 4 px. Margem lateral de 16 px no celular. Alvo de toque mínimo de 48 px.</p>
+    </div>
+    <div id="spaces"></div>
+
+    <h3 class="rc-title-large sub">Durações e curvas</h3>
+    <div id="motions"></div>
+    <button class="rc-btn rc-btn--tonal" type="button" id="play-motion"><span class="rc-icon" aria-hidden="true">play_arrow</span>Rodar demonstração</button>
+    <p class="rc-body-small note">Com "reduzir movimento" ativo no sistema, todas as durações viram 0,01 ms e o hover não desloca mais o componente.</p>
+  </section>
+
+  <!-- ========================= COMPONENTES ========================= -->
+  <section class="sec" id="componentes" aria-labelledby="t-comp">
+    <div class="sec__head">
+      <h2 id="t-comp" class="rc-headline-large">Componentes</h2>
+      <p class="rc-body-large">Use Tab para ver o anel de foco em cada um.</p>
+    </div>
+
+    <h3 class="rc-title-large sub">Botões</h3>
+    <div class="stage">
+      <button class="rc-btn rc-btn--filled" type="button"><span class="rc-icon" aria-hidden="true">photo_camera</span>Fotografar</button>
+      <button class="rc-btn rc-btn--tonal" type="button">Adicionar à sacola</button>
+      <button class="rc-btn rc-btn--outlined" type="button">Ver no mapa</button>
+      <button class="rc-btn rc-btn--text" type="button">Como funciona</button>
+      <button class="rc-btn rc-btn--filled" type="button" disabled>Indisponível</button>
+    </div>
+    <p class="rc-body-small note">Filled (limão, texto escuro) para a ação principal (uma por tela). Tonal para a secundária. Outlined para navegação. Text para ajuda e ações de baixo peso.</p>
+
+    <h3 class="rc-title-large sub">FAB</h3>
+    <div class="stage">
+      <button class="rc-fab" type="button" aria-label="Fotografar embalagem"><span class="rc-icon" aria-hidden="true">photo_camera</span></button>
+      <button class="rc-fab rc-fab--extended" type="button"><span class="rc-icon" aria-hidden="true">photo_camera</span>Fotografar</button>
+      <button class="rc-fab rc-fab--large" type="button" aria-label="Fotografar embalagem"><span class="rc-icon" aria-hidden="true">photo_camera</span></button>
+    </div>
+
+    <h3 class="rc-title-large sub">Chips</h3>
+    <div class="stage stage--col">
+      <div class="rc-chip-set" role="group" aria-label="Filtrar por material">
+        <button class="rc-chip rc-chip--filter" type="button" aria-pressed="true"><span class="rc-icon rc-chip__check" aria-hidden="true">check</span>Plástico</button>
+        <button class="rc-chip rc-chip--filter" type="button" aria-pressed="false"><span class="rc-icon rc-chip__check" aria-hidden="true">check</span>Metal</button>
+        <button class="rc-chip rc-chip--filter" type="button" aria-pressed="false"><span class="rc-icon rc-chip__check" aria-hidden="true">check</span>Vidro</button>
+      </div>
+      <div class="rc-chip-set">
+        <button class="rc-chip rc-chip--assist" type="button"><span class="rc-icon" aria-hidden="true">near_me</span>Mercado mais perto</button>
+        <button class="rc-chip rc-chip--assist" type="button"><span class="rc-icon" aria-hidden="true">help</span>O que é rejeito?</button>
+      </div>
+    </div>
+    <p class="rc-body-small note">Filter: selecionado em tertiary-container com check. Assist: ação sugerida, com sombra pequena.</p>
+
+    <h3 class="rc-title-large sub">Segmented button</h3>
+    <div class="stage">
+      <div class="rc-segmented rc-segmented--block" role="group" aria-label="Exibir mercados" style="max-width:420px">
+        <button class="rc-segmented__btn" type="button" aria-pressed="true"><span class="rc-icon" aria-hidden="true">check</span>Mapa</button>
+        <button class="rc-segmented__btn" type="button" aria-pressed="false"><span class="rc-icon" aria-hidden="true">check</span>Lista</button>
+      </div>
+    </div>
+
+    <h3 class="rc-title-large sub">Cards</h3>
+    <div class="cards">
+      <article class="rc-card rc-card--material rc-mat--metal">
+        <h4 class="rc-card__title rc-title-large">Lata de alumínio</h4>
+        <p class="rc-body-medium" style="color:var(--md-sys-color-on-surface-variant)">Confiança da câmera: 94%</p>
+        <p style="margin-top:12px"><span class="rc-tag rc-tag--metal"><span class="rc-tag__material">Metal</span><span class="rc-tag__bin">Lixeira amarela</span></span></p>
+        <p class="price rc-num" style="margin-top:16px">R$ 0,25</p>
+        <div class="rc-card__actions"><button class="rc-btn rc-btn--filled rc-btn--small" type="button">Adicionar à sacola</button></div>
+      </article>
+      <a class="rc-card rc-card--interactive" href="#componentes">
+        <h4 class="rc-card__title rc-title-large">Mercado Bairro Norte</h4>
+        <p class="rc-body-medium">650 m daqui. Máquina funcionando.</p>
+        <p class="rc-body-small note">Card interativo: o card inteiro é o link, afunda ao clicar.</p>
+      </a>
+      <article class="rc-card rc-card--primary">
+        <h4 class="rc-card__title rc-title-large">Sua sacola</h4>
+        <p class="rc-body-medium">5 embalagens, R$ 1,05 em voucher na máquina.</p>
+      </article>
+    </div>
+
+    <h3 class="rc-title-large sub">Campo de texto</h3>
+    <div class="stage stage--col" style="max-width:520px">
+      <div class="rc-field">
+        <label class="rc-field__label" for="cep">CEP</label>
+        <div class="rc-field__control">
+          <span class="rc-icon" aria-hidden="true">location_on</span>
+          <input class="rc-field__input" id="cep" inputmode="numeric" autocomplete="postal-code" placeholder="00000-000" aria-describedby="cep-ajuda">
+        </div>
+        <p class="rc-field__support" id="cep-ajuda">Usamos só para achar o mercado mais perto.</p>
+      </div>
+      <div class="rc-field rc-field--error">
+        <label class="rc-field__label" for="cep2">CEP</label>
+        <div class="rc-field__control">
+          <span class="rc-icon" aria-hidden="true">location_on</span>
+          <input class="rc-field__input" id="cep2" inputmode="numeric" value="0130" aria-invalid="true" aria-describedby="cep2-erro">
+        </div>
+        <p class="rc-field__support" id="cep2-erro"><span class="rc-icon" aria-hidden="true">error</span>O CEP tem 8 números. Faltam 4.</p>
+      </div>
+    </div>
+
+    <h3 class="rc-title-large sub">Snackbar com desfazer</h3>
+    <div class="stage stage--col">
+      <div class="rc-snackbar" role="status">
+        <p class="rc-snackbar__text">Garrafa PET removida da sacola.</p>
+        <div class="rc-snackbar__actions">
+          <button class="rc-snackbar__action" type="button">Desfazer</button>
+          <button class="rc-snackbar__close" type="button" aria-label="Fechar aviso"><span class="rc-icon" aria-hidden="true">close</span></button>
+        </div>
+      </div>
+      <div><button class="rc-btn rc-btn--outlined" type="button" id="show-snack">Remover item e mostrar aviso</button></div>
+    </div>
+    <p class="rc-body-small note">Fica 6 segundos na tela, ou até ser fechado. A sombra limão separa o aviso escuro de qualquer fundo.</p>
+
+    <h3 class="rc-title-large sub">Navigation bar, badge e FAB juntos</h3>
+    <div class="phone" aria-label="Exemplo de tela do app">
+      <div class="phone__screen">
+        <p class="rc-headline-small">Lixeira Pessoal</p>
+        <p class="rc-body-medium" style="color:var(--md-sys-color-on-surface-variant)">Aponte a câmera para uma embalagem.</p>
+      </div>
+      <button class="rc-fab rc-fab--docked" type="button" aria-label="Fotografar embalagem"><span class="rc-icon" aria-hidden="true">photo_camera</span></button>
+      <nav class="rc-navbar" aria-label="Navegação do app">
+        <a class="rc-navbar__item" href="#componentes" aria-current="page"><span class="rc-navbar__indicator"><span class="rc-icon" aria-hidden="true">photo_camera</span></span><span class="rc-navbar__label">Câmera</span></a>
+        <a class="rc-navbar__item" href="#componentes"><span class="rc-navbar__indicator"><span class="rc-icon" aria-hidden="true">shopping_bag</span><span class="rc-badge rc-badge--anchored">5</span></span><span class="rc-navbar__label">Sacola<span class="sr-only"> (5 itens)</span></span></a>
+        <a class="rc-navbar__item" href="#componentes"><span class="rc-navbar__indicator"><span class="rc-icon" aria-hidden="true">map</span></span><span class="rc-navbar__label">Mapa</span></a>
+        <a class="rc-navbar__item" href="#componentes"><span class="rc-navbar__indicator"><span class="rc-icon" aria-hidden="true">help</span><span class="rc-badge rc-badge--dot rc-badge--anchored"></span></span><span class="rc-navbar__label">Ajuda</span></a>
+      </nav>
+    </div>
+    <p class="rc-body-small note">Badge usa o limão (primary-container), não error: o vermelho de erro é parecido demais com o do plástico.</p>
+
+    <h3 class="rc-title-large sub">Barra de progresso</h3>
+    <div class="stage stage--col" style="max-width:520px">
+      <div>
+        <div class="rc-progress-label"><span id="pg-label">Meta do mês</span><span>12 de 20 embalagens</span></div>
+        <div class="rc-progress" role="progressbar" aria-labelledby="pg-label" aria-valuemin="0" aria-valuemax="20" aria-valuenow="12" style="--rc-progress:60%"><div class="rc-progress__bar"></div></div>
+      </div>
+      <div>
+        <div class="rc-progress-label"><span id="pg2-label">Analisando a foto</span></div>
+        <div class="rc-progress rc-progress--indeterminate" role="progressbar" aria-labelledby="pg2-label"><div class="rc-progress__bar"></div></div>
+      </div>
+    </div>
+
+    <h3 class="rc-title-large sub">Tag de material</h3>
+    <div class="stage">
+      <span class="rc-tag rc-tag--plastico"><span class="rc-tag__material">Plástico</span><span class="rc-tag__bin">Lixeira vermelha</span></span>
+      <span class="rc-tag rc-tag--metal"><span class="rc-tag__material">Metal</span><span class="rc-tag__bin">Lixeira amarela</span></span>
+      <span class="rc-tag rc-tag--vidro"><span class="rc-tag__material">Vidro</span><span class="rc-tag__bin">Lixeira verde</span></span>
+      <span class="rc-tag rc-tag--papel"><span class="rc-tag__material">Papel e papelão</span><span class="rc-tag__bin">Lixeira azul</span></span>
+      <span class="rc-tag rc-tag--organico"><span class="rc-tag__material">Orgânico</span><span class="rc-tag__bin">Lixeira marrom</span></span>
+      <span class="rc-tag rc-tag--rejeito"><span class="rc-tag__material">Rejeito</span><span class="rc-tag__bin">Lixeira cinza</span></span>
+      <span class="rc-tag rc-tag--vidro rc-tag--large"><span class="rc-tag__material"><span class="rc-icon" aria-hidden="true">wine_bar</span>Vidro</span><span class="rc-tag__bin">Lixeira verde</span></span>
+    </div>
+    <p class="rc-body-small note">O nome do material sempre aparece escrito. A cor confirma, nunca informa sozinha (daltonismo).</p>
+  </section>
+
+  <section class="sec" aria-labelledby="t-regras">
+    <div class="sec__head"><h2 id="t-regras" class="rc-headline-large">Regras rápidas</h2></div>
+    <ul class="rules rc-body-large">
+      <li>Todo card: borda de 3 px e <code>--rc-shadow-md</code>.</li>
+      <li>Um único botão filled por tela.</li>
+      <li>Cores de material só identificam material.</li>
+      <li>Preto das bordas e sombras é <code>--rc-ink</code> (#000), nunca cinza escuro.</li>
+      <li>Erro sempre com ícone e texto que diz como corrigir.</li>
+    </ul>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap rc-body-small">Sistema de design ReciclaAI, versão 1. Tokens em <code>tokens.css</code>, componentes em <code>componentes.css</code>.</div>
+</footer>
+
+<div id="snack-host"></div>
+
+<script>
+(function () {
+  var root = getComputedStyle(document.documentElement);
+  var v = function (n) { return root.getPropertyValue(n).trim(); };
+  var el = function (tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
+  // contraste simples para escolher texto preto ou branco sobre a amostra
+  function lum(hex) { hex = hex.replace('#',''); var c = [0,2,4].map(function(i){ var x = parseInt(hex.substr(i,2),16)/255; return x <= .03928 ? x/12.92 : Math.pow((x+.055)/1.055, 2.4); }); return .2126*c[0] + .7152*c[1] + .0722*c[2]; }
+  function ink(hex) { return lum(hex) > .18 ? '#000' : '#fff'; }
+
+  // Paletas
+  var ramps = document.getElementById('ramps');
+  var tones = [0,10,20,30,40,50,60,70,80,90,95,99,100];
+  [['primary','Primary'],['secondary','Secondary'],['tertiary','Tertiary'],['neutral','Neutral']].forEach(function (p) {
+    var wrap = el('div');
+    wrap.appendChild(el('div', 'ramp-name', '<span class="rc-title-medium">' + p[1] + '</span><code>--md-ref-palette-' + p[0] + '*</code>'));
+    var r = el('div', 'ramp');
+    tones.forEach(function (t) {
+      var hex = v('--md-ref-palette-' + p[0] + t) || v('--md-ref-palette-' + p[0] + '98');
+      var d = el('div', null, t); d.style.background = hex; d.style.color = ink(hex); d.title = hex; r.appendChild(d);
+    });
+    wrap.appendChild(r); ramps.appendChild(wrap);
+  });
+
+  // Papéis
+  var roles = document.getElementById('roles');
+  ['primary','primary-container','secondary','secondary-container','tertiary','tertiary-container','error','error-container'].forEach(function (k) {
+    var on = 'on-' + k;
+    var c = el('div', 'role');
+    c.innerHTML = '<div class="role__main" style="background:var(--md-sys-color-' + k + ');color:var(--md-sys-color-' + on + ')"><span class="rc-title-medium">' + k + '</span><code>' + v('--md-sys-color-' + k) + '</code></div>' +
+      '<div class="role__on rc-label-medium" style="background:var(--md-sys-color-' + on + ');color:var(--md-sys-color-' + k + ')">' + on + ' ' + v('--md-sys-color-' + on) + '</div>';
+    roles.appendChild(c);
+  });
+
+  // Superfícies
+  var surf = document.getElementById('surfaces');
+  [['surface','on-surface'],['surface-container-lowest','on-surface'],['surface-container-low','on-surface'],['surface-container','on-surface'],['surface-container-high','on-surface'],['surface-container-highest','on-surface'],['inverse-surface','inverse-on-surface'],['outline','surface-container-lowest'],['outline-variant','on-surface']].forEach(function (s) {
+    var d = el('div', 'rc-label-medium', s[0] + '<br><code>' + v('--md-sys-color-' + s[0]) + '</code>');
+    d.style.background = 'var(--md-sys-color-' + s[0] + ')'; d.style.color = 'var(--md-sys-color-' + s[1] + ')';
+    surf.appendChild(d);
+  });
+
+  // Materiais
+  var mats = document.getElementById('mats');
+  [['plastico','Plástico','vermelha'],['metal','Metal','amarela'],['vidro','Vidro','verde'],['papel','Papel e papelão','azul'],['organico','Orgânico','marrom'],['rejeito','Rejeito','cinza']].forEach(function (m) {
+    var b = '--rc-material-' + m[0];
+    var c = el('div', 'mat rc-mat--' + m[0]);
+    c.innerHTML = '<div class="mat__base"><b>' + m[1] + '</b><code>' + v(b) + '</code></div>' +
+      '<div class="mat__body"><span class="rc-title-small">Lixeira ' + m[2] + '</span>' +
+      '<span class="rc-body-small"><code>' + b + '</code> base, texto <code>' + v(b + '-on') + '</code></span>' +
+      '<span class="rc-body-small">container <code>' + v(b + '-container') + '</code>, on-container <code>' + v(b + '-on-container') + '</code></span>' +
+      '<span class="rc-body-small" style="color:var(' + b + '-strong);font-weight:700">strong <code>' + v(b + '-strong') + '</code> para texto em fundo claro</span></div>';
+    mats.appendChild(c);
+  });
+
+  // Tipografia
+  var types = document.getElementById('types');
+  var samples = { display: 'Cada lata vale', headline: 'Sua sacola tem 5 itens', title: 'Mercado mais perto', body: 'A câmera reconhece o material e a máquina paga cada embalagem com um voucher.', label: 'Adicionar à sacola' };
+  ['display','headline','title','body','label'].forEach(function (g) {
+    ['large','medium','small'].forEach(function (s) {
+      var n = g + '-' + s, p = '--md-sys-typescale-' + n;
+      var fam = v(p + '-font').indexOf('Bricolage') > -1 ? 'Bricolage Grotesque' : 'Atkinson Hyperlegible Next';
+      var row = el('div', 'type-row');
+      row.innerHTML = '<div><div class="rc-title-small">' + n + '</div><div class="rc-body-small type-meta">' + fam + ' ' + v(p + '-weight') + ', ' + v(p + '-size').replace(/\s+/g,' ') + ' / ' + v(p + '-line-height') + '</div></div>' +
+        '<div class="type-sample rc-' + n + '">' + samples[g] + '</div>';
+      types.appendChild(row);
+    });
+  });
+
+  // Cantos
+  var shapes = document.getElementById('shapes');
+  [['none','0'],['extra-small','4 px'],['small','8 px'],['medium','12 px'],['large','16 px'],['extra-large','28 px'],['full','pílula']].forEach(function (s) {
+    var w = el('div');
+    var d = el('div', 'shape rc-label-large', s[1]); d.style.borderRadius = 'var(--md-sys-shape-corner-' + s[0] + ')';
+    w.appendChild(d); w.appendChild(el('p', 'rc-body-small note', '<code>corner-' + s[0] + '</code>'));
+    shapes.appendChild(w);
+  });
+
+  // Espaços
+  var sp = document.getElementById('spaces');
+  for (var i = 1; i <= 13; i++) {
+    var val = v('--rc-space-' + i);
+    var r = el('div', 'space-row', '<code>space-' + i + '</code>');
+    var bar = el('div'); bar.innerHTML = '<div class="space-bar" style="width:' + val + ';max-width:100%"></div>';
+    bar.insertAdjacentHTML('beforeend', '<span class="rc-body-small">' + val + '</span>');
+    r.appendChild(bar); sp.appendChild(r);
+  }
+
+  // Movimento
+  var mo = document.getElementById('motions');
+  [['short2','standard','press: botão afunda'],['short3','standard','hover e camada de estado'],['medium2','emphasized-decelerate','entrada: snackbar, folha'],['short4','emphasized-accelerate','saída'],['long2','emphasized','transição de tela']].forEach(function (m) {
+    var w = el('div');
+    w.appendChild(el('div', 'motion-label', '<span class="rc-title-small">' + m[2] + '</span><code>duration-' + m[0] + ' (' + v('--md-sys-motion-duration-' + m[0]) + '), easing-' + m[1] + '</code>'));
+    var t = el('div', 'motion-track'); var d = el('div', 'motion-dot');
+    d.style.transitionDuration = 'var(--md-sys-motion-duration-' + m[0] + ')';
+    d.style.transitionTimingFunction = 'var(--md-sys-motion-easing-' + m[1] + ')';
+    t.appendChild(d); w.appendChild(t); mo.appendChild(w);
+  });
+  document.getElementById('play-motion').addEventListener('click', function () {
+    document.querySelectorAll('.motion-track').forEach(function (t) { t.classList.toggle('is-on'); });
+  });
+
+  // Chips de filtro e segmented
+  document.querySelectorAll('.rc-chip--filter').forEach(function (b) {
+    b.addEventListener('click', function () { b.setAttribute('aria-pressed', b.getAttribute('aria-pressed') === 'true' ? 'false' : 'true'); });
+  });
+  document.querySelectorAll('.rc-segmented').forEach(function (g) {
+    g.querySelectorAll('.rc-segmented__btn').forEach(function (b) {
+      b.addEventListener('click', function () {
+        g.querySelectorAll('.rc-segmented__btn').forEach(function (x) { x.setAttribute('aria-pressed', 'false'); });
+        b.setAttribute('aria-pressed', 'true');
+      });
+    });
+  });
+
+  // Snackbar demonstrativo
+  var host = document.getElementById('snack-host'), timer;
+  function hide() { host.innerHTML = ''; clearTimeout(timer); }
+  document.getElementById('show-snack').addEventListener('click', function () {
+    hide();
+    host.innerHTML = '<div class="rc-snackbar rc-snackbar--fixed" role="status"><p class="rc-snackbar__text">Garrafa PET removida da sacola.</p><div class="rc-snackbar__actions"><button class="rc-snackbar__action" type="button" data-undo>Desfazer</button><button class="rc-snackbar__close" type="button" aria-label="Fechar aviso" data-close><span class="rc-icon" aria-hidden="true">close</span></button></div></div>';
+    host.querySelector('[data-undo]').addEventListener('click', function () {
+      host.querySelector('.rc-snackbar__text').textContent = 'Garrafa PET de volta na sacola.';
+      this.remove(); clearTimeout(timer); timer = setTimeout(hide, 3000);
+    });
+    host.querySelector('[data-close]').addEventListener('click', hide);
+    timer = setTimeout(hide, 6000);
+  });
+})();
+</script>
+</body>
+</html>

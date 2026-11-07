@@ -8,7 +8,8 @@ como servidor único: serve o React compilado em `/` e `/lixeira`, mantém a IA 
 regras da máquina (`rvm.py`), a simulação da máquina (agora em `/maquina`) e o painel (`/admin`).
 
 **Tecnologias:** Python 3.12, Flask, PyTorch, pytest · React 18, Vite, Vitest, GSAP (ScrollTrigger),
-React Bits, Leaflet com OpenStreetMap · GitHub Actions.
+Lenis, Vanta, React Bits, Leaflet com OpenStreetMap · PostgreSQL (Neon) e SQLite · GitHub Actions,
+Hugging Face Spaces.
 
 **Especificação:** [docs/visao-do-produto.md](visao-do-produto.md). Toda parte segue a visão;
 em caso de dúvida, a visão manda.
@@ -42,8 +43,11 @@ em caso de dúvida, a visão manda.
    funcionando. Teste na Parte 8.
 4. **Localização negada ou fora de Brasília:** o mapa abre no centro de Brasília e ainda mostra
    o mercado mais próximo desse ponto. Teste na Parte 10.
-5. **Animações desativadas no sistema:** a montagem mostra a máquina pronta com a lista das 9
-   peças, sem rolagem presa. Teste na Parte 6.
+5. **Animações desativadas no sistema:** a montagem mostra a máquina pronta (ilustração SVG) com
+   a lista das 9 peças, sem rolagem presa; Lenis e Vanta ficam desligados. Teste na Parte 6.
+6. **Foto que não é de resíduo (pessoa, ambiente):** a classe `nao_residuo`, ou confiança abaixo de
+   70%, mostra "Não reconheci uma embalagem nesta foto" com dicas, nunca material, valor ou
+   lixeira; a máquina rejeita. Testes na Parte 7 e na Parte 9.
 
 ---
 
@@ -90,58 +94,74 @@ ambas com conteúdo provisório; comando `npm run build` gera `frontend/dist/`.
 ## Parte 3 · Identidade visual e layout base
 **Issue:** #39 · **Estimativa:** 1 h
 
-**Arquivos:** `frontend/src/estilo/tokens.css` (cores acima, tipografia, espaçamentos) ·
+**Arquivos:** `frontend/src/estilo/tokens.css` (estilo neo-brutalista inspirado no Material Design 3,
+cor semente verde-limão `#C6F432`, cores de material acima, bordas pretas grossas, sombras duras,
+tipografia Bricolage Grotesque nos títulos e Atkinson Hyperlegible Next nos textos) ·
 `frontend/src/componentes/Topo.jsx`, `Rodape.jsx`, `Botao.jsx`, `Icone.jsx` ·
-`frontend/src/hooks/useMenosAnimacao.js` · `frontend/src/dados/materiais.js`
+`frontend/src/hooks/useMenosAnimacao.js` · `frontend/src/hooks/useRolagemSuave.js` (Lenis) ·
+`frontend/src/dados/materiais.js`
 
-**Interfaces:** `useMenosAnimacao(): boolean` (lê `prefers-reduced-motion`) ·
-`MATERIAIS: Record<classe, {rotulo, lixeira, cor, icone, dica}>` com as 7 classes, incluindo
-`biological` como apelido de `organic`.
+**Interfaces:** `useRolagemSuave()` liga o Lenis e não faz nada quando `useMenosAnimacao()` é
+verdadeiro · `useMenosAnimacao(): boolean` (lê `prefers-reduced-motion`) ·
+`MATERIAIS: Record<classe, {rotulo, lixeira, cor, icone, dica}>` com as 7 classes de material, incluindo
+`biological` como apelido de `organic`. `nao_residuo` não é material: não entra em `MATERIAIS` e
+não tem cor de lixeira.
 
 **Testes (Vitest):** `useMenosAnimacao respeita a preferência do sistema` · `todo material tem
 cor e lixeira` · `Topo tem link para a lixeira pessoal`.
 
-**Pronto quando:** página inicial com topo, rodapé e tipografia definitiva, sem visual genérico.
+**Pronto quando:** página inicial com topo, rodapé e tipografia definitiva, no estilo
+neo-brutalista, com rolagem suave (Lenis) desligada com menos animação.
 
 ## Parte 4 · Abertura com o problema e contraste Brasil × Alemanha
 **Issue:** #40 · **Estimativa:** 1,5 h (inclui escolher as fotos)
 
 **Arquivos:** `frontend/src/secoes/Problema.jsx`, `Contraste.jsx` · `frontend/public/fotos/`
-(3 a 5 fotos) · `frontend/src/dados/creditos.js` (foto, autor, link, licença)
+(3 a 5 fotos) · `frontend/src/dados/creditos.js` (foto, autor, link, licença) ·
+`frontend/src/componentes/FundoVanta.jsx` (fundo animado do topo)
 
 **Testes (Vitest):** `toda foto tem texto alternativo e crédito` · `os números do contraste
 mostram a fonte` (97,3% e +96% com link).
 
 **Pronto quando:** as seções 6.1 e 6.2 da visão aparecem com texto revelado ao rolar (React Bits)
-e créditos no rodapé.
+e créditos no rodapé; fundo animado com Vanta no topo, desligado com menos animação.
 
-## Parte 5 · Ilustração da máquina em camadas
+## Parte 5 · Máquina: sequência de quadros e ilustração em camadas
 **Issue:** #41 · **Estimativa:** 1 h
 
-**Arquivos:** `frontend/src/maquina/MaquinaSVG.jsx` · `frontend/src/maquina/pecas.js`
+**Arquivos:** `frontend/public/maquina/frames/` (cerca de 120 quadros WebP do vídeo da máquina
+gerado por IA: `frame_0001.webp`, `frame_0002.webp` …) · `frontend/src/maquina/quadros.js` ·
+`frontend/src/maquina/MaquinaSVG.jsx` (alternativa 2D em camadas) · `frontend/src/maquina/pecas.js`
 
 **Interfaces:** `PECAS: Array<{id, nome, porque}>` com as 9 peças da tabela 6.3, na ordem de
 montagem (compartimentos primeiro, tela por último) · `<MaquinaSVG pecasVisiveis={n} telaLigada={bool} />`,
-em que cada peça é um `<g data-peca={id}>`.
+em que cada peça é um `<g data-peca={id}>` · `nomeDoQuadro(i): string` (`nomeDoQuadro(1) ===
+"frame_0001.webp"`) e `TOTAL_QUADROS`. A sequência de quadros é a vista principal, num palco escuro;
+o SVG é a alternativa quando os quadros faltam e a base para menos animação.
 
 **Testes:** `PECAS tem 9 itens na ordem da visão` · `MaquinaSVG desenha só as primeiras n peças` ·
-`tela ligada mostra "Insira uma embalagem"`.
+`tela ligada mostra "Insira uma embalagem"` · `nomeDoQuadro numera com quatro dígitos`.
 
-**Pronto quando:** a máquina estática aparece completa e pode ser desenhada peça por peça.
+**Pronto quando:** os quadros estão na pasta e a ilustração SVG aparece completa e pode ser
+desenhada peça por peça.
 
 ## Parte 6 · Montagem animada ao rolar e fechamento
 **Issue:** #42 · **Estimativa:** 1,5 h
 
-**Arquivos:** `frontend/src/secoes/Montagem.jsx` · `frontend/src/secoes/Fechamento.jsx`
+**Arquivos:** `frontend/src/secoes/Montagem.jsx` · `frontend/src/maquina/PlayerQuadros.jsx` ·
+`frontend/src/secoes/Fechamento.jsx`
 
-**Interfaces:** consome `PECAS`, `MaquinaSVG` e `useMenosAnimacao` · função
-`rotuloProgresso(atual, total): string`.
+**Interfaces:** consome `PECAS`, `MaquinaSVG`, `nomeDoQuadro` e `useMenosAnimacao` ·
+`<PlayerQuadros progresso={0..1} />` desenha no `<canvas>` o quadro correspondente ao progresso da
+rolagem (GSAP ScrollTrigger), em palco escuro; sem quadros, cai no `MaquinaSVG` · função
+`rotuloProgresso(atual, total): string` · tocar os quadros ao contrário dá a versão de montagem.
 
 **Testes:** `rotuloProgresso(3, 9) === "3 de 9 peças"` · `com menos animação mostra a máquina
-pronta e a lista das 9 peças` · `fechamento leva para /lixeira`.
+pronta (SVG) e a lista das 9 peças` · `o player escolhe o quadro pelo progresso` · `sem quadros
+usa o SVG` · `fechamento leva para /lixeira`.
 
-**Pronto quando:** seção presa na tela, uma peça por trecho de rolagem (GSAP ScrollTrigger),
-barra de progresso, nome e "por que existe" de cada peça, tela que liga no fim; versão mais curta
+**Pronto quando:** seção presa na tela, em palco escuro, com a máquina em vista explodida
+conduzida pela rolagem (GSAP ScrollTrigger), uma peça destacada por trecho, barra de progresso, nome e "por que existe" de cada peça, tela que liga no fim; versão mais curta
 no celular.
 
 ## Parte 7 · Servidor da subpágina
@@ -151,15 +171,18 @@ no celular.
 
 **Interfaces:**
 - `POST /predict` (campo `image`) → `{prediction: {class, label, bin, color, confidence},
-  ranking: [3 itens], machine: {accepted, value, reason}, low_confidence: bool}` (não gera crédito)
+  ranking: [3 itens], machine: {accepted, value, reason}, low_confidence: bool, nao_reconhecido: bool}` (não gera crédito). `nao_reconhecido` é
+  `true` quando a classe mais provável é `nao_residuo` ou a confiança é menor que 70
 - `GET /api/status` → `{model_ready: bool}`
 - erros sempre em JSON `{error: "<o que houve e como resolver>"}`: 400 imagem inválida, 413 acima
   de 5 MB, 503 modelo não treinado
-- `rvm.REJECT_REASONS` com `organic` e `biological` (lixeira marrom)
+- `rvm.REJECT_REASONS` com `organic` e `biological` (lixeira marrom) e `nao_residuo` ("Item não
+  reconhecido"; sem lixeira)
 
 **Testes:** `test_predict_diz_valor_na_maquina` · `test_predict_nao_gera_credito` (nenhuma linha
 nova em `items`) · `test_upload_acima_de_5mb_da_413` · `test_arquivo_que_nao_e_imagem_da_400` ·
-`test_sem_modelo_da_503_com_mensagem` · `test_organico_vai_para_lixeira_marrom`.
+`test_sem_modelo_da_503_com_mensagem` · `test_organico_vai_para_lixeira_marrom` · `test_nao_residuo_nao_vira_material` (`nao_reconhecido`
+true, sem material, valor nem lixeira; a máquina rejeita).
 
 ## Parte 8 · Subpágina: foto e análise
 **Issue:** #43 · **Estimativa:** 1,5 h
@@ -187,7 +210,7 @@ animação de leitura com "Analisando…" e botão cancelar.
 `totalSacola(itens): number`.
 
 **Testes:** `só material aceito pode ir para a sacola` · `total soma os valores` ·
-`desfazer devolve o item removido` · `confiança baixa mostra dicas de foto`.
+`desfazer devolve o item removido` · `confiança baixa mostra dicas de foto` · `nao_reconhecido mostra "Não reconheci uma embalagem" sem material, valor nem lixeira`.
 
 **Pronto quando:** resultado com material, lixeira, confiança, valor ou motivo da recusa e dica;
 sacola com miniaturas e total; legenda das lixeiras sempre visível.
@@ -215,6 +238,21 @@ os mercados não são parceiros e crédito ao OpenStreetMap.
 
 **Pronto quando:** cada uma das 10 heurísticas tem onde aparece, um print e o arquivo do código.
 
+## Parte 12 · Banco PostgreSQL (Neon) com SQLite local
+**Issue:** #52 · **Estimativa:** 2,5 h · Fazer antes da issue #28 (deploy)
+
+**Arquivos:** `rvm.py` (acesso ao banco por uma única camada de conexão que funciona com SQLite e
+PostgreSQL) · `requirements.txt` (acrescenta o driver PostgreSQL com versão fixa) ·
+`tests/test_rvm.py` (continua rodando no SQLite) · `docs/adr/ADR-002-postgresql-neon.md`
+
+**Interfaces:** `DATABASE_URL` ausente → SQLite (`rvm.db`); presente → PostgreSQL. As funções de
+`rvm.py` são as mesmas nos dois casos.
+
+**Testes:** os 8 testes existentes continuam passando no SQLite · `a URL do banco escolhe o backend`.
+
+**Pronto quando:** o site no Hugging Face usa o Neon com o secret `DATABASE_URL` e os dados
+sobrevivem a reinícios.
+
 ---
 
 ## Extras (só se sobrar tempo, nesta ordem)
@@ -224,4 +262,3 @@ os mercados não são parceiros e crédito ao OpenStreetMap.
 | E1 (#47) | Depósito simulado com voucher na subpágina (visão 7.5) | 1 |
 | E2 (#48) | Seções de impacto com simulador, para quem, painel e dúvidas (6.4 a 6.7), com números aprovados antes | 1,5 |
 | E3 (#49) | Busca real de mercados próximos no OpenStreetMap | 0,5 |
-| E4 (#50) | Rolagem suave (Lenis) e fundo 3D no topo (Vanta) | 0,5 |

@@ -6,6 +6,8 @@ Simulação de uma **Reverse Vending Machine (RVM)**, a "máquina que troca lixo
 
 O modelo (ResNet18 com *transfer learning*) reconhece 6 categorias: **papelão, vidro, metal, papel, plástico e rejeito**. A camada de regras da máquina (`rvm.py`) decide o que fazer com cada uma.
 
+**Protótipo de interface online:** [ronald-jesus.github.io/reciclaai/prototipo](https://ronald-jesus.github.io/reciclaai/prototipo/) · detalhes em [`docs/prototipo/`](docs/prototipo/README.md). A ideia completa está em [`docs/visao-do-produto.md`](docs/visao-do-produto.md) e as etapas em [`docs/plano-de-construcao.md`](docs/plano-de-construcao.md).
+
 ## Como a máquina funciona
 
 ```

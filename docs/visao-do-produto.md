@@ -73,6 +73,8 @@ explica o sistema e uma demonstração onde a IA do projeto funciona de verdade.
   orgânico (marrom) e rejeito (cinza) são identificados e devolvidos com orientação. As cores
   seguem a Resolução CONAMA 275/2001.
 - Abaixo de **70% de confiança** da IA, o item é devolvido ("reposicione e tente de novo").
+- Se a IA identificar **"não é resíduo"** (pessoa, ambiente, animal) ou ficar abaixo de 70%, a
+  máquina trata como rejeitado ("Item não reconhecido"): sem material, valor nem lixeira.
 - Valores por embalagem: **PET R$ 0,10, lata R$ 0,15, vidro R$ 0,25**.
 - O voucher só vale no caixa do local que tem a máquina, então o crédito volta como venda.
 - Nome do produto: **ReciclaAI**.
@@ -89,10 +91,13 @@ Dois números lado a lado, com fonte: latas no Brasil (97,3%, porque têm valor)
 depósito na Alemanha (mais de 96%). Mensagem: "o segredo é o valor, não a lixeira".
 
 ### 6.3 A montagem da máquina (seção principal)
-- A seção fica parada na tela enquanto a pessoa rola. Começa só com o **contorno tracejado** da
-  máquina vazia.
-- A cada passo de rolagem, uma peça **voa e encaixa no lugar, de baixo para cima**. Uma barra
-  mostra o progresso ("3 de 9 peças").
+- A seção fica parada na tela enquanto a pessoa rola, num **palco escuro** (fundo preto,
+  cinematográfico). A máquina aparece como uma **vista explodida fotorrealista**, no estilo das
+  páginas de produto da Apple: um vídeo da máquina gerado por IA é convertido em cerca de 120
+  quadros WebP, desenhados num `<canvas>` conforme o progresso da rolagem (GSAP ScrollTrigger).
+  Tocar os quadros ao contrário dá a versão de montagem.
+- A cada passo de rolagem, uma peça é destacada e explicada. Uma barra mostra o progresso
+  ("3 de 9 peças").
 - Cada peça aparece com o nome e uma ou duas frases dizendo **por que ela existe**:
 
 | # | Peça | Por que existe |
@@ -108,10 +113,15 @@ depósito na Alemanha (mais de 96%). Mensagem: "o segredo é o valor, não a lix
 | 9 | Tela e impressora de voucher | Mostra o resultado e entrega o crédito |
 
 - Quando a última peça encaixa, a **tela da máquina liga** e mostra "Insira uma embalagem".
-- A ilustração é **2D, desenhada para o projeto**, inspirada nas máquinas alemãs (referência:
-  máquinas de retorno de supermercados alemães), sem copiar marca nem visual de fabricante.
+- A máquina é inspirada nas máquinas alemãs (referência: máquinas de retorno de supermercados
+  alemães), sem copiar marca nem visual de fabricante.
+- A **ilustração SVG 2D em camadas**, desenhada para o projeto, continua como alternativa: aparece
+  quando os quadros não existem e é a base para quem desativa animações.
+- O resto do site segue o estilo neo-brutalista; o contraste entre o palco escuro e o site
+  colorido é intencional.
 - **Celular:** a montagem é mais curta (menos rolagem por peça).
-- **Animações desativadas no sistema:** mostra a máquina pronta com a lista das 9 peças.
+- **Animações desativadas no sistema:** mostra a máquina pronta (ilustração SVG) com a lista das
+  9 peças.
 
 ### 6.4 O quanto pode ser bom
 Números de impacto que sobem na tela quando aparecem (embalagens que deixam de ir para a rua,
@@ -141,7 +151,9 @@ O objetivo é a pessoa **sentir que está funcionando de verdade**.
    projeto) responde: material, cor da lixeira e confiança.
 3. **Retorno:** se for PET, lata ou vidro, mostra quanto vale na máquina e permite adicionar à
    **sacola**, que soma o total. Se não for, mostra a lixeira certa e por que a máquina não aceita.
-   Abaixo de 70% de confiança, avisa que a IA não teve certeza e dá dicas para uma foto melhor.
+   Abaixo de 70% de confiança, ou se a IA achar que a foto não é de resíduo, mostra "Não
+   reconheci uma embalagem nesta foto" e dá dicas para uma foto melhor, sem material, valor nem
+   lixeira.
 4. **Mapa:** com permissão de localização, mostra os **supermercados reais mais próximos**, a
    distância e o tempo a pé. Sem permissão, abre no centro de Brasília. Um aviso fixo no mapa diz
    que **os mercados aparecem só para demonstrar o mapa e não são parceiros**. Sem logotipos.
@@ -153,27 +165,41 @@ O objetivo é a pessoa **sentir que está funcionando de verdade**.
 | Decisão | Escolha | Por quê |
 | --- | --- | --- |
 | Interface | **React** (projeto Vite) | Permite usar os componentes animados do React Bits; o Vite compila rápido e gera arquivos simples de servir |
-| Animação de rolagem | **GSAP com ScrollTrigger**; rolagem suave com **Lenis** | O ScrollTrigger prende a seção e liga cada peça a um trecho da rolagem; o Lenis é desligado quando o sistema pede menos animação |
-| Efeitos de texto e interface | **React Bits** | Componentes animados prontos, gratuitos, que evitam o visual genérico |
-| Fundo 3D (Vanta) | Só se sobrar tempo, e só no topo | Usa three.js, que pesa no celular; não é essencial para a mensagem |
+| Estilo visual | **Neo-brutalismo** (bordas pretas grossas, sombras duras deslocadas, cores chapadas fortes, tipografia pesada), inspirado no Material Design 3 / Material You, com cor semente **verde-limão `#C6F432`** | Evita o visual genérico; o limão contrasta com as linhas pretas e se distingue do verde do vidro (`#2e8b57`) e do ocre do metal (`#c99700`) |
+| Tipografia | **Bricolage Grotesque** (títulos) e **Atkinson Hyperlegible Next** (textos) | Títulos com personalidade e texto de alta legibilidade |
+| Animação de rolagem | **GSAP com ScrollTrigger** e rolagem suave com **Lenis** (obrigatórios) | O ScrollTrigger prende a seção e liga a máquina ao progresso da rolagem; o Lenis é desligado quando o sistema pede menos animação |
+| Efeitos de texto e interface | **React Bits** (obrigatório) | Componentes animados prontos, gratuitos, que evitam o visual genérico |
+| Fundo animado (Vanta) | Fundo animado da seção de abertura (topo), obrigatório | Dá vida ao primeiro contato; desligado com `prefers-reduced-motion` |
 | IA e regras da máquina | O **Flask atual** continua como servidor (modelo PyTorch, `rvm.py`, voucher, painel) | Reaproveita o que já funciona e mantém a IA em Python, onde ela foi treinada |
 | Entrega | O React é compilado e servido pelo próprio Flask | Um único endereço e um único deploy: menos coisa para quebrar na defesa |
 | Mapa | **Leaflet com OpenStreetMap**, com lista salva de Brasília se a busca falhar | Gratuito, sem cadastro nem chave de API; os dados de mercados são públicos |
 | Fotos | Unsplash e Pexels, com crédito do fotógrafo | Licença gratuita para uso, com qualidade profissional |
-| Ilustração da máquina | SVG 2D desenhado para o projeto, uma camada por peça | Cada peça vira um elemento que o GSAP anima separadamente; leve e nítido em qualquer tela |
+| Vista da máquina | Vídeo gerado por IA convertido em cerca de 120 quadros WebP (`frontend/public/maquina/frames/`), desenhados num `<canvas>` pelo progresso da rolagem, sobre palco escuro | Vista explodida fotorrealista, como nas páginas de produto da Apple; o progresso do GSAP escolhe o quadro |
+| Alternativa da máquina | SVG 2D desenhado para o projeto, uma camada por peça | Entra quando os quadros faltam e é a base para menos animação; leve e nítido em qualquer tela |
+| Hospedagem | **Hugging Face Spaces** (Docker), com URL HTTPS pública; deploy automático pelo GitHub Actions a cada merge na `main` | A turma testa pelo celular, e a câmera exige HTTPS |
+| Banco de dados | **PostgreSQL no Neon** (plano gratuito) em produção; **SQLite** localmente e nos testes; a variável `DATABASE_URL` escolhe | Dados persistentes e compartilhados no ar, sem complicar o desenvolvimento local |
 
 A troca para React é uma mudança de arquitetura e será registrada num ADR.
 
 ### 8.1 Onde roda e estado atual da IA
 
-- **Na defesa:** o site fica publicado num endereço **HTTPS público** (Hugging Face Spaces,
-  como previsto na issue #28), para o professor abrir no próprio celular e a câmera funcionar,
-  porque navegadores só liberam a câmera em HTTPS. **Plano B:** rodar no notebook
-  (localhost), com a câmera do notebook.
+- **Na defesa:** o site fica publicado num endereço **HTTPS público** (Hugging Face Spaces com
+  Docker, issue #28), com deploy automático pelo GitHub Actions a cada merge na `main`, para o
+  professor e a turma abrirem no próprio celular e a câmera funcionar, porque navegadores só
+  liberam a câmera em HTTPS. **Plano B:** rodar no notebook (localhost), com a câmera do notebook.
+- **Banco de dados:** em produção é o **PostgreSQL do Neon** (plano gratuito), persistente e
+  compartilhado, com a URL guardada no secret `DATABASE_URL`. Localmente e nos testes continua o
+  **SQLite** (`rvm.db`). Sem `DATABASE_URL`, o servidor usa SQLite (issue #52).
 - **O modelo ainda não está treinado nesta cópia** (`model/` e `dataset/` ficam fora do Git). O
   treino com a classe **orgânico** faz parte do trabalho (issues #15 e #16). Enquanto o modelo não
   existir, o site funciona e a subpágina avisa que a IA ainda não está pronta.
-- **Classes da IA:** papelão, vidro, metal, papel, plástico, orgânico e rejeito. O modelo foi
+- **Classes da IA:** papelão, vidro, metal, papel, plástico, orgânico, rejeito e **não é resíduo**
+  (`nao_residuo`: pessoas, rostos, ambientes, animais e paisagens; comida em prato continua sendo
+  orgânico). Sem essa classe, uma selfie poderia sair como "plástico 94%", porque o modelo sempre
+  escolhe uma das classes. Se a classe mais provável for `nao_residuo`, ou a confiança ficar
+  abaixo de 70%, o app diz "Não reconheci uma embalagem nesta foto" e a máquina rejeita o item.
+  As imagens dessa classe vêm de bancos públicos com licença compatível com uso acadêmico, com
+  crédito no README, em quantidade parecida com a das outras classes. O modelo foi
   treinado com resíduos em geral, não só embalagens de bebida, então os textos dizem "garrafa
   plástica", "lata" e "vidro" como exemplos, sem prometer que a IA reconhece marcas ou o tipo PET
   especificamente.
@@ -206,7 +232,8 @@ Um documento à parte (`docs/heuristicas-nielsen.md`) vai mostrar, com prints, c
 ## 10. Essencial e extra
 
 **Essencial (entra na defesa de qualquer jeito)**
-- Site em React servido pelo Flask.
+- Site em React servido pelo Flask, no estilo neo-brutalista definido na seção 8.
+- Rolagem suave (Lenis) e fundo animado no topo (Vanta), ambos desligados com menos animação.
 - Seções 6.1, 6.2, 6.3 (montagem completa) e 6.8.
 - Subpágina: passos 1 a 3 e o mapa com a **lista salva de mercados de Brasília**.
 - Documento das heurísticas de Nielsen.
@@ -215,12 +242,11 @@ Um documento à parte (`docs/heuristicas-nielsen.md`) vai mostrar, com prints, c
 1. Depósito simulado com voucher na subpágina (passo 5).
 2. Seções 6.4 a 6.7.
 3. Busca real de mercados próximos no OpenStreetMap.
-4. Rolagem suave (Lenis) e fundo 3D (Vanta).
 
 ## 11. Deixado para quem constrói
 
-Paleta, tipografia e estilo visual exatos (seguindo o anti-objetivo de não parecer genérico);
-textos finais de cada seção; escolha das fotos; quais componentes do React Bits usar; desenho de
+Os valores exatos dos tokens de estilo (tamanhos, espaçamentos, espessura das bordas e
+sombras), dentro do estilo e da paleta já definidos; textos finais de cada seção; escolha das fotos; quais componentes do React Bits usar; desenho de
 cada peça da máquina; organização das pastas do projeto React.
 
 ## 12. Fontes
