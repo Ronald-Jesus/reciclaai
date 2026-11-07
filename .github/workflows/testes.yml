@@ -1,0 +1,29 @@
+name: Testes
+
+on:
+  push:
+    branches: [develop, main]
+  pull_request:
+
+jobs:
+  testes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      # O torch padrão do Linux é a versão CUDA (vários GB). Instalamos
+      # a versão CPU antes, com as mesmas versões fixadas no requirements.txt.
+      - name: Instalar torch e torchvision (CPU)
+        run: pip install torch==2.14.1 torchvision==0.29.1 --index-url https://download.pytorch.org/whl/cpu
+
+      - name: Instalar dependências
+        run: pip install -r requirements.txt
+
+      - name: Rodar os testes
+        run: pytest --cov=rvm --cov-report=term-missing --cov-fail-under=70

@@ -1,5 +1,7 @@
 # ReciclaAI ♻️ — Máquina de Retorno de Embalagens (RVM)
 
+![Testes](https://github.com/Ronald-Jesus/reciclaai/actions/workflows/testes.yml/badge.svg?branch=develop)
+
 Simulação de uma **Reverse Vending Machine (RVM)**, a "máquina que troca lixo por dinheiro" usada em sistemas de depósito e retorno como o *Pfand* alemão. O usuário insere embalagens, uma câmera identifica o material com *deep learning*, a máquina aceita ou devolve o item e, no fim, emite um **voucher** com o crédito acumulado.
 
 O modelo (ResNet18 com *transfer learning*) reconhece 6 categorias: **papelão, vidro, metal, papel, plástico e rejeito**. A camada de regras da máquina (`rvm.py`) decide o que fazer com cada uma.
@@ -76,6 +78,7 @@ RVMs reais não dependem só da câmera. Elas combinam **código de barras** (pa
   - [1. Clonar o repositório](#1-clonar-o-repositório)
   - [2. Criar o ambiente virtual](#2-criar-o-ambiente-virtual)
   - [3. Instalar as dependências](#3-instalar-as-dependências)
+  - [Rodar os testes](#rodar-os-testes)
   - [4. Baixar e organizar o dataset](#4-baixar-e-organizar-o-dataset)
   - [5. Treinar o modelo](#5-treinar-o-modelo)
   - [6. Rodar o front-end](#6-rodar-o-front-end)
@@ -109,7 +112,7 @@ ReciclaAI/
 
 ## Pré-requisitos
 
-- [Python 3.10+](https://www.python.org/downloads/)
+- [Python 3.12](https://www.python.org/downloads/) (versão usada nos testes e no pipeline)
 - [Git](https://git-scm.com/downloads)
 - Conta gratuita no [Kaggle](https://www.kaggle.com/) para baixar o dataset
 - *(opcional, recomendado)* GPU NVIDIA com driver atualizado — o treino roda em CPU também, só é mais lento
@@ -143,24 +146,36 @@ O prompt deve passar a mostrar `(venv)` no início da linha quando o ambiente es
 
 ### 3. Instalar as dependências
 
+As versões de todas as dependências estão fixadas no `requirements.txt`, para que a instalação seja a mesma em qualquer máquina. O PyTorch é instalado primeiro, direto do índice oficial, para escolher entre a versão CPU e a versão com GPU.
+
 **Se você tem GPU NVIDIA** (recomendado — o treino fica bem mais rápido):
 ```bash
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
-pip install flask pillow
+pip install torch==2.14.1 torchvision==0.29.1 --index-url https://download.pytorch.org/whl/cu130
+pip install -r requirements.txt
 ```
 
 **Se você não tem GPU (ou não sabe):**
 ```bash
+pip install torch==2.14.1 torchvision==0.29.1 --index-url https://download.pytorch.org/whl/cpu
 pip install -r requirements.txt
 ```
 
-> ⚠️ No Windows e macOS, `pip install torch` sozinho **sempre instala a versão CPU-only**, mesmo que você tenha uma GPU NVIDIA. Por isso o comando com `--index-url` acima é necessário para usar a GPU.
+> ⚠️ No Windows e macOS, `pip install torch` sozinho **sempre instala a versão CPU-only**, mesmo que você tenha uma GPU NVIDIA. Por isso o comando com `--index-url` acima é necessário para usar a GPU. No Linux acontece o contrário: o `pip install torch` sozinho baixa a versão CUDA, com vários GB.
 
 Confirme se a GPU foi detectada:
 ```bash
 python -c "import torch; print(torch.__version__, torch.cuda.is_available())"
 ```
 Deve aparecer `True` no final. Se aparecer `False` mesmo tendo GPU, veja a seção [Solução de problemas](#solução-de-problemas).
+
+### Rodar os testes
+
+Com o ambiente ativo, a partir da raiz do projeto:
+```bash
+pytest --cov=rvm --cov-report=term-missing
+```
+
+Os testes das regras da máquina (`rvm.py`) usam um banco SQLite temporário e não mexem no `rvm.db`. O mesmo comando roda no GitHub Actions a cada push e pull request, e o pipeline exige pelo menos 70% de cobertura de `rvm.py`.
 
 ### 4. Baixar e organizar o dataset
 
@@ -203,8 +218,8 @@ O ambiente virtual está ativo (`(venv)` aparece no prompt) mas as dependências
 **`torch.cuda.is_available()` retorna `False` mesmo com GPU NVIDIA**
 Você instalou a build CPU-only por engano. Reinstale apontando para o índice certo:
 ```bash
-pip uninstall torch torchvision torchaudio -y
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
+pip uninstall torch torchvision -y
+pip install torch==2.14.1 torchvision==0.29.1 --index-url https://download.pytorch.org/whl/cu130
 ```
 Se `nvidia-smi` (no terminal) não reconhecer o comando, sua máquina não tem GPU NVIDIA disponível — o projeto funciona em CPU, só mais lento.
 
