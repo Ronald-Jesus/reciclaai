@@ -45,6 +45,9 @@ em caso de dúvida, a visão manda.
    o mercado mais próximo desse ponto. Teste na Parte 10.
 5. **Animações desativadas no sistema:** a montagem mostra a máquina pronta (ilustração SVG) com
    a lista das 9 peças, sem rolagem presa; Lenis e Vanta ficam desligados. Teste na Parte 6.
+6. **Foto que não é de resíduo (pessoa, ambiente):** a classe `nao_residuo`, ou confiança abaixo de
+   70%, mostra "Não reconheci uma embalagem nesta foto" com dicas, nunca material, valor ou
+   lixeira; a máquina rejeita. Testes na Parte 7 e na Parte 9.
 
 ---
 
@@ -100,8 +103,9 @@ tipografia Bricolage Grotesque nos títulos e Atkinson Hyperlegible Next nos tex
 
 **Interfaces:** `useRolagemSuave()` liga o Lenis e não faz nada quando `useMenosAnimacao()` é
 verdadeiro · `useMenosAnimacao(): boolean` (lê `prefers-reduced-motion`) ·
-`MATERIAIS: Record<classe, {rotulo, lixeira, cor, icone, dica}>` com as 7 classes, incluindo
-`biological` como apelido de `organic`.
+`MATERIAIS: Record<classe, {rotulo, lixeira, cor, icone, dica}>` com as 7 classes de material, incluindo
+`biological` como apelido de `organic`. `nao_residuo` não é material: não entra em `MATERIAIS` e
+não tem cor de lixeira.
 
 **Testes (Vitest):** `useMenosAnimacao respeita a preferência do sistema` · `todo material tem
 cor e lixeira` · `Topo tem link para a lixeira pessoal`.
@@ -167,15 +171,18 @@ no celular.
 
 **Interfaces:**
 - `POST /predict` (campo `image`) → `{prediction: {class, label, bin, color, confidence},
-  ranking: [3 itens], machine: {accepted, value, reason}, low_confidence: bool}` (não gera crédito)
+  ranking: [3 itens], machine: {accepted, value, reason}, low_confidence: bool, nao_reconhecido: bool}` (não gera crédito). `nao_reconhecido` é
+  `true` quando a classe mais provável é `nao_residuo` ou a confiança é menor que 70
 - `GET /api/status` → `{model_ready: bool}`
 - erros sempre em JSON `{error: "<o que houve e como resolver>"}`: 400 imagem inválida, 413 acima
   de 5 MB, 503 modelo não treinado
-- `rvm.REJECT_REASONS` com `organic` e `biological` (lixeira marrom)
+- `rvm.REJECT_REASONS` com `organic` e `biological` (lixeira marrom) e `nao_residuo` ("Item não
+  reconhecido"; sem lixeira)
 
 **Testes:** `test_predict_diz_valor_na_maquina` · `test_predict_nao_gera_credito` (nenhuma linha
 nova em `items`) · `test_upload_acima_de_5mb_da_413` · `test_arquivo_que_nao_e_imagem_da_400` ·
-`test_sem_modelo_da_503_com_mensagem` · `test_organico_vai_para_lixeira_marrom`.
+`test_sem_modelo_da_503_com_mensagem` · `test_organico_vai_para_lixeira_marrom` · `test_nao_residuo_nao_vira_material` (`nao_reconhecido`
+true, sem material, valor nem lixeira; a máquina rejeita).
 
 ## Parte 8 · Subpágina: foto e análise
 **Issue:** #43 · **Estimativa:** 1,5 h
@@ -203,7 +210,7 @@ animação de leitura com "Analisando…" e botão cancelar.
 `totalSacola(itens): number`.
 
 **Testes:** `só material aceito pode ir para a sacola` · `total soma os valores` ·
-`desfazer devolve o item removido` · `confiança baixa mostra dicas de foto`.
+`desfazer devolve o item removido` · `confiança baixa mostra dicas de foto` · `nao_reconhecido mostra "Não reconheci uma embalagem" sem material, valor nem lixeira`.
 
 **Pronto quando:** resultado com material, lixeira, confiança, valor ou motivo da recusa e dica;
 sacola com miniaturas e total; legenda das lixeiras sempre visível.

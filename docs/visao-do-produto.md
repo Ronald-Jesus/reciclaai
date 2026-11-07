@@ -73,6 +73,8 @@ explica o sistema e uma demonstração onde a IA do projeto funciona de verdade.
   orgânico (marrom) e rejeito (cinza) são identificados e devolvidos com orientação. As cores
   seguem a Resolução CONAMA 275/2001.
 - Abaixo de **70% de confiança** da IA, o item é devolvido ("reposicione e tente de novo").
+- Se a IA identificar **"não é resíduo"** (pessoa, ambiente, animal) ou ficar abaixo de 70%, a
+  máquina trata como rejeitado ("Item não reconhecido"): sem material, valor nem lixeira.
 - Valores por embalagem: **PET R$ 0,10, lata R$ 0,15, vidro R$ 0,25**.
 - O voucher só vale no caixa do local que tem a máquina, então o crédito volta como venda.
 - Nome do produto: **ReciclaAI**.
@@ -149,7 +151,9 @@ O objetivo é a pessoa **sentir que está funcionando de verdade**.
    projeto) responde: material, cor da lixeira e confiança.
 3. **Retorno:** se for PET, lata ou vidro, mostra quanto vale na máquina e permite adicionar à
    **sacola**, que soma o total. Se não for, mostra a lixeira certa e por que a máquina não aceita.
-   Abaixo de 70% de confiança, avisa que a IA não teve certeza e dá dicas para uma foto melhor.
+   Abaixo de 70% de confiança, ou se a IA achar que a foto não é de resíduo, mostra "Não
+   reconheci uma embalagem nesta foto" e dá dicas para uma foto melhor, sem material, valor nem
+   lixeira.
 4. **Mapa:** com permissão de localização, mostra os **supermercados reais mais próximos**, a
    distância e o tempo a pé. Sem permissão, abre no centro de Brasília. Um aviso fixo no mapa diz
    que **os mercados aparecem só para demonstrar o mapa e não são parceiros**. Sem logotipos.
@@ -189,7 +193,13 @@ A troca para React é uma mudança de arquitetura e será registrada num ADR.
 - **O modelo ainda não está treinado nesta cópia** (`model/` e `dataset/` ficam fora do Git). O
   treino com a classe **orgânico** faz parte do trabalho (issues #15 e #16). Enquanto o modelo não
   existir, o site funciona e a subpágina avisa que a IA ainda não está pronta.
-- **Classes da IA:** papelão, vidro, metal, papel, plástico, orgânico e rejeito. O modelo foi
+- **Classes da IA:** papelão, vidro, metal, papel, plástico, orgânico, rejeito e **não é resíduo**
+  (`nao_residuo`: pessoas, rostos, ambientes, animais e paisagens; comida em prato continua sendo
+  orgânico). Sem essa classe, uma selfie poderia sair como "plástico 94%", porque o modelo sempre
+  escolhe uma das classes. Se a classe mais provável for `nao_residuo`, ou a confiança ficar
+  abaixo de 70%, o app diz "Não reconheci uma embalagem nesta foto" e a máquina rejeita o item.
+  As imagens dessa classe vêm de bancos públicos com licença compatível com uso acadêmico, com
+  crédito no README, em quantidade parecida com a das outras classes. O modelo foi
   treinado com resíduos em geral, não só embalagens de bebida, então os textos dizem "garrafa
   plástica", "lata" e "vidro" como exemplos, sem prometer que a IA reconhece marcas ou o tipo PET
   especificamente.
