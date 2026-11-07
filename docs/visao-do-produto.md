@@ -48,7 +48,7 @@ explica o sistema e uma demonstração onde a IA do projeto funciona de verdade.
 ## 4. Restrições
 
 - **Prazo:** defesa em 03/12/2026. Projeto individual, com cerca de 10 h de trabalho por
-  semana.
+  semana, com apoio de um assistente de IA no desenvolvimento.
 - **Processo:** construção em etapas pequenas. Cada etapa é revisada, aprovada e enviada
   ao GitHub com branch e pull request próprios, formando o histórico de construção que a rubrica avalia.
 - **Rubrica:** o site faz parte do MVP. Também valem BPMN, requisitos com MoSCoW, UML, testes no
