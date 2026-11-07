@@ -4,3 +4,5 @@ rvm.db
 __pycache__
 venv
 .superpowers/
+.coverage
+.pytest_cache/
