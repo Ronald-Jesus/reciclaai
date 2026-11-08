@@ -185,22 +185,37 @@ Os testes das regras da máquina (`rvm.py`) usam um banco SQLite temporário e n
 
 ### 4. Baixar e organizar o dataset
 
-Baixe o dataset **[Garbage Classification](https://www.kaggle.com/datasets/asdasdasasdas/garbage-classification)** no Kaggle (são ~2.500 imagens em 6 pastas: `cardboard`, `glass`, `metal`, `paper`, `plastic`, `trash`) e extraia o `.zip` em algum lugar da sua máquina.
+O modelo reconhece 8 classes: `cardboard`, `glass`, `metal`, `organic`, `paper`, `plastic`, `trash` e `nao_residuo` (foto que não é de resíduo, como pessoas e ambientes).
 
-Depois, rode o script de organização para dividir em treino/teste:
-```bash
-python split_dataset.py --source "C:\caminho\para\o\dataset\extraido" --dest dataset --test-size 0.2
-```
+1. Baixe no Kaggle (conta gratuita) e extraia em pastas separadas:
+   - [Garbage Classification (12 classes)](https://www.kaggle.com/datasets/mostafaabla/garbage-classification), de Mostafa Abla;
+   - [Natural Images](https://www.kaggle.com/datasets/prasunroy/natural-images), de Prasun Roy;
+   - opcional: [Garbage Classification (6 classes)](https://www.kaggle.com/datasets/asdasdasasdas/garbage-classification), o dataset original do projeto.
+2. Monte o dataset bruto com as 8 classes:
+   ```bash
+   python scripts/preparar_dataset.py --garbage12 "C:\caminho\garbage12" --natural "C:\caminho
+atural-images" --dest dataset_raw
+   ```
+   - Vidros marrom, verde e branco viram `glass`; `biological` vira `organic`; pessoas, animais, carros, motos e aviões formam `nao_residuo`; pilhas, frutas e flores ficam de fora.
+   - Até 1000 imagens por classe (`--max-por-classe`), com cotas iguais por pasta de origem e sorteio reprodutível (`--seed 42`). Em `trash`, todo o lixo real entra primeiro e roupas e sapatos completam o restante.
+   - Imagens repetidas (mesmo conteúdo) são descartadas. Usar `--garbage6` junto com `--garbage12` gera um aviso, porque os dois datasets se sobrepõem.
+3. Divida em treino, validação e teste:
+   ```bash
+   python split_dataset.py --source dataset_raw --dest dataset --val-size 0.15 --test-size 0.15
+   ```
 
-Isso cria a pasta `dataset/` (ignorada pelo Git) com `train/` e `test/`, cada uma com as 6 subpastas de classe.
+As pastas `dataset_raw/` e `dataset/` ficam fora do Git. As imagens não são redistribuídas no repositório; a licença de cada dataset está na página dele no Kaggle.
 
 ### 5. Treinar o modelo
 
 ```bash
-python treino.py
+python treino.py --dataset dataset --epochs 15
 ```
 
-O treino imprime a acurácia de treino e teste a cada época e, ao final, salva o modelo em `model/reciclaai.pth`. Em GPU costuma levar poucos minutos; em CPU pode levar bem mais tempo dependendo do tamanho do dataset.
+- Usa a GPU (CUDA) se houver; senão, a CPU.
+- Ajusta as camadas finais da ResNet18 (`layer4` e `fc`), escolhe a melhor época pela validação e para cedo depois de 3 épocas sem melhora.
+- Saídas em `model/`: `reciclaai.pth` (usado pelo app), `metricas.json` (acurácia no teste e precisão, recall e acurácia por classe) e `confusion_matrix.png`.
+- Sem a pasta `val/`, a validação usa o teste e o `metricas.json` marca `"validacao_igual_teste": true`, porque a acurácia fica otimista nesse caso.
 
 ### 6. Rodar o front-end
 
