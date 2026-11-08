@@ -3,6 +3,8 @@
 Derivados das [histórias de usuário](historias-de-usuario.md) e da
 [visão do produto](../visao-do-produto.md). Cada requisito aponta as histórias que o originam.
 
+Veja também a [matriz de rastreabilidade](matriz-de-rastreabilidade.md).
+
 ## Requisitos funcionais
 
 | ID | Requisito | HU |
