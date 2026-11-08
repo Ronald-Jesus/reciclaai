@@ -52,10 +52,17 @@ livre dentro das 40 h. O gatilho para começar a cortar está em [A07](A07-risco
 de desempenho de prazo (IDP) abaixo de 0,9 em duas semanas seguidas ([A09](A09-status-EVM.md)).
 Qualquer corte passa pelo registro de mudanças ([A10](A10-mudancas.md)).
 
+**Contingência de calendário (M07).** Com o cronograma antecipado, o trabalho termina em 27/11 e
+há ainda 28/11 a 02/12 antes da defesa: um fim de semana livre (28 e 29/11) e três dias úteis em
+que só #32, #33 e #34 (5 h) estão planejados. Esse colchão soma-se à reserva de 4 h por corte de
+escopo: um atraso de até cerca de dois dias úteis no I3 pode escorregar para essa janela sem
+mover a defesa, ao custo de comprimir o preparo (#32 a #34). Assim, a contingência passa a ser de
+escopo **e** de calendário ([A04](A04-cronograma.md), [A10](A10-mudancas.md), M07).
+
 ## Cone da incerteza
 
-Estimativa pontual: **41,5 h**. Fase atual: **Projeto** (requisitos e protótipo prontos, arquitetura
-em andamento no I1). Multiplicadores adaptados da Fig. 23.9; extremos 4× e 0,25×, os intermediários
+Estimativa pontual: **41,5 h**. Fase atual: **Projeto** (requisitos, arquitetura e documentação do I1
+prontos em 08/11; construção começa em 09/11). Multiplicadores adaptados da Fig. 23.9; extremos 4× e 0,25×, os intermediários
 são ilustrativos.
 
 | Fase | Multiplicador inferior | Multiplicador superior | Faixa mínima (h) | Faixa máxima (h) |

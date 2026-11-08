@@ -13,7 +13,7 @@ A abordagem do projeto é **híbrida**: marcos planejados, quadro Kanban e entre
 | A01 | [A01-TAP.md](A01-TAP.md) | Termo de Abertura: justificativa, objetivo SMART, escopo, marcos e aprovação | #4 |
 | A02 | [A02-partes-interessadas.md](A02-partes-interessadas.md) | Poder, interesse e estratégia por parte interessada | #4 |
 | A03 | [A03-EAP.md](A03-EAP.md) | EAP em diagrama e dicionário, com as issues de cada pacote | #5 |
-| A04 | [A04-cronograma.md](A04-cronograma.md) | Gantt de 07/11 a 03/12/2026, caminho crítico e folgas | #6 |
+| A04 | [A04-cronograma.md](A04-cronograma.md) | Gantt antecipado (trabalho até 27/11, defesa em 03/12/2026), caminho crítico e folgas | #6 |
 | A05 | [A05-estimativas.md](A05-estimativas.md) | PERT, cone da incerteza e contingência | #6 |
 | A06 | [A06-RACI.md](A06-RACI.md) | Responsabilidades e vias de comunicação | #7 |
 | A07 | [A07-riscos.md](A07-riscos.md) | Registro de riscos, matriz e rotina de revisão semanal | #7, #26 |
