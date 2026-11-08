@@ -27,3 +27,26 @@ jobs:
 
       - name: Rodar os testes
         run: pytest --cov=rvm --cov-report=term-missing --cov-fail-under=70
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Rodar os testes
+        run: npm test -- --run
+
+      - name: Compilar
+        run: npm run build

@@ -92,7 +92,7 @@ O pipeline tem três etapas:
 
 1. **`split_dataset.py`** organiza as imagens baixadas do Kaggle na estrutura de pastas que o treino espera (`train/` e `test/`).
 2. **`treino.py`** treina uma ResNet18 pré-treinada (congelando as camadas convolucionais e treinando só a camada final) e salva o modelo em `model/reciclaai.pth`.
-3. **`app.py`** carrega esse modelo e expõe a interface da máquina (`templates/index.html`) e o painel do operador (`templates/admin.html`). As regras de aceitação, os créditos, os compartimentos e os vouchers ficam em **`rvm.py`**.
+3. **`app.py`** carrega esse modelo, serve o site em React (`frontend/`, compilado em `frontend/dist/`) nas rotas `/` e `/lixeira`, a simulação da máquina em `/maquina` (`templates/maquina.html`) e o painel do operador em `/admin` (`templates/admin.html`). As regras de aceitação, os créditos, os compartimentos e os vouchers ficam em **`rvm.py`**. A escolha do React servido pelo Flask está registrada em [`docs/adr/ADR-001-react-servido-pelo-flask.md`](docs/adr/ADR-001-react-servido-pelo-flask.md).
 
 ## Estrutura do repositório
 
@@ -102,9 +102,13 @@ ReciclaAI/
 ├── treino.py             # treina o modelo
 ├── app.py                 # backend Flask (modelo + rotas da máquina e do operador)
 ├── rvm.py                 # regras da RVM: aceitação, créditos, compartimentos, vouchers (SQLite)
+├── frontend/              # site em React (Vite): npm run build gera frontend/dist/
 ├── templates/
-│   ├── index.html         # tela da máquina (câmera/upload, saldo, voucher)
+│   ├── maquina.html       # simulação da máquina em /maquina (câmera/upload, saldo, voucher)
 │   └── admin.html         # painel do operador
+├── tests/                 # testes (pytest)
+├── docs/                  # visão, plano, protótipo, ADRs e documentos do projeto
+├── .github/workflows/     # pipeline de testes (Python e front-end)
 ├── requirements.txt
 ├── .gitignore
 └── README.md
@@ -200,13 +204,26 @@ O treino imprime a acurácia de treino e teste a cada época e, ao final, salva 
 
 ### 6. Rodar o front-end
 
+Primeiro compile o site em React (precisa do [Node.js](https://nodejs.org/) 24):
+
+```bash
+cd frontend
+npm ci
+npm run build
+cd ..
+```
+
+Depois suba o servidor:
+
 ```bash
 python app.py
 ```
 
-Acesse **http://localhost:5000** no navegador e clique em **Começar**. Ative a câmera (ou envie uma foto), aponte para a embalagem e clique em **Inserir embalagem**. A máquina mostra se o item foi aceito e quanto valeu. Em **Finalizar e gerar voucher** você recebe o código com o saldo.
+- **http://localhost:5000** — site (React); **http://localhost:5000/lixeira** — app Lixeira Pessoal.
+- **http://localhost:5000/maquina** — simulação da máquina: clique em **Começar**, ative a câmera (ou envie uma foto) e clique em **Inserir embalagem**. Em **Finalizar e gerar voucher** você recebe o código com o saldo.
+- **http://localhost:5000/admin** — painel do operador.
 
-O painel do operador fica em **http://localhost:5000/admin**.
+Se a pasta `frontend/dist/` não existir, as rotas do site mostram uma mensagem pedindo para rodar `npm run build`. Para os testes do front-end: `cd frontend && npm test -- --run`.
 
 > A câmera só funciona em `localhost` ou HTTPS (restrição do navegador). Acessando de outro dispositivo pela rede, use "Enviar foto".
 
