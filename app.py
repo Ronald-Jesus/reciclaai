@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import torch
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, send_from_directory
 from PIL import Image
 from torch import nn
 from torchvision import models, transforms
@@ -10,6 +10,8 @@ import rvm
 
 BASE_DIR = Path(__file__).resolve().parent
 MODEL_PATH = BASE_DIR / "model" / "reciclaai.pth"
+# Saída do `npm run build`; os testes apontam para uma pasta temporária.
+FRONTEND_DIST = BASE_DIR / "frontend" / "dist"
 
 # Rótulos e cores de exibição em português para cada classe do dataset
 DISPLAY_INFO = {
@@ -113,13 +115,43 @@ def ensure_model():
 
 # ---------------------------------------------------------------- telas
 
+def serve_react():
+    """Entrega o index.html do React; o roteamento interno fica por conta dele."""
+    index = Path(FRONTEND_DIST) / "index.html"
+    if not index.exists():
+        aviso = (
+            "<!doctype html><html lang='pt-BR'><meta charset='utf-8'>"
+            "<title>Front-end não compilado</title>"
+            "<h1>Front-end não compilado</h1>"
+            "<p>Entre na pasta <code>frontend/</code> e rode <code>npm install</code> "
+            "seguido de <code>npm run build</code>. Depois recarregue esta página.</p></html>"
+        )
+        return aviso, 503
+    return send_from_directory(FRONTEND_DIST, "index.html")
+
+
 @app.route("/")
 def index():
+    return serve_react()
+
+
+@app.route("/lixeira")
+def lixeira():
+    return serve_react()
+
+
+@app.route("/assets/<path:nome>")
+def assets(nome):
+    return send_from_directory(Path(FRONTEND_DIST) / "assets", nome)
+
+
+@app.route("/maquina")
+def maquina():
     accepted = [
         {"class": cls, **display(cls), "value": cfg["value"]}
         for cls, cfg in rvm.ACCEPTED.items()
     ]
-    return render_template("index.html", accepted=accepted, min_confidence=rvm.MIN_CONFIDENCE)
+    return render_template("maquina.html", accepted=accepted, min_confidence=rvm.MIN_CONFIDENCE)
 
 
 @app.route("/admin")
