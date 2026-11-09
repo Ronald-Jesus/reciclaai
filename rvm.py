@@ -40,7 +40,13 @@ REJECT_REASONS: dict[str, str] = {
     "paper": "Papel não é aceito pela máquina. Descarte no coletor azul.",
     "cardboard": "Papelão não é aceito pela máquina. Descarte no coletor azul.",
     "trash": "Item não reciclável. Descarte no lixo comum.",
+    "organic": "Orgânico não vai na máquina. Use a lixeira marrom ou uma composteira.",
+    "biological": "Orgânico não vai na máquina. Use a lixeira marrom ou uma composteira.",
+    "nao_residuo": "Item não reconhecido como embalagem.",
 }
+
+# Mensagem única para foto sem embalagem reconhecida (classe nao_residuo ou confiança baixa).
+NAO_RECONHECIDO = "Não reconheci uma embalagem nesta foto."
 
 # Avisa o operador quando o compartimento passar deste percentual.
 FULL_WARNING_PCT = 85.0
@@ -111,10 +117,15 @@ def init_db() -> None:
             )
 
 
+def nao_reconhecido(material: str, confidence: float) -> bool:
+    """Regra única: classe nao_residuo ou confiança abaixo do mínimo."""
+    return material == "nao_residuo" or confidence < MIN_CONFIDENCE
+
+
 def decide(material: str, confidence: float, bin_full: bool) -> Decision:
     """Regra de aceitação de um item já classificado pelo modelo."""
-    if confidence < MIN_CONFIDENCE:
-        return Decision(False, "Não foi possível identificar a embalagem. Reposicione e tente de novo.")
+    if nao_reconhecido(material, confidence):
+        return Decision(False, NAO_RECONHECIDO)
     if material in REJECT_REASONS:
         return Decision(False, REJECT_REASONS[material])
     if material not in ACCEPTED:
