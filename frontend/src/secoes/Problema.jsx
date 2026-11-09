@@ -2,7 +2,12 @@ import { FOTOS } from "../dados/creditos.js";
 import FraseRevelada from "../componentes/FraseRevelada.jsx";
 
 const PASSOS = [
-  { foto: FOTOS.rua, frase: "Toda garrafa aqui já teve dono.", lado: "a" },
+  {
+    foto: FOTOS.rua,
+    frase: "Toda garrafa aqui já teve dono.",
+    texto: "Depois de beber, ninguém volta para buscar. Para quem joga fora, a embalagem não vale nada. Por isso ela fica na rua.",
+    lado: "a",
+  },
   { foto: FOTOS.calcada, frase: "Na calçada, ela vira lixo.", lado: "b" },
   { foto: FOTOS.rio, frase: "A chuva leva até o rio.", lado: "a" },
   { foto: FOTOS.praia, frase: "O rio entrega na praia.", lado: "b" },
@@ -12,7 +17,7 @@ const PASSOS = [
 export default function Problema() {
   return (
     <section className="fotos" id="problema" aria-label="O problema, em fotos">
-      {PASSOS.map(({ foto, frase, lado }, i) => (
+      {PASSOS.map(({ foto, frase, texto, lado }, i) => (
         <div className={`passo passo--${lado}`} key={foto.arquivo}>
           <figure className="foto">
             <img
@@ -28,7 +33,10 @@ export default function Problema() {
               Foto: <a href={foto.link} target="_blank" rel="noopener noreferrer">{foto.autor}</a> · {foto.licenca}
             </figcaption>
           </figure>
-          <FraseRevelada className="frase">{frase}</FraseRevelada>
+          <div className="passo__texto">
+            <FraseRevelada className="frase">{frase}</FraseRevelada>
+            {texto && <p className="passo__paragrafo">{texto}</p>}
+          </div>
         </div>
       ))}
       <p className="pergunta">
