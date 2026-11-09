@@ -1,8 +1,9 @@
 from pathlib import Path
 
 import torch
-from flask import Flask, jsonify, render_template, request, send_from_directory
+from flask import Flask, abort, jsonify, render_template, request, send_from_directory
 from PIL import Image
+from werkzeug.utils import safe_join
 from torch import nn
 from torchvision import models, transforms
 
@@ -176,6 +177,25 @@ def lixeira():
 @app.route("/assets/<path:nome>")
 def assets(nome):
     return send_from_directory(Path(FRONTEND_DIST) / "assets", nome)
+
+
+@app.route("/fotos/<path:nome>")
+def fotos(nome):
+    return send_from_directory(Path(FRONTEND_DIST) / "fotos", nome)
+
+
+@app.route("/<path:nome>")
+def arquivo_publico(nome):
+    """Arquivos de frontend/public copiados para a raiz do dist (favicon etc.).
+
+    Só serve arquivo que exista dentro do dist; o resto é 404 (nunca vira o SPA).
+    send_from_directory bloqueia path traversal.
+    """
+    dist = Path(FRONTEND_DIST)
+    destino = safe_join(str(dist), nome)
+    if destino is None or not Path(destino).is_file():
+        abort(404)
+    return send_from_directory(dist, nome)
 
 
 @app.route("/maquina")
