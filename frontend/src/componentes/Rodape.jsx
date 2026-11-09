@@ -1,3 +1,5 @@
+import { CREDITOS } from "../dados/creditos.js";
+
 export default function Rodape() {
   return (
     <footer className="rodape">
@@ -9,6 +11,19 @@ export default function Rodape() {
           </p>
           <ul>
             <li>Cores da coleta seletiva: Resolução CONAMA nº 275/2001.</li>
+          </ul>
+          <p className="rodape__sub">
+            <strong>Fotos</strong>
+          </p>
+          <ul>
+            {CREDITOS.map((f) => (
+              <li key={f.arquivo}>
+                <a href={f.link} target="_blank" rel="noopener noreferrer">
+                  {f.autor}
+                </a>
+                , {f.licenca}
+              </li>
+            ))}
           </ul>
         </div>
         <p className="rodape__nota">

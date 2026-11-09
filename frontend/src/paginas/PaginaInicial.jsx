@@ -1,6 +1,9 @@
 import Topo from "../componentes/Topo.jsx";
 import Rodape from "../componentes/Rodape.jsx";
 import Botao from "../componentes/Botao.jsx";
+import FundoVanta from "../componentes/FundoVanta.jsx";
+import Problema from "../secoes/Problema.jsx";
+import Contraste from "../secoes/Contraste.jsx";
 
 const SECOES = [
   { id: "como-funciona", titulo: "Como funciona" },
@@ -15,6 +18,7 @@ export default function PaginaInicial() {
       <Topo />
       <main id="conteudo" tabIndex={-1}>
         <section className="hero" aria-labelledby="hero-titulo">
+          <FundoVanta />
           <div className="hero__in">
             <p className="hero__sobre">Máquina de retorno de embalagens com câmera e IA</p>
             <h1 className="hero__titulo" id="hero-titulo">
@@ -28,6 +32,8 @@ export default function PaginaInicial() {
             </div>
           </div>
         </section>
+        <Problema />
+        <Contraste />
         {SECOES.map((s) => (
           <section className="secao-provisoria" id={s.id} key={s.id} aria-labelledby={`${s.id}-titulo`}>
             <div className="secao__in">

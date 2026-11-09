@@ -1,0 +1,85 @@
+/* ReciclaAI · seções 6.1 (problema) e 6.2 (contraste Brasil x Alemanha). Só tokens. */
+
+.fotos {
+  max-width: var(--rc-content-max); margin-inline: auto;
+  padding: var(--rc-space-11) var(--rc-gutter) var(--rc-space-12);
+  display: grid; gap: var(--rc-space-10);
+}
+@media (min-width: 720px) { .fotos { padding-inline: var(--rc-space-7); } }
+.passo { display: grid; gap: var(--rc-space-6); align-items: center; }
+.foto { position: relative; }
+.foto__img {
+  width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover;
+  background: var(--md-sys-color-surface-container-highest);
+  border: var(--rc-border) solid var(--rc-ink); border-radius: var(--md-sys-shape-corner-large);
+  box-shadow: var(--rc-shadow-lg);
+}
+.foto__credito {
+  position: absolute; left: var(--rc-space-3); bottom: var(--rc-space-3);
+  padding: 2px var(--rc-space-2);
+  background: var(--md-sys-color-surface-container-lowest); color: var(--md-sys-color-on-surface);
+  border: var(--rc-border-thin) solid var(--rc-ink); border-radius: var(--md-sys-shape-corner-extra-small);
+  font-size: var(--md-sys-typescale-body-small-size);
+}
+.frase {
+  font-family: var(--md-ref-typeface-brand);
+  font-size: clamp(2.25rem, 1.2rem + 4.6vw, 5.5rem);
+  line-height: 0.98; font-weight: 800; letter-spacing: -0.035em;
+  max-width: 14ch; text-wrap: balance;
+}
+.float-p { white-space: nowrap; }
+.float-c { display: inline-block; white-space: pre; }
+.pergunta {
+  font-family: var(--md-ref-typeface-brand);
+  font-size: var(--md-sys-typescale-display-small-size);
+  line-height: 1.25; font-weight: 800; letter-spacing: -0.02em; max-width: 20ch;
+}
+.pergunta em {
+  font-style: normal; padding: 0 0.2em;
+  background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container);
+  border: var(--rc-border) solid var(--rc-ink); border-radius: var(--md-sys-shape-corner-small);
+  box-decoration-break: clone; -webkit-box-decoration-break: clone;
+}
+@media (min-width: 900px) {
+  .passo { grid-template-columns: repeat(12, 1fr); }
+  .passo .foto { grid-column: 1 / span 7; grid-row: 1; }
+  .passo .frase { grid-column: 8 / span 5; grid-row: 1; }
+  .passo--b .foto { grid-column: 6 / span 7; }
+  .passo--b .frase { grid-column: 1 / span 5; }
+  .foto__img { aspect-ratio: 16 / 10; }
+}
+
+.contraste {
+  padding-block: var(--rc-space-11) var(--rc-space-12);
+  background: var(--md-sys-color-surface-container);
+  border-block: var(--rc-border) solid var(--rc-ink);
+}
+.contraste__grade { display: grid; gap: var(--rc-space-5); margin-top: var(--rc-space-8); align-items: stretch; }
+.numero { padding: var(--rc-space-6); display: flex; flex-direction: column; gap: var(--rc-space-3); }
+.numero__valor {
+  font-family: var(--md-ref-typeface-brand);
+  font-size: clamp(4rem, 2rem + 9vw, 8rem); line-height: 0.9; font-weight: 800; letter-spacing: -0.05em;
+  font-variant-numeric: tabular-nums;
+}
+.numero__o-que { font-size: 1.25rem; font-weight: 700; line-height: 1.35; max-width: 26ch; }
+.numero__porque { line-height: 1.5; max-width: 36ch; }
+.numero__fonte {
+  margin-top: auto; padding-top: var(--rc-space-3);
+  font-size: var(--md-sys-typescale-body-medium-size);
+  border-top: var(--rc-border-thin) solid var(--rc-ink);
+}
+.rc-card--primary .numero__fonte a { color: var(--md-sys-color-on-primary-container); }
+.contraste__x {
+  justify-self: center; font-family: var(--md-ref-typeface-brand); font-weight: 800;
+  font-size: 3rem; line-height: 1;
+}
+.contraste__moral {
+  margin-top: var(--rc-space-9);
+  font-family: var(--md-ref-typeface-brand); font-weight: 800;
+  font-size: var(--md-sys-typescale-display-small-size); line-height: 1.08; letter-spacing: -0.02em;
+}
+@media (min-width: 900px) {
+  .contraste__grade { grid-template-columns: 1fr auto 1fr; }
+  .contraste__x { align-self: center; font-size: 4.5rem; }
+}
+.rodape__sub { margin-top: var(--rc-space-3); }

@@ -1,6 +1,7 @@
 import "./estilo/tokens.css";
 import "./estilo/componentes.css";
 import "./estilo/base.css";
+import "./estilo/secoes-abertura.css";
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";

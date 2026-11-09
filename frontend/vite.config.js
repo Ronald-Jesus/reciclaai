@@ -4,6 +4,8 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   plugins: [react()],
   base: "/",
+  // O three.js (~614 kB) fica num pedaço à parte, carregado só pelo fundo Vanta do topo.
+  build: { chunkSizeWarningLimit: 650 },
   server: {
     // No `npm run dev`, as chamadas à API vão para o Flask.
     proxy: { "/api": "http://127.0.0.1:5000", "/predict": "http://127.0.0.1:5000" },
