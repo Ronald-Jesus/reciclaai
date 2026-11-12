@@ -35,8 +35,9 @@ export default function Problema() {
           </figure>
           <div className="passo__texto">
             <FraseRevelada className="frase">{frase}</FraseRevelada>
-            {texto && <p className="passo__paragrafo">{texto}</p>}
           </div>
+          {/* Cartão preso no canto da foto, ligando a imagem à frase. */}
+          {texto && <p className="passo__paragrafo">{texto}</p>}
         </div>
       ))}
       <p className="pergunta">
