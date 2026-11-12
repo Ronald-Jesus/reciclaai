@@ -40,7 +40,7 @@ de trabalho (linha de base de 41,5 h; ver [A05](A05-estimativas.md)).
 | Mensurável | Acurácia de pelo menos 80% em fotos reais; testes verdes; release v1.0 |
 | Atingível | Reaproveita Flask, `rvm.py` e a simulação existentes; extras só se sobrar tempo |
 | Relevante | Entrega o MVP e os artefatos que a rubrica avalia |
-| Temporal | Trabalho concluído em 27/11/2026, com marcos I1 (13/11), I2 (20/11) e I3 (27/11); defesa em 03/12/2026 |
+| Temporal | Trabalho concluído em 27/11/2026, com marcos I1 (13/11), I2 (20/11) e I3 (27/11); defesa em 07/12/2026 |
 
 ## Entregas (entregáveis)
 
