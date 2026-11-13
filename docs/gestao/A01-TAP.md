@@ -8,7 +8,7 @@
 | Campo | Conteúdo |
 |---|---|
 | Nome do projeto | **ReciclaAI** · máquina de retorno de embalagens (RVM) com IA, site de vendas e subpágina "Lixeira Pessoal" |
-| Patrocinador | Professor da disciplina (cliente e avaliador) |
+| Patrocinador | Professor Uender Ferreira Amaral (cliente e avaliador) |
 | Gerente do projeto | Autor do projeto (projeto individual) |
 | Abordagem | **Híbrida**: marcos e plano (I1, I2, I3, Defesa) com quadro Kanban e entregas em releases, a "mistura sensata" de Sommerville 23.2, p. 635–636 |
 
