@@ -6,7 +6,7 @@ import useMenosAnimacao from "../hooks/useMenosAnimacao.js";
 import { validarArquivo } from "./validarArquivo.js";
 import { analisarFoto, statusModelo } from "./api.js";
 
-export const VARREDURA_MINIMA_MS = import.meta.env.MODE === "test" ? 0 : 1200;
+export const VARREDURA_MINIMA_MS = import.meta.env.MODE === "test" ? 0 : 2500;
 
 const OUTRAS_FORMAS = "Arraste, cole (Ctrl+V) ou escolha uma foto do aparelho.";
 
@@ -207,7 +207,7 @@ export default function Captura({ onResultado, focar = false }) {
     focoRef.current = "cancelar";
     setAnalisando(true);
     try {
-      // A IA responde em menos de meio segundo; a varredura fica visível por um tempo mínimo.
+      // A IA responde em menos de meio segundo; a varredura fica visível por um tempo mínimo (2,5 s).
       const minimo = menosAnimacao ? 0 : VARREDURA_MINIMA_MS;
       const [resposta] = await Promise.all([
         analisarFoto(foto.arquivo, controle.signal),

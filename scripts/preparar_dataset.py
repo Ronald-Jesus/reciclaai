@@ -15,7 +15,8 @@ se a pasta existir. Os padrões ficam em ~/datasets/ (no Windows, C:/Users/<voce
 
     --rooms       house-rooms-image-dataset  (Kaggle robinreni/house-rooms-image-dataset)
     --food11      food11-image-dataset       (Kaggle trolukovich/food11-image-dataset)
-    --openimages  openimages_nao_residuo     (pasta plana com CREDITOS.json)
+    --drinking    drinking-waste             (Kaggle arkadiyhacks/drinking-waste-classification)
+--openimages  openimages_nao_residuo     (pasta plana com CREDITOS.json)
 
 FOTOS PRÓPRIAS NUNCA ENTRAM NO TREINO. A pasta ~/datasets/fotos-proprias/<classe>/
 é o teste do mundo real e só é usada por:
@@ -102,6 +103,14 @@ MAPEAMENTO: dict[str, dict[str, str | None]] = {
         "seafood": None,
         "soup": None,
     },
+    # Kaggle "arkadiyhacks/drinking-waste-classification" (opcional): embalagens
+    # fotografadas com celular em chão e tapete, o contexto real que faltava.
+    "drinking": {
+        "alucan": "metal",
+        "glass": "glass",
+        "pet": "plastic",
+        "hdpem": "plastic",
+    },
     # Pasta plana com imagens do Open Images (opcional): todas viram nao_residuo
     "openimages": {"todas": "nao_residuo"},
     # Kaggle "asdasdasasdas/garbage-classification" (6 classes, opcional)
@@ -120,6 +129,7 @@ MAPEAMENTO: dict[str, dict[str, str | None]] = {
 FONTES_EXTRAS = {
     "rooms": ("house-rooms-image-dataset", "https://www.kaggle.com/datasets/robinreni/house-rooms-image-dataset"),
     "food11": ("food11-image-dataset", "https://www.kaggle.com/datasets/trolukovich/food11-image-dataset"),
+    "drinking": ("drinking-waste", "https://www.kaggle.com/datasets/arkadiyhacks/drinking-waste-classification"),
     "openimages": ("openimages_nao_residuo", "pasta plana montada a partir do Open Images (ver CREDITOS.json)"),
 }
 SPLITS_FOOD11 = ["training", "evaluation"]  # validation fica de fora
@@ -130,6 +140,10 @@ COTAS_FIXAS = {
     "food11/egg": 150,
     "food11/vegetable-fruit": 100,
     "openimages/todas": 450,
+    "drinking/alucan": 350,
+    "drinking/glass": 350,
+    "drinking/pet": 250,
+    "drinking/hdpem": 150,
 }
 
 FATOR_NAO_RESIDUO = 1.5  # nao_residuo <= 1,5x a média das outras classes
@@ -262,11 +276,11 @@ def preparar(
             if k in grupos and len(grupos[k]) > cota:
                 grupos[k] = rng.sample(grupos[k], cota)
         limite = max_por_classe
-        prioritarios: set[str] = set()
+        # Fontes extras são fotos do mundo real: entram antes do limite da classe.
+        prioritarios = {k for k in grupos if k.split("/")[0] in FONTES_EXTRAS}
         if classe == "trash":
-            prioritarios = {k for k in grupos if k.endswith("/trash")}
+            prioritarios |= {k for k in grupos if k.endswith("/trash")}
         if classe == "nao_residuo":
-            prioritarios = {k for k in grupos if k.split("/")[0] in FONTES_EXTRAS}
             outras = [n for n in contagem.values() if n]
             if fator_nao_residuo and outras:
                 limite = int(fator_nao_residuo * sum(outras) / len(outras))

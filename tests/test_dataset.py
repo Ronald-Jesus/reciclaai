@@ -267,3 +267,25 @@ def test_caminho_explicito_inexistente_da_erro(tmp_path, monkeypatch):
     with pytest.raises(SystemExit, match="--rooms"):
         prep.main(["--garbage12", str(fontes["garbage12"]), "--dest", str(tmp_path / "raw"),
                    "--rooms", str(tmp_path / "nao-existe")])
+
+
+def test_drinking_waste_vira_embalagens_e_tem_prioridade(tmp_path):
+    # Fotos de celular em contexto real: entram primeiro e não podem ser cortadas pelo limite.
+    fontes = _criar_fontes(tmp_path / "src", n=4)
+    dw = tmp_path / "dw" / "Images_of_Waste" / "rawimgs"  # aninhado, como no zip
+    for pasta in ["AluCan", "Glass", "HDPEM", "PET"]:
+        for i in range(2):
+            _img(dw / pasta / f"{i}.jpg")
+    fontes["drinking"] = tmp_path / "dw"
+    relatorio = {}
+    prep.preparar(fontes, tmp_path / "raw", max_por_classe=3, relatorio=relatorio)
+    origem = relatorio["por_origem"]
+    assert origem["metal"]["drinking/alucan"] == 2
+    assert origem["glass"]["drinking/glass"] == 2
+    assert origem["plastic"]["drinking/pet"] == 2 and origem["plastic"]["drinking/hdpem"] == 1
+    assert sum(origem["plastic"].values()) == 3
+
+
+def test_cotas_fixas_do_drinking_waste():
+    assert {k: v for k, v in prep.COTAS_FIXAS.items() if k.startswith("drinking/")} == {
+        "drinking/alucan": 350, "drinking/glass": 350, "drinking/pet": 250, "drinking/hdpem": 150}
