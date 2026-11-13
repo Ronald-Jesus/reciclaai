@@ -15,13 +15,13 @@ function renderizarEm(rota) {
 describe("App", () => {
   it("renderiza a página inicial", () => {
     renderizarEm("/");
-    expect(screen.getByRole("heading", { name: "ReciclaAI" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /lixeira pessoal/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: /embalagem devolvida/i })).toBeInTheDocument();
+    expect(screen.getAllByRole("link", { name: /testar o app/i }).length).toBeGreaterThan(0);
   });
 
   it("renderiza a lixeira pessoal em /lixeira", () => {
     renderizarEm("/lixeira");
     expect(screen.getByRole("heading", { name: "Lixeira pessoal" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /página inicial/i })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /voltar para a página inicial/i })).toBeInTheDocument();
   });
 });

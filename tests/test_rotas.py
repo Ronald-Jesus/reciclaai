@@ -52,3 +52,28 @@ def test_admin_continua_funcionando(cliente):
     resposta = cliente.get("/admin")
     assert resposta.status_code == 200
     assert b'href="/maquina"' in resposta.data
+
+
+def test_arquivo_publico_do_dist_e_servido(cliente):
+    import app as m
+    (m.FRONTEND_DIST / "fotos").mkdir()
+    (m.FRONTEND_DIST / "fotos" / "x.jpg").write_bytes(bytes([0xFF, 0xD8, 0xFF]))
+    (m.FRONTEND_DIST / "favicon.svg").write_text("<svg/>", encoding="utf-8")
+    r = cliente.get("/fotos/x.jpg")
+    assert r.status_code == 200
+    assert r.mimetype == "image/jpeg"
+    assert cliente.get("/favicon.svg").status_code == 200
+
+
+def test_path_traversal_nao_vaza_arquivos(cliente):
+    for caminho in ("/fotos/../../app.py", "/fotos/%2e%2e/%2e%2e/app.py", "/..%2fapp.py", "/%2e%2e/app.py"):
+        r = cliente.get(caminho)
+        assert r.status_code in (301, 308, 404)
+        assert b"load_model" not in r.data
+
+
+def test_desconhecidos_e_api_nao_viram_spa(cliente):
+    assert cliente.get("/api/inexistente").status_code == 404
+    assert cliente.get("/nao-existe.png").status_code == 404
+    assert cliente.get("/api/status").status_code == 200
+    assert cliente.post("/predict").status_code != 404
