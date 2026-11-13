@@ -17,8 +17,8 @@ explica o sistema e uma demonstração onde a IA do projeto funciona de verdade.
 
 ## 2. Público
 
-- **Quem realmente avalia:** o professor e a banca da defesa (03/12/2026). Precisam sair
-  convencidos de que a ideia é boa, de que entendem como a máquina foi projetada e de que a IA
+- **Quem realmente avalia:** o professor e a banca da defesa (14/12/2026, ou antes se o professor
+  marcar). Precisam sair convencidos de que a ideia é boa, de que entendem como a máquina foi projetada e de que a IA
   funciona.
 - **Público dentro da história do site:** locais que instalariam a máquina (supermercados,
   condomínios, escolas e universidades, eventos) e as pessoas que devolvem embalagens.
@@ -47,8 +47,8 @@ explica o sistema e uma demonstração onde a IA do projeto funciona de verdade.
 
 ## 4. Restrições
 
-- **Prazo:** defesa em 03/12/2026. Projeto individual, com cerca de 10 h de trabalho por
-  semana, com apoio de um assistente de IA no desenvolvimento.
+- **Prazo:** trabalho concluído em 27/11/2026, entrega dos artefatos no AVA até 07/12/2026 e
+  defesa em 14/12/2026. Projeto individual, com cerca de 10 h de trabalho por semana, com apoio de um assistente de IA no desenvolvimento.
 - **Processo:** construção em etapas pequenas. Cada etapa é revisada, aprovada e enviada
   ao GitHub pela branch develop, com um pull request para a main ao fim de cada issue, formando o histórico de construção que a rubrica avalia.
 - **Rubrica:** o site faz parte do MVP. Também valem BPMN, requisitos com MoSCoW, UML, testes no
@@ -72,9 +72,9 @@ explica o sistema e uma demonstração onde a IA do projeto funciona de verdade.
 - A máquina aceita **plástico (PET), metal (lata) e vidro**. Papel e papelão (lixeira azul),
   orgânico (marrom) e rejeito (cinza) são identificados e devolvidos com orientação. As cores
   seguem a Resolução CONAMA 275/2001.
-- Abaixo de **70% de confiança** da IA, o item é devolvido ("reposicione e tente de novo").
-- Se a IA identificar **"não é resíduo"** (pessoa, ambiente, animal) ou ficar abaixo de 70%, a
-  máquina trata como rejeitado ("Item não reconhecido"): sem material, valor nem lixeira.
+- Se a IA identificar **"não é resíduo"** (pessoa, ambiente, animal) ou ficar abaixo de **70% de
+  confiança**, o item é devolvido com a mensagem "Não reconheci uma embalagem nesta foto.": sem
+  material, valor nem lixeira.
 - Valores por embalagem: **PET R$ 0,10, lata R$ 0,15, vidro R$ 0,25**.
 - O voucher só vale no caixa do local que tem a máquina, então o crédito volta como venda.
 - Nome do produto: **ReciclaAI**.
@@ -241,7 +241,10 @@ Um documento à parte (`docs/heuristicas-nielsen.md`) vai mostrar, com prints, c
 **Extra (nesta ordem, se der tempo)**
 1. Depósito simulado com voucher na subpágina (passo 5).
 2. Seções 6.4 a 6.7.
-3. Busca real de mercados próximos no OpenStreetMap.
+
+A busca real de mercados próximos no OpenStreetMap saiu dos extras: entrou na issue #45 pela
+mudança M05 ([A10](gestao/A10-mudancas.md)), com a lista salva como reserva. Se o tempo faltar, é
+o primeiro corte ([A05](gestao/A05-estimativas.md)).
 
 ## 11. Deixado para quem constrói
 

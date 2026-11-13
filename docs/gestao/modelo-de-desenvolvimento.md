@@ -14,9 +14,9 @@ e agilidade** ("uma mistura sensata", SOMMERVILLE, 2018, seção 23.2, p. 635-63
 |---|---|---|
 | **I1 · Jornada e planejamento** | 08 a 13/11 | Gestão (TAP, EAP, cronograma, RACI, riscos), requisitos e MoSCoW, BPMN, arquitetura e UML |
 | **I2 · Construção e qualidade** | 09 a 20/11 | Dataset e modelo de IA, servidor, site React, subpágina Lixeira Pessoal, testes no pipeline |
-| **I3 · Entrega e sustentação** | 23 a 27/11 | Banco PostgreSQL (Neon), publicação no Hugging Face, release, ensaio da defesa |
-| **Preparo e contingência** | 28/11 a 02/12 | Slides, estudo, ensaio e folga de calendário |
-| **Defesa** | 03/12 | Apresentação e arguição |
+| **I3 · Entrega e sustentação** | 23 a 27/11 | Banco PostgreSQL (Neon), publicação no Hugging Face, release, ADRs e indicadores finais |
+| **Preparo e contingência** | 28/11 a 13/12 | Slides, estudo, entrega no AVA (07/12), ensaio e folga de calendário |
+| **Defesa** | 14/12 (ou antes, se o professor marcar) | Apresentação e arguição |
 
 ## Execução com Kanban
 

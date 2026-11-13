@@ -16,6 +16,9 @@
 | Lições aprendidas registradas | [A12](A12-licoes.md) preenchido | Pendente | Autor |
 | Aceite do patrocinador | Nome, data e assinatura | Pendente | Professor |
 
+Datas previstas: artefatos entregues no AVA até 07/12/2026, às 23:59; aceite do patrocinador na
+defesa, em 14/12/2026, ou na data que o professor marcar ([A10](A10-mudancas.md), M08).
+
 | Papel | Nome | Assinatura | Data |
 |---|---|---|---|
 | Autor do projeto | | | ___/___/2026 |

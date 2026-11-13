@@ -46,7 +46,7 @@ flowchart LR
             loader["Carregador do modelo<br/>load_model + pré-processamento [existe]"]
             rvmPy["rvm.py<br/>regras da máquina, voucher, estatísticas [existe]"]
         end
-        pth[("model/reciclaai.pth<br/>ResNet18 de 8 classes (ainda não treinada) [#15 #16]")]
+        pth[("model/reciclaai.pth<br/>ResNet18 de 8 classes, treinada (fora do Git) [existe: #15 #16]")]
         dist["frontend/dist<br/>build estático do React [existe: esqueleto da #38]"]
         tmpl["templates/maquina.html e admin.html<br/>telas atuais [existe]"]
     end
@@ -62,7 +62,7 @@ flowchart LR
     usuario -->|"HTTPS GET /, /lixeira"| appPy
     appPy -->|"serve_react: index.html e /assets"| dist
     dist -.->|"executa no navegador"| spa
-    spa -->|"POST /predict (multipart)<br/>GET /api/status [#20]"| appPy
+    spa -->|"POST /predict (multipart)<br/>GET /api/status [existe: #20]"| appPy
     spa -->|"/api/session/... (depósito simulado)"| appPy
     usuario -->|"GET /maquina, /admin"| tmpl
     appPy --> loader
@@ -79,8 +79,8 @@ flowchart LR
 |---|---|---|
 | `app.py` (rotas `/` e `/lixeira` via `serve_react()`, `/assets/<nome>`, `/maquina`, `/admin`, `/predict`, `/api/session*`, `/api/admin*`, `/api/vouchers/<code>/redeem`) | existe | Serve o build do React (`frontend/dist`) em `/` e `/lixeira` (503 com aviso se não compilado); a simulação da máquina está em `/maquina` (`templates/maquina.html`) (#38 concluída) |
 | `rvm.py` (decide, sessões, voucher, lixeiras, estatísticas) | existe | Hoje só SQLite; camada única de conexão em #52 |
-| Modelo ResNet18 (`treino.py`, `scripts/preparar_dataset.py`, `model/reciclaai.pth`) | existe o código (treino com 8 classes, incluindo `organic` e `nao_residuo`); o treino ainda não foi executado e o `.pth` fica fora do Git | Treino e avaliação nas issues #15 e #16 |
-| `POST /predict` com `machine`, `low_confidence`, `nao_reconhecido`; `GET /api/status`; erros 400, 413, 503 | planejado (#20) | Hoje `/predict` devolve apenas `prediction` e `ranking`; a falta do modelo devolve 500 pelo `ensure_model`, e não há limite de 5 MB |
+| Modelo ResNet18 (`treino.py`, `scripts/preparar_dataset.py`, `model/reciclaai.pth`) | existe (8 classes, incluindo `organic` e `nao_residuo`); treinado em 08/11/2026, com 93,51% de acurácia no teste ([resultados](../modelo/resultados.md)); o `.pth` fica fora do Git | Issues #15 e #16 fechadas |
+| `POST /predict` com `machine`, `low_confidence`, `nao_reconhecido`; `GET /api/status`; erros 400, 413, 503 | existe (#20, commit `b24ece7`; a issue segue aberta até o pull request) | A falta do modelo devolve 503 com mensagem em JSON; uploads acima de 5 MB devolvem 413 |
 | React SPA (Vite): `App`, `PaginaInicial`, `LixeiraPessoal` | existe (esqueleto, #38) | Conteúdo provisório; compilado para `frontend/dist/` e servido pelo Flask |
 | Componentes `Captura`, `Resultado`, `Sacola`, `Mapa` e seções do site | planejado (#43, #44, #45 e demais) | |
 | Mapa (Leaflet, OpenFreeMap) e busca real de mercados (Overpass/Photon), com lista salva de Brasília como reserva | planejado (#45) | Chamado pelo navegador; se a busca falhar, usa a lista local |

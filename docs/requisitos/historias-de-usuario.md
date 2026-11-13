@@ -74,8 +74,9 @@ voucher, para ser paga pelo que devolvi.
 - **Dado** uma sessão aberta, **quando** insiro uma embalagem de plástico, metal ou vidro com
   confiança de 70% ou mais e balança ok, **então** a máquina aceita e soma R$ 0,10, R$ 0,15 ou
   R$ 0,25.
-- **Dado** uma confiança abaixo de 70%, **quando** insiro, **então** a máquina devolve com o
-  motivo ("reposicione e tente de novo" ou "Item não reconhecido").
+- **Dado** uma confiança abaixo de 70% ou a classe `nao_residuo`, **quando** insiro, **então** a
+  máquina devolve o item com a mensagem "Não reconheci uma embalagem nesta foto." e não soma
+  crédito.
 - **Dado** a máquina projetada, **então** a balança confere o peso e devolve garrafa ainda cheia.
   **Na simulação do projeto, a balança é representada e não mede peso.**
 - **Dado** uma sessão finalizada com saldo, **então** é gerado um voucher; sem saldo, não há
@@ -89,8 +90,9 @@ garantir que ele não seja usado duas vezes.
 - **Dado** um voucher válido e não usado, **quando** informo o código, **então** o sistema marca
   como resgatado e mostra o valor a descontar.
 - **Dado** um voucher já resgatado, **quando** informo o código de novo, **então** é recusado com
-  mensagem "voucher já utilizado".
-- **Dado** um código inexistente, **então** é recusado com mensagem clara.
+  a mensagem "Voucher já resgatado em <data>.", com a data do primeiro resgate.
+- **Dado** um código inexistente, **quando** informo o código, **então** é recusado com a mensagem
+  "Voucher não encontrado."
 - **Prioridade:** Must · **Estimativa:** 2 h (código existente; testes) · **Issues:** #21, #22, #23
 
 ## HU-09 · Acompanhar compartimentos e estatísticas
@@ -179,7 +181,7 @@ no meu celular na defesa.
 
 ## Justificativa da priorização
 
-- **Must é o que prova a ideia na defesa (03/12/2026):** a IA funcionando de verdade (HU-01 a 03),
+- **Must é o que prova a ideia na defesa (14/12/2026):** a IA funcionando de verdade (HU-01 a 03),
   a regra de que o crédito só nasce na máquina e vira voucher de uso único (HU-04, 07, 08), o mapa
   (HU-05), o site que mostra a máquina por dentro e que funciona sem animação (HU-13) e o site
   publicado em HTTPS (HU-16, exigido pelo objetivo SMART do TAP). Sem qualquer uma delas, o

@@ -11,7 +11,7 @@ perto**; só poder alto = **manter satisfeito**; só interesse alto = **manter i
 |---|---|---|---|---|---|
 | Professor da disciplina | Patrocinador, cliente e avaliador | 3 | 3 | Gerenciar de perto | Status semanal (A09), riscos altos (A07), mudanças (A10) e demonstração em cada marco |
 | Autor do projeto | Gerente e executor | 3 | 3 | Gerenciar de perto | Quadro, burndown e riscos atualizados toda semana |
-| Banca da defesa | Arguição em 03/12/2026 | 3 | 2 | Gerenciar de perto | Demonstração, documentação e domínio do código |
+| Banca da defesa | Arguição em 14/12/2026 (ou antes, se o professor marcar) | 3 | 2 | Gerenciar de perto | Demonstração, documentação e domínio do código |
 | Turma e usuários de teste | Usuários da subpágina | 1 | 2 | Manter informado | Endereço público, instruções de teste e canal para dar retorno |
 | Provedores (Hugging Face, Neon, OpenStreetMap, bancos de fotos) | Serviços e conteúdo de terceiros | 2 | 1 | Manter satisfeito | Respeitar termos, limites dos planos gratuitos e créditos |
 

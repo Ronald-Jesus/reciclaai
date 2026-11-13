@@ -1,6 +1,6 @@
 # Matriz de rastreabilidade (issue #14, Ficha 3)
 
-**Versão de 08/11/2026.** Atualizada a cada fechamento de issue; a data acima muda junto.
+**Versão de 12/11/2026.** Atualizada a cada fechamento de issue; a data acima muda junto.
 
 ## Para que serve e como ler
 
@@ -40,7 +40,7 @@ isto existe?" (da direita para a esquerda) e "isto já foi verificado?" (da esqu
 | RF-15 | Operador registra o esvaziamento e o nível volta a 0% | HU-10 | UC11 | #21, #52 | BPMN "Esvaziar o compartimento", "Registrar o esvaziamento no painel" | `rvm.empty_bin` e `POST /api/admin/bins/<material>/empty` | a escrever em #52 (`empty_bin`, ao migrar o banco) | Implementado |
 | RF-16 | Montagem da máquina em 9 peças ao rolar, com "por que existe" e progresso | HU-13 | UC1 | #41, #42 | Caso de uso UC1; plano, Partes 5 e 6 | a implementar em #41 e #42 (esqueleto em `frontend/src/paginas/PaginaInicial.jsx`) | a escrever em #42 (Vitest) | Planejado |
 | RF-17 | Simulador calcula o resultado mensal (pessoas, quem traz, embalagens) | HU-11 | UC13 | #48 | Caso de uso UC13 | a implementar em #48 | a escrever em #48 (Vitest) | Planejado |
-| RF-18 | Todo número de impacto traz a fonte | HU-11, HU-13 | UC1, UC13 | #40, #48 | Visão do produto (regra "nenhum número sem fonte") | a implementar em #40 e #48 | a escrever em #40 e #48 | Planejado |
+| RF-18 | Todo número de impacto traz a fonte | HU-11, HU-13 | UC1, UC13 | #40, #48 | Visão do produto (regra "nenhum número sem fonte") | `frontend/src/secoes/Contraste.jsx` mostra a fonte de cada número (#40); simulador a implementar em #48 | "os números do contraste mostram a fonte" (`frontend/src/secoes/Contraste.test.jsx`); simulador a escrever em #48 | Em andamento |
 
 Sobre o treino do modelo (#15 e #16, fechadas): `split_dataset.py`, `treino.py` e
 `scripts/preparar_dataset.py` sustentam RF-01 a RF-03 e têm testes em `tests/test_dataset.py`
@@ -56,8 +56,8 @@ Os resultados (93,51% de acurácia no teste, meta de 85%) estão em
 |---|---|---|---|
 | RNF-01 Nielsen | Documento `docs/heuristicas-nielsen.md` com prints e arquivos; checklist das 10 heurísticas (#46) | #46 | Planejado |
 | RNF-02 Mensagens claras | Testes de API com o texto da mensagem (`test_upload_acima_de_5mb_da_413`, `test_arquivo_que_nao_e_imagem_da_400`, `test_sem_modelo_da_503_com_mensagem`, existem); testes de tela (#43); checklist de Nielsen (#46) | #20, #43, #46 | Em andamento |
-| RNF-03 Cor por material | Teste Vitest "todo material tem cor e lixeira" (`frontend/src/dados/materiais.js`, a escrever em #39) | #39 | Planejado |
-| RNF-04 `prefers-reduced-motion` | Teste Vitest de `useMenosAnimacao` (#39) e da montagem em SVG (#42); revisão de PR | #39, #42 | Planejado |
+| RNF-03 Cor por material | Teste Vitest "todo material tem cor e lixeira" (`frontend/src/dados/materiais.test.js`, existe); falta aplicar as cores nas telas da lixeira (#44) | #39, #44 | Em andamento |
+| RNF-04 `prefers-reduced-motion` | Testes Vitest de `useMenosAnimacao`, `useRolagemSuave` e `FundoVanta` (existem, #39 e #40); montagem em SVG a testar em #42; revisão de PR | #39, #40, #42 | Em andamento |
 | RNF-05 Teclado, alt e contraste | Checklist de Nielsen (#46) e Lighthouse de acessibilidade na página publicada (#28); revisão de PR | #28, #46 | Planejado |
 | RNF-06 Desempenho no celular | Lighthouse (#28) e teste manual no celular; revisão de PR | #28, #42, #43 | Planejado |
 | RNF-07 Fotos não gravadas | `/predict` lê a imagem na memória e não grava no banco (`test_predict_nao_gera_credito`, existe); revisão de PR; a garantia no navegador entra em #43 e #47 | #20, #43 | Em andamento |
@@ -67,15 +67,15 @@ Os resultados (93,51% de acurácia no teste, meta de 85%) estão em
 | RNF-11 SQLite e PostgreSQL | Testes de `rvm.py` com SQLite temporário (existem, `tests/conftest.py`); teste com `DATABASE_URL` do PostgreSQL a escrever em #52 | #52 | Em andamento |
 | RNF-12 Testes no pipeline | `.github/workflows/testes.yml` roda pytest (com `--cov-fail-under=70`) e Vitest a cada push | #22 | Implementado |
 | RNF-13 HTTPS e deploy | Deploy no Hugging Face Spaces e teste da câmera no celular (#28) | #28 | Planejado |
-| RNF-14 Créditos e licenças | Arquivo de créditos das fotos e revisão de PR (sem marcas) | #40, #41 | Planejado |
+| RNF-14 Créditos e licenças | Teste Vitest "toda foto tem texto alternativo e crédito" (`frontend/src/dados/creditos.test.js`, existe) e revisão de PR (sem marcas) | #40, #41 | Em andamento |
 
 ## 3. Resumo de cobertura
 
 | Status | RF | RNF |
 |---|---|---|
 | Implementado | 8 (RF-04, RF-09 a RF-15) | 3 (RNF-08, RNF-10, RNF-12) |
-| Em andamento | 3 (RF-01, RF-02, RF-03) | 3 (RNF-02, RNF-07, RNF-11) |
-| Planejado | 7 (RF-05 a RF-08, RF-16 a RF-18) | 8 |
+| Em andamento | 4 (RF-01, RF-02, RF-03, RF-18) | 6 (RNF-02, RNF-03, RNF-04, RNF-07, RNF-11, RNF-14) |
+| Planejado | 6 (RF-05 a RF-08, RF-16, RF-17) | 5 |
 | **Total** | **18** | **14** |
 
 "Em andamento" nos RF-01 a RF-03 significa servidor pronto e testado (#20), com a tela ainda por fazer.
@@ -86,11 +86,11 @@ Os resultados (93,51% de acurácia no teste, meta de 85%) estão em
 - RF-05 e RF-12 (texto "estimado"): #44.
 - RF-06 e RF-07: #45. RF-08: #47.
 - RF-13 (código inexistente), RF-14 e RF-15 (nível, aviso de 85% e esvaziamento): #52, que mexe no banco e deve cobrir `redeem_voucher`, `bin_status` e `empty_bin`.
-- RF-16: #42. RF-17: #48. RF-18: #40 e #48.
+- RF-16: #42. RF-17: #48. RF-18: #48 (o contraste, #40, já tem teste).
 - RNF de usabilidade e acessibilidade (RNF-01 e RNF-05): #46; Lighthouse em #28.
 
 Os requisitos com teste automático hoje são RF-04 e RF-09 a RF-13 (`tests/test_api.py` e
-`tests/test_rvm.py`), mais o lado do servidor de RF-01 a RF-03.
+`tests/test_rvm.py`), mais o lado do servidor de RF-01 a RF-03 e a seção de contraste de RF-18 (Vitest).
 
 ## 4. Exemplo da cadeia completa: "não é resíduo" (RF-03)
 

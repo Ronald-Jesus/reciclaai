@@ -118,7 +118,7 @@ sequenceDiagram
     Note over F: A foto não é gravada em disco nem no banco. /predict não cria linha em items.
 ```
 
-Estado atual do código: `/predict` já valida (400) e classifica, mas devolve só `prediction` e `ranking`. `machine`, `low_confidence`, `nao_reconhecido`, o limite de 5 MB (413) e o 503 por modelo ausente são da issue #20; hoje a falta do modelo devolve 500 pelo `ensure_model`. O componente `Captura` ainda não existe (#43); o `App` do React já existe como esqueleto (#38).
+Estado atual do código: o lado do servidor está pronto (#20, commit `b24ece7`): `/predict` valida (400), recusa acima de 5 MB (413), devolve 503 sem modelo e responde com `prediction`, `ranking`, `machine`, `low_confidence` e `nao_reconhecido`. O componente `Captura` ainda não existe (#43); o `App` do React já existe (#38).
 
 ## 3. Sequência: depósito na máquina e voucher
 

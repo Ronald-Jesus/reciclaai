@@ -4,7 +4,9 @@
 
 Simulação de uma **Reverse Vending Machine (RVM)**, a "máquina que troca lixo por dinheiro" usada em sistemas de depósito e retorno como o *Pfand* alemão. O usuário insere embalagens, uma câmera identifica o material com *deep learning*, a máquina aceita ou devolve o item e, no fim, emite um **voucher** com o crédito acumulado.
 
-O modelo (ResNet18 com *transfer learning*) reconhece 6 categorias: **papelão, vidro, metal, papel, plástico e rejeito**. A camada de regras da máquina (`rvm.py`) decide o que fazer com cada uma.
+O modelo (ResNet18 com *transfer learning*) reconhece 8 classes: **papelão, vidro, metal, papel, plástico, orgânico, rejeito e "não é resíduo"** (fotos de pessoas, animais e ambientes). A camada de regras da máquina (`rvm.py`) decide o que fazer com cada uma. Os resultados do treino estão em [`docs/modelo/resultados.md`](docs/modelo/resultados.md).
+
+O projeto é o Projeto Integrador de Engenharia de Software (CEUB, 2026/2), individual, feito com apoio de um assistente de IA no desenvolvimento. O trabalho termina em 27/11/2026 e a defesa está marcada para 14/12/2026; os documentos de gestão estão em [`docs/gestao/`](docs/gestao/README.md).
 
 **Protótipo de interface online:** [ronald-jesus.github.io/reciclaai/prototipo](https://ronald-jesus.github.io/reciclaai/prototipo/) · detalhes em [`docs/prototipo/`](docs/prototipo/README.md). A ideia completa está em [`docs/visao-do-produto.md`](docs/visao-do-produto.md) e as etapas em [`docs/plano-de-construcao.md`](docs/plano-de-construcao.md).
 
@@ -35,15 +37,17 @@ O modelo (ResNet18 com *transfer learning*) reconhece 6 categorias: **papelão, 
 | Metal (latas) | aceito | R$ 0,15 |
 | Vidro | aceito | R$ 0,25 |
 | Papel / Papelão | devolvido, orienta descarte no coletor azul | — |
+| Orgânico | devolvido, orienta a lixeira marrom ou a composteira | — |
 | Rejeito | devolvido, não reciclável | — |
-| Qualquer classe com confiança < 70% | devolvido, "reposicione e tente de novo" | — |
-| Compartimento cheio | devolvido, "chame um operador" | — |
+| Não é resíduo, ou qualquer classe com confiança < 70% | devolvido, "Não reconheci uma embalagem nesta foto." | — |
+| Compartimento cheio | devolvido, "Compartimento cheio. Chame um operador." | — |
 
 Os valores, a confiança mínima e a capacidade de cada compartimento ficam no topo de [`rvm.py`](rvm.py) e são ilustrativos. Ajuste-os à vontade.
 
 ### Telas
 
-- **`/`**: a máquina. Tela inicial com a tabela de valores, sessão com câmera (ou upload/arrastar foto), saldo em tempo real, lista de itens aceitos e devolvidos e voucher final.
+- **`/`** e **`/lixeira`**: o site em React e o app Lixeira Pessoal (veja o passo 6).
+- **`/maquina`**: a máquina. Tela inicial com a tabela de valores, sessão com câmera (ou upload/arrastar foto), saldo em tempo real, lista de itens aceitos e devolvidos e voucher final.
 - **`/admin`**: painel do operador. Itens aceitos e devolvidos, taxa de aceitação, créditos emitidos, nível de cada compartimento (alerta a partir de 85%), botão "Esvaziar", últimas inserções e resgate de voucher.
 
 ### API
@@ -55,8 +59,9 @@ Os valores, a confiança mínima e a capacidade de cada compartimento ficam no t
 | POST | `/api/session/<id>/finish` | encerra → `{voucher, amount, items}` |
 | GET | `/api/admin/status` | compartimentos + estatísticas |
 | POST | `/api/admin/bins/<material>/empty` | zera um compartimento |
-| POST | `/api/vouchers/<code>/redeem` | resgata um voucher (uso único) |
-| POST | `/predict` | classificador puro (sem regras da máquina), mantido do projeto original |
+| POST | `/api/vouchers/<code>/redeem` | resgata um voucher (uso único); recusa com "Voucher já resgatado em <data>." ou "Voucher não encontrado." |
+| POST | `/predict` | classifica a foto e diz o que a máquina faria (`machine`, `low_confidence`, `nao_reconhecido`), sem gerar crédito |
+| GET | `/api/status` | diz se o modelo está carregado (`model_ready`) e quais classes ele conhece |
 
 Tudo é persistido em `rvm.db` (SQLite, criado automaticamente e ignorado pelo Git).
 

@@ -22,6 +22,8 @@ semanas seguidas inicia os cortes de [A05](A05-estimativas.md).
 
 Linha de base **revisada em 08/11/2026 pela mudança M07** ([A10](A10-mudancas.md)): as 41,5 h
 continuam, mas o trabalho termina em 27/11. O VP de S0 conta o que já estava concluído (8,0 h).
+A mudança M08 (12/11/2026) só move o fim de S4 de 03/12 para 14/12, data da defesa; S4 vai de
+30/11 a 14/12 e soma as 5 h de preparo (#32 a #34). Os valores de VP não mudam.
 
 | Semana | Fim | VP (h), linha de base revisada | VP (h), linha de base anterior |
 |---|---|---|---|
@@ -29,7 +31,7 @@ continuam, mas o trabalho termina em 27/11. O VP de S0 conta o que já estava co
 | S1 | 13/11/2026 | 17,0 | 10 |
 | S2 | 20/11/2026 | 29,0 | 20 |
 | S3 | 27/11/2026 | 36,5 | 31 |
-| S4 | 03/12/2026 | 41,5 | 41,5 |
+| S4 | 14/12/2026 | 41,5 | 41,5 |
 
 ## Registro semanal
 
@@ -39,7 +41,7 @@ continuam, mas o trabalho termina em 27/11. O VP de S0 conta o que já estava co
 | S1 | 13/11/2026 | 17,0 | | | | | | | A preencher |
 | S2 | 20/11/2026 | 29,0 | | | | | | | A preencher |
 | S3 | 27/11/2026 | 36,5 | | | | | | | A preencher |
-| S4 | 03/12/2026 | 41,5 | | | | | | | A preencher |
+| S4 | 14/12/2026 | 41,5 | | | | | | | A preencher |
 
 **Primeiro status (08/11/2026).** Início do período de execução. As issues #21, #22, #23 e #13
 estão concluídas, mas pertencem ao trabalho anterior à linha de base. O caminho crítico começa em
