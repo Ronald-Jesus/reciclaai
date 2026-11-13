@@ -40,7 +40,8 @@ def test_mapeamento(tmp_path):
     assert contagem["glass"] == 9          # 3 pastas de vidro mescladas
     assert contagem["organic"] == 3        # biological
     assert contagem["trash"] == 9          # trash + clothes + shoes
-    assert contagem["nao_residuo"] == 18   # 6 pastas (fruit/flower excluídas)
+    # 6 pastas (fruit/flower excluídas) = 18, mas o limite é 1,5x a média das outras (33/7)
+    assert contagem["nao_residuo"] == 7
     total_copiado = sum(1 for _ in (tmp_path / "raw").rglob("*.jpg"))
     assert total_copiado == sum(contagem.values())
     # battery, fruit e flower não aparecem em nenhum nome de arquivo
@@ -61,14 +62,15 @@ def test_limite_por_classe_e_seed(tmp_path):
     fontes = _criar_fontes(tmp_path / "src", n=5)
     c1 = prep.preparar(fontes, tmp_path / "a", max_por_classe=4, seed=1)
     c2 = prep.preparar(fontes, tmp_path / "b", max_por_classe=4, seed=1)
-    assert all(v <= 4 for v in c1.values())
-    assert c1["glass"] == 4 and c1["nao_residuo"] == 4
+    assert all(v <= 4 for c, v in c1.items() if c != "nao_residuo")
+    assert c1["glass"] == 4 and c1["nao_residuo"] == 6   # 1,5x a média (4) das outras
     nomes_a = sorted(p.name for p in (tmp_path / "a" / "glass").iterdir())
     nomes_b = sorted(p.name for p in (tmp_path / "b" / "glass").iterdir())
     assert nomes_a == nomes_b
 
 
-def test_cli_preparar(tmp_path, capsys):
+def test_cli_preparar(tmp_path, capsys, monkeypatch):
+    monkeypatch.setattr(prep, "DATASETS_DIR", tmp_path / "sem-downloads")
     fontes = _criar_fontes(tmp_path / "src")
     prep.main(["--garbage12", str(fontes["garbage12"]), "--natural", str(fontes["natural"]),
                "--dest", str(tmp_path / "raw"), "--max-por-classe", "5"])
@@ -132,3 +134,136 @@ def test_deduplicacao_por_conteudo_entre_fontes(tmp_path, capsys):
     assert contagem["metal"] == 2
     assert relatorio["duplicadas"]["metal"] == 1
     assert "se sobrepõem" in capsys.readouterr().out
+
+
+def _imagem_suave(semente: int, tam: int = 96) -> Image.Image:
+    """Imagem com formas grandes: o dHash sobrevive a redimensionar e recomprimir."""
+    from PIL import ImageDraw
+    rng = random.Random(semente)
+    img = Image.new("RGB", (tam, tam), tuple(rng.randrange(256) for _ in range(3)))
+    desenho = ImageDraw.Draw(img)
+    for _ in range(8):
+        x0, y0 = rng.randrange(tam), rng.randrange(tam)
+        x1, y1 = x0 + rng.randrange(10, tam // 2), y0 + rng.randrange(10, tam // 2)
+        desenho.ellipse((x0, y0, x1, y1), fill=tuple(rng.randrange(256) for _ in range(3)))
+    return img
+
+
+def test_quase_duplicata_entre_fontes_removida_por_dhash(tmp_path):
+    a, b = tmp_path / "g12", tmp_path / "g6"
+    (a / "metal").mkdir(parents=True)
+    (b / "metal").mkdir(parents=True)
+    _imagem_suave(1).save(a / "metal" / "x.png")
+    _imagem_suave(1).resize((80, 80)).save(b / "metal" / "y.jpg", quality=70)  # quase igual
+    _imagem_suave(2).save(b / "metal" / "z.png")
+    relatorio = {}
+    contagem = prep.preparar({"garbage12": a, "garbage6": b}, tmp_path / "raw", relatorio=relatorio)
+    assert contagem["metal"] == 2
+    assert relatorio["quase_duplicadas"]["metal"] == 1
+    assert relatorio["duplicadas"]["metal"] == 0
+
+
+def _criar_extras(base: Path, n: int = 4) -> dict[str, Path]:
+    rooms = base / "rooms" / "House_Room_Dataset"
+    for pasta in ["Bathroom", "Bedroom", "Dinning", "Kitchen", "Livingroom"]:
+        for i in range(n):
+            _img(rooms / pasta / f"{i}.jpg")
+    food = base / "food11"
+    for split in ["training", "validation", "evaluation"]:
+        for pasta in ["Egg", "Vegetable-Fruit", "Bread"]:
+            for i in range(n):
+                _img(food / split / pasta / f"{i}.jpg")
+    oi = base / "openimages"
+    for i in range(n):
+        _img(oi / f"oi_{i}.jpg")
+    (oi / "CREDITOS.json").write_text("{}", encoding="utf-8")
+    return {"rooms": base / "rooms", "food11": food, "openimages": oi}
+
+
+def test_fontes_extras_de_nao_residuo_com_cotas(tmp_path, monkeypatch):
+    monkeypatch.setattr(prep, "COTAS_FIXAS", {
+        **{f"rooms/{c}": 2 for c in ["bathroom", "bedroom", "dinning", "kitchen", "livingroom"]},
+        "food11/egg": 5, "food11/vegetable-fruit": 3,
+    })
+    relatorio = {}
+    contagem = prep.preparar(_criar_extras(tmp_path / "src"), tmp_path / "raw",
+                             fator_nao_residuo=0, relatorio=relatorio)
+    origem = relatorio["por_origem"]["nao_residuo"]
+    assert origem["rooms/kitchen"] == 2 and origem["rooms/bathroom"] == 2
+    assert origem["food11/egg"] == 5               # 8 imagens (training + evaluation), cota 5
+    assert origem["food11/vegetable-fruit"] == 3
+    assert origem["openimages/todas"] == 4         # todas; CREDITOS.json não é imagem
+    assert not any("bread" in k for k in origem)
+    nomes = " ".join(p.name for p in (tmp_path / "raw" / "nao_residuo").iterdir())
+    assert "validation" not in nomes               # só training e evaluation
+    assert contagem["nao_residuo"] == 10 + 5 + 3 + 4
+
+
+def test_nao_residuo_limitado_pela_media_e_prioriza_fontes_novas(tmp_path):
+    fontes = _criar_fontes(tmp_path / "src")   # outras classes: média 33/7 -> limite 7
+    oi = tmp_path / "src" / "openimages"
+    for i in range(4):
+        _img(oi / f"{i}.jpg")
+    relatorio = {}
+    contagem = prep.preparar({**fontes, "openimages": oi}, tmp_path / "raw", relatorio=relatorio)
+    origem = relatorio["por_origem"]["nao_residuo"]
+    assert contagem["nao_residuo"] == 7
+    assert origem["openimages/todas"] == 4                                  # fonte nova inteira
+    assert sum(v for k, v in origem.items() if k.startswith("natural/")) == 3
+
+
+def test_fonte_opcional_ausente_avisa_e_segue(tmp_path, capsys, monkeypatch):
+    monkeypatch.setattr(prep, "DATASETS_DIR", tmp_path / "sem-downloads")
+    fontes = _criar_fontes(tmp_path / "src")
+    prep.main(["--garbage12", str(fontes["garbage12"]), "--dest", str(tmp_path / "raw")])
+    saida = capsys.readouterr().out
+    assert "rooms" in saida and "não encontrada" in saida
+    assert "food11" in saida and "openimages" in saida
+
+
+def test_quase_duplicata_dentro_da_mesma_fonte_removida(tmp_path):
+    g12 = tmp_path / "g12"
+    (g12 / "metal").mkdir(parents=True)
+    _imagem_suave(3).save(g12 / "metal" / "a.png")
+    _imagem_suave(3).resize((80, 80)).save(g12 / "metal" / "b.jpg", quality=70)  # quase igual
+    _imagem_suave(4).save(g12 / "metal" / "c.png")
+    relatorio = {}
+    contagem = prep.preparar({"garbage12": g12}, tmp_path / "raw", relatorio=relatorio)
+    assert contagem["metal"] == 2
+    assert relatorio["quase_duplicadas"]["metal"] == 1
+
+
+def test_fontes_extras_lidas_antes_do_natural(tmp_path):
+    nat = tmp_path / "natural" / "person"
+    nat.mkdir(parents=True)
+    _imagem_suave(5).save(nat / "p.png")
+    oi = tmp_path / "openimages"
+    oi.mkdir()
+    _imagem_suave(5).resize((80, 80)).save(oi / "p.jpg", quality=70)  # mesma foto, outra fonte
+    relatorio = {}
+    # natural vem primeiro no dict, mas a cópia do Open Images é a que fica
+    prep.preparar({"natural": tmp_path / "natural", "openimages": oi}, tmp_path / "raw",
+                  relatorio=relatorio)
+    assert relatorio["por_origem"]["nao_residuo"] == {"openimages/todas": 1, "natural/person": 0}
+
+
+def test_cota_fixa_do_open_images():
+    assert prep.COTAS_FIXAS["openimages/todas"] == 450
+
+
+def test_food11_sem_splits_usa_a_raiz(tmp_path):
+    food = tmp_path / "food11"
+    for i in range(2):
+        _img(food / "Egg" / f"{i}.jpg")
+    relatorio = {}
+    prep.preparar({"food11": food}, tmp_path / "raw", relatorio=relatorio)
+    assert relatorio["por_origem"]["nao_residuo"] == {"food11/egg": 2}
+
+
+def test_caminho_explicito_inexistente_da_erro(tmp_path, monkeypatch):
+    import pytest
+    monkeypatch.setattr(prep, "DATASETS_DIR", tmp_path / "sem-downloads")
+    fontes = _criar_fontes(tmp_path / "src")
+    with pytest.raises(SystemExit, match="--rooms"):
+        prep.main(["--garbage12", str(fontes["garbage12"]), "--dest", str(tmp_path / "raw"),
+                   "--rooms", str(tmp_path / "nao-existe")])

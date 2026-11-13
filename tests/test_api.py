@@ -184,3 +184,40 @@ def test_insert_sem_modelo_da_503(monkeypatch, db_temporario):
     _, resposta = inserir(cliente)
     assert resposta.status_code == 503
     assert "treino.py" in resposta.get_json()["error"]
+
+
+def _checkpoint_real(caminho, **extra):
+    from torchvision import models
+    modelo = models.resnet18(weights=None)
+    modelo.fc = nn.Linear(modelo.fc.in_features, len(CLASSES))
+    torch.save({"model_state": modelo.state_dict(), "classes": CLASSES, **extra}, caminho)
+
+
+def test_checkpoint_sem_temperatura_usa_1(monkeypatch, tmp_path):
+    caminho = tmp_path / "antigo.pth"
+    _checkpoint_real(caminho)
+    for nome, valor in [("MODEL_PATH", caminho), ("_model", None), ("_classes", []), ("_temperatura", 9.0)]:
+        monkeypatch.setattr(app_module, nome, valor)
+    app_module.load_model()
+    assert app_module._temperatura == 1.0
+    assert app_module._classes == CLASSES
+
+
+def test_checkpoint_com_temperatura_e_lido(monkeypatch, tmp_path):
+    caminho = tmp_path / "novo.pth"
+    _checkpoint_real(caminho, temperatura=2.5)
+    for nome, valor in [("MODEL_PATH", caminho), ("_model", None), ("_classes", []), ("_temperatura", 1.0)]:
+        monkeypatch.setattr(app_module, nome, valor)
+    app_module.load_model()
+    assert app_module._temperatura == 2.5
+
+
+def test_temperatura_2_baixa_a_confianca(com_modelo, monkeypatch):
+    cliente, definir = com_modelo
+    definir("plastic", destaque=4.0)
+    normal = enviar(cliente).get_json()["prediction"]["confidence"]
+    monkeypatch.setattr(app_module, "_temperatura", 2.0)
+    calibrada = enviar(cliente).get_json()["prediction"]
+    assert calibrada["class"] == "plastic"
+    assert calibrada["confidence"] < normal
+    assert normal == pytest.approx(88.6, abs=0.1) and calibrada["confidence"] == pytest.approx(51.35, abs=0.1)

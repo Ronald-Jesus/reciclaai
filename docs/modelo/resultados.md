@@ -46,3 +46,16 @@ Divisão (`split_dataset.py`, seed 42): 5262 treino, 1124 validação e 1124 tes
 - Próximo passo de validação: fotos reais tiradas para o projeto (issue #17), fora dos datasets do Kaggle.
 
 Arquivos: [`metricas.json`](metricas.json) e [`confusion_matrix.png`](confusion_matrix.png).
+
+## Como reproduzir
+
+1. Baixe as fontes em `C:\Users\<voce>\datasets\`. As obrigatórias são `garbage12` e `natural`. As fontes extras de `nao_residuo` são opcionais e só entram se a pasta existir: `house-rooms-image-dataset` (Kaggle robinreni, cômodos da casa), `food11-image-dataset` (Kaggle trolukovich, só ovo e hortifrúti) e `openimages_nao_residuo` (Open Images, créditos em `CREDITOS.json`).
+2. Monte o dataset bruto. A classe `nao_residuo` fica com no máximo 1,5x a média das outras classes. As fontes extras entram primeiro; o Natural Images completa o resto. Cópias exatas (SHA-1) e quase iguais entre fontes (dHash) saem.
+   ```bash
+   python scripts/preparar_dataset.py --garbage12 "C:\Users\<voce>\datasets\garbage12" --natural "C:\Users\<voce>\datasets\natural" --dest dataset_raw
+   python split_dataset.py --source dataset_raw --dest dataset --val-size 0.15 --test-size 0.15
+   python treino.py --dataset dataset --epochs 15
+   ```
+3. O treino usa aumento de dados forte, *label smoothing* de 0,1 e calibração por temperatura na validação. A temperatura vai para o checkpoint e o `metricas.json`, com a ECE antes e depois. O app e o teste externo dividem os logits por ela antes do softmax. A temperatura nunca fica abaixo de 1,0: a calibração só baixa a confiança. Sem pasta `val/`, não há calibração (T = 1,0 e `"temperatura_calibrada": false`).
+
+**Fotos próprias nunca entram no treino.** A pasta `C:\Users\<voce>\datasets\fotos-proprias\<classe>\` é o teste do mundo real. Ela só é usada por `python scripts/teste_externo.py --externo ... --fotos-proprias C:\Users\<voce>\datasets\fotos-proprias`.

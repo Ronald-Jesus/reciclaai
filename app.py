@@ -52,6 +52,7 @@ app.config["MAX_CONTENT_LENGTH"] = MAX_UPLOAD_BYTES
 
 _model: nn.Module | None = None
 _classes: list[str] = []
+_temperatura: float = 1.0  # calibração do treino; checkpoint antigo não tem e fica 1.0
 
 _transform = transforms.Compose([
     transforms.Resize((224, 224)),
@@ -64,7 +65,7 @@ _transform = transforms.Compose([
 
 
 def load_model() -> None:
-    global _model, _classes
+    global _model, _classes, _temperatura
 
     if not MODEL_PATH.exists():
         raise FileNotFoundError(
@@ -73,6 +74,7 @@ def load_model() -> None:
 
     checkpoint = torch.load(MODEL_PATH, map_location=device)
     _classes = checkpoint["classes"]
+    _temperatura = float(checkpoint.get("temperatura", 1.0))
 
     model = models.resnet18(weights=None)
     model.fc = nn.Linear(model.fc.in_features, len(_classes))
@@ -81,7 +83,7 @@ def load_model() -> None:
     model.eval()
 
     _model = model
-    print(f"Modelo carregado ({device}). Classes: {_classes}")
+    print(f"Modelo carregado ({device}). Classes: {_classes}. Temperatura: {_temperatura:.3f}")
 
 
 def display(cls: str) -> dict:
@@ -115,7 +117,7 @@ def classify_upload() -> list[dict]:
 
     with torch.no_grad():
         outputs = _model(tensor)
-        probabilities = torch.softmax(outputs, dim=1)[0]
+        probabilities = torch.softmax(outputs / _temperatura, dim=1)[0]
 
     return sorted(
         (

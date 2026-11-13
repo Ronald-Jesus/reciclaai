@@ -319,7 +319,10 @@ def _transform():
 
 
 def carregar_modelo(caminho: Path, device):
-    """Carrega o checkpoint do treino (mesma montagem de app.load_model)."""
+    """Carrega o checkpoint do treino (mesma montagem de app.load_model).
+
+    Devolve (modelo, classes, temperatura). Checkpoint sem temperatura usa 1.0.
+    """
     import torch
     from torch import nn
     from torchvision import models
@@ -332,12 +335,15 @@ def carregar_modelo(caminho: Path, device):
     model.fc = nn.Linear(model.fc.in_features, len(classes))
     model.load_state_dict(checkpoint["model_state"])
     model.to(device).eval()
-    return model, classes
+    return model, classes, float(checkpoint.get("temperatura", 1.0))
 
 
 def prever(model, classes: list[str], itens: list[tuple[Path, str]], device=None,
-           batch: int = 64) -> list[dict]:
-    """Roda o modelo em lotes. Devolve [{arquivo, real, previsto, confianca (%)}]."""
+           batch: int = 64, temperatura: float = 1.0) -> list[dict]:
+    """Roda o modelo em lotes. Devolve [{arquivo, real, previsto, confianca (%)}].
+
+    Os logits são divididos pela temperatura do treino antes do softmax.
+    """
     import torch
 
     device = device or torch.device("cpu")
@@ -351,7 +357,7 @@ def prever(model, classes: list[str], itens: list[tuple[Path, str]], device=None
                 tensores.append(tf(img.convert("RGB")))
         x = torch.stack(tensores).to(device)
         with torch.no_grad():
-            prob = torch.softmax(model(x), dim=1).cpu()
+            prob = torch.softmax(model(x) / temperatura, dim=1).cpu()
         conf, idx = prob.max(dim=1)
         for (caminho, real), c, k in zip(lote, conf.tolist(), idx.tolist()):
             saida.append({"arquivo": str(caminho), "real": real, "previsto": classes[k],
@@ -599,13 +605,13 @@ def gerar_md(resultado: dict) -> str:
 
 def processar(itens: list[tuple[Path, str]], ref: Referencia, limiar: int, model,
               classes: list[str], device, saida: Path, sufixo: str, titulo: str,
-              batch: int = 64) -> dict:
+              batch: int = 64, temperatura: float = 1.0) -> dict:
     mantidas, removidas = deduplicar(itens, ref, limiar)
     motivos: dict[str, int] = {}
     for r in removidas:
         motivos[r["motivo"]] = motivos.get(r["motivo"], 0) + 1
     salvar_removidas(removidas, saida / f"duplicatas{sufixo}.csv")
-    previsoes = prever(model, classes, mantidas, device, batch) if mantidas else []
+    previsoes = prever(model, classes, mantidas, device, batch, temperatura) if mantidas else []
     metricas = calcular_metricas(previsoes, classes)
     png = salvar_confusao(metricas["confusao"], saida / f"confusao{sufixo}.csv",
                           saida / f"confusao{sufixo}.png", titulo)
@@ -620,8 +626,12 @@ def processar(itens: list[tuple[Path, str]], ref: Referencia, limiar: int, model
 def executar(externo: Path, saida: Path, limiar: int = LIMIAR_PADRAO,
              fotos_proprias: Path | None = None, model=None, classes: list[str] | None = None,
              referencias: list[Path] | None = None, cache: Path | None = CACHE_PADRAO,
-             modelo_path: Path = MODEL_PATH, device=None, batch: int = 64) -> dict:
-    """Roda o teste completo e grava os arquivos em `saida`. Devolve o resultado."""
+             modelo_path: Path = MODEL_PATH, device=None, batch: int = 64,
+             temperatura: float = 1.0) -> dict:
+    """Roda o teste completo e grava os arquivos em `saida`. Devolve o resultado.
+
+    Sem `model`, carrega o checkpoint e usa a temperatura dele.
+    """
     import torch
 
     itens_ext = coletar_imagens(externo)
@@ -629,7 +639,7 @@ def executar(externo: Path, saida: Path, limiar: int = LIMIAR_PADRAO,
 
     device = device or torch.device("cuda" if torch.cuda.is_available() else "cpu")
     if model is None:
-        model, classes = carregar_modelo(modelo_path, device)
+        model, classes, temperatura = carregar_modelo(modelo_path, device)
     classes = classes or CLASSES_MODELO
 
     print("Calculando hashes do dataset interno (usa cache quando possível)...")
@@ -645,13 +655,15 @@ def executar(externo: Path, saida: Path, limiar: int = LIMIAR_PADRAO,
         "url": URL_EXTERNA,
         "licenca": "conferir licença na página do Kaggle",
         "referencia": info,
+        "temperatura": temperatura,
         "acuracia_teste_interno": acuracia_interna(),
         "externo": processar(itens_ext, ref, limiar, model, classes, device, saida, "",
-                             "Teste externo", batch),
+                             "Teste externo", batch, temperatura),
     }
     if itens_fotos is not None:
         resultado["fotos_proprias"] = processar(itens_fotos, ref, limiar, model, classes, device,
-                                                saida, "_fotos_proprias", "Fotos do autor", batch)
+                                                saida, "_fotos_proprias", "Fotos do autor", batch,
+                                                temperatura)
 
     (saida / "metricas.json").write_text(json.dumps(resultado, ensure_ascii=False, indent=2),
                                          encoding="utf-8")

@@ -262,3 +262,26 @@ def test_deduplicacao_pega_imagem_espelhada(tmp_path):
     assert len(removidas) == 1
     assert removidas[0]["motivo"] == "dhash_espelhada"
     assert removidas[0]["distancia"] == 0
+
+
+# --- Temperatura -------------------------------------------------------------
+
+def test_carregar_modelo_sem_temperatura_usa_1(tmp_path):
+    from torchvision import models
+    modelo = models.resnet18(weights=None)
+    modelo.fc = nn.Linear(modelo.fc.in_features, len(CLASSES))
+    torch.save({"model_state": modelo.state_dict(), "classes": CLASSES}, tmp_path / "a.pth")
+    torch.save({"model_state": modelo.state_dict(), "classes": CLASSES, "temperatura": 1.7}, tmp_path / "b.pth")
+    _, classes, t = te.carregar_modelo(tmp_path / "a.pth", torch.device("cpu"))
+    assert classes == CLASSES and t == 1.0
+    assert te.carregar_modelo(tmp_path / "b.pth", torch.device("cpu"))[2] == 1.7
+
+
+def test_prever_com_temperatura_2_baixa_a_confianca(tmp_path):
+    itens = [(_salvar(_imagem(500), tmp_path / "x.png"), "plastic")]
+    modelo = ModeloFalso("plastic", destaque=4.0)
+    normal = te.prever(modelo, CLASSES, itens)[0]
+    calibrada = te.prever(modelo, CLASSES, itens, temperatura=2.0)[0]
+    assert normal["previsto"] == calibrada["previsto"] == "plastic"
+    assert normal["confianca"] == pytest.approx(88.6, abs=0.1)
+    assert calibrada["confianca"] == pytest.approx(51.3, abs=0.1)

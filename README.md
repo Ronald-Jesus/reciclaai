@@ -204,6 +204,7 @@ atural-images" --dest dataset_raw
    - Vidros marrom, verde e branco viram `glass`; `biological` vira `organic`; pessoas, animais, carros, motos e aviões formam `nao_residuo`; pilhas, frutas e flores ficam de fora.
    - Até 1000 imagens por classe (`--max-por-classe`), com cotas iguais por pasta de origem e sorteio reprodutível (`--seed 42`). Em `trash`, todo o lixo real entra primeiro e roupas e sapatos completam o restante.
    - Imagens repetidas (mesmo conteúdo) são descartadas. Usar `--garbage6` junto com `--garbage12` gera um aviso, porque os dois datasets se sobrepõem.
+   - Fontes extras opcionais de `nao_residuo` (cômodos da casa, ovo e hortifrúti, Open Images) entram se a pasta existir em `~/datasets/`. Veja "Como reproduzir" em [`docs/modelo/resultados.md`](docs/modelo/resultados.md). Fotos próprias nunca entram no treino: são o teste do mundo real (`scripts/teste_externo.py --fotos-proprias`).
 3. Divida em treino, validação e teste:
    ```bash
    python split_dataset.py --source dataset_raw --dest dataset --val-size 0.15 --test-size 0.15
@@ -220,6 +221,7 @@ python treino.py --dataset dataset --epochs 15
 - Usa a GPU (CUDA) se houver; senão, a CPU.
 - Ajusta as camadas finais da ResNet18 (`layer4` e `fc`), escolhe a melhor época pela validação e para cedo depois de 3 épocas sem melhora.
 - Saídas em `model/`: `reciclaai.pth` (usado pelo app), `metricas.json` (acurácia no teste e precisão, recall e acurácia por classe) e `confusion_matrix.png`.
+- Calibra a confiança com uma temperatura medida na validação. Ela vai no `reciclaai.pth` e no `metricas.json` (com a ECE antes e depois); o app a aplica antes do softmax.
 - Sem a pasta `val/`, a validação usa o teste e o `metricas.json` marca `"validacao_igual_teste": true`, porque a acurácia fica otimista nesse caso.
 
 ### 6. Rodar o front-end

@@ -4,6 +4,13 @@ Treino do classificador do ReciclaAI (ResNet18 com transfer learning).
 Ajusta layer4 + fc (o resto fica congelado), escolhe a melhor época pela
 acurácia de VALIDAÇÃO e usa o conjunto de teste só no relatório final.
 
+Contra a confiança alta em fotos reais (webcam, celular):
+- aumento de dados forte só no treino (recorte, cor, perspectiva, desfoque);
+- label smoothing 0,1 na perda;
+- calibração por temperatura na validação (Guo et al., 2017): um escalar T
+  divide os logits antes do softmax. T vai no checkpoint e no metricas.json,
+  com a ECE (15 bins) antes e depois.
+
 Uso:
     python treino.py --dataset dataset --epochs 15
 """
@@ -38,6 +45,8 @@ EPOCHS = 15
 LR_FC = 1e-3        # camada final (nova)
 LR_LAYER4 = 1e-4    # layer4 (já pré-treinada)
 PATIENCE = 3        # épocas sem melhora na validação antes de parar
+LABEL_SMOOTHING = 0.1
+ECE_BINS = 15
 NUM_WORKERS = 0 if os.name == "nt" else 4  # multiprocessing do DataLoader é problemático no Windows
 
 MEAN = [0.485, 0.456, 0.406]
@@ -53,10 +62,12 @@ def get_device() -> torch.device:
 
 def build_transforms() -> tuple[transforms.Compose, transforms.Compose]:
     train_transform = transforms.Compose([
-        transforms.RandomResizedCrop(224, scale=(0.7, 1.0)),
+        transforms.RandomResizedCrop(224, scale=(0.3, 1.0)),
         transforms.RandomHorizontalFlip(),
         transforms.RandomRotation(15),
-        transforms.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.3, hue=0.05),
+        transforms.RandomPerspective(distortion_scale=0.2, p=0.3),
+        transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.05),
+        transforms.RandomApply([transforms.GaussianBlur(5, sigma=(0.1, 1.5))], p=0.2),
         transforms.ToTensor(),
         transforms.Normalize(mean=MEAN, std=STD),
     ])
@@ -211,16 +222,51 @@ def evaluate(
     return total_loss / len(loader), correct / total
 
 
-def predict(model: nn.Module, loader: DataLoader, device: torch.device) -> tuple[list[int], list[int]]:
+def coletar_logits(model: nn.Module, loader: DataLoader, device: torch.device) -> tuple[torch.Tensor, torch.Tensor]:
+    """Logits (float32, CPU) e rótulos de todo o loader."""
     model.eval()
-    y_true: list[int] = []
-    y_pred: list[int] = []
+    logits: list[torch.Tensor] = []
+    labels: list[torch.Tensor] = []
     with torch.no_grad():
-        for images, labels in loader:
-            outputs = model(images.to(device, non_blocking=True))
-            y_pred.extend(outputs.argmax(1).cpu().tolist())
-            y_true.extend(labels.tolist())
-    return y_true, y_pred
+        for images, y in loader:
+            logits.append(model(images.to(device, non_blocking=True)).float().cpu())
+            labels.append(y)
+    return torch.cat(logits), torch.cat(labels)
+
+
+def calibrar_temperatura(logits: torch.Tensor, labels: torch.Tensor) -> float:
+    """Acha o T que minimiza a NLL de softmax(logits / T) (LBFGS, Guo et al. 2017).
+
+    T nunca fica abaixo de 1.0: a calibração só pode baixar a confiança, nunca subir.
+    """
+    log_t = torch.zeros(1, requires_grad=True)  # T = exp(log_t) fica sempre positivo
+    otimizador = optim.LBFGS([log_t], lr=0.1, max_iter=100, line_search_fn="strong_wolfe")
+    nll = nn.CrossEntropyLoss()
+
+    def passo():
+        otimizador.zero_grad()
+        perda = nll(logits / log_t.exp(), labels)
+        perda.backward()
+        return perda
+
+    otimizador.step(passo)
+    t = float(log_t.exp().item())
+    if t < 1.0:
+        print(f"Aviso: temperatura ótima {t:.3f} < 1 (modelo pouco confiante); usando 1.0.")
+    return max(1.0, t)
+
+
+def ece(logits: torch.Tensor, labels: torch.Tensor, temperatura: float = 1.0, bins: int = ECE_BINS) -> float:
+    """Erro de calibração esperado: média ponderada de |acurácia - confiança| por faixa de confiança."""
+    conf, pred = torch.softmax(logits / temperatura, dim=1).max(dim=1)
+    acertos = (pred == labels).float()
+    bordas = torch.linspace(0, 1, bins + 1)
+    total = 0.0
+    for lo, hi in zip(bordas[:-1], bordas[1:]):
+        faixa = (conf > lo) & (conf <= hi)
+        if faixa.any():
+            total += faixa.float().mean().item() * abs(acertos[faixa].mean().item() - conf[faixa].mean().item())
+    return total
 
 
 def save_report(
@@ -232,6 +278,7 @@ def save_report(
     best_epoch: int,
     best_val_accuracy: float,
     validacao_igual_teste: bool = False,
+    extras: dict | None = None,
 ) -> dict:
     """Salva metricas.json (precisão, recall e acurácia por classe) e confusion_matrix.png."""
     labels = list(range(len(classes)))
@@ -259,6 +306,7 @@ def save_report(
         "classes": classes,
         "por_classe": por_classe,
         "matriz_confusao": matrix.tolist(),
+        **(extras or {}),
     }
     (model_dir / "metricas.json").write_text(
         json.dumps(metricas, indent=2, ensure_ascii=False), encoding="utf-8"
@@ -290,7 +338,7 @@ def main(
     train_loader, val_loader, test_loader, classes, val_igual_teste = load_data(device, dataset_dir, batch_size, num_workers)
 
     model = build_model(len(classes), pretrained=pretrained).to(device)
-    criterion = nn.CrossEntropyLoss()
+    criterion = nn.CrossEntropyLoss(label_smoothing=LABEL_SMOOTHING)
     optimizer = build_optimizer(model)
     scaler = GradScaler(device.type) if device.type == "cuda" else None
 
@@ -326,12 +374,36 @@ def main(
     if best_state is None:
         raise ValueError("Nenhuma época foi treinada (epochs deve ser >= 1).")
     model.load_state_dict(best_state)  # relatório final com a melhor época
-    _, test_acc = evaluate(model, test_loader, criterion, device)
-    y_true, y_pred = predict(model, test_loader, device)
-    metricas = save_report(y_true, y_pred, classes, model_dir, test_acc, best_epoch, best_acc, val_igual_teste)
+
+    # Calibração só na validação; o teste mede o resultado com T aplicado.
+    # Sem val/, calibrar no teste o contaminaria: fica T = 1.
+    val_logits, val_labels = coletar_logits(model, val_loader, device)
+    if val_igual_teste:
+        print("Aviso: sem pasta val/, a temperatura não é calibrada (T = 1.0).")
+        temperatura = 1.0
+    else:
+        temperatura = calibrar_temperatura(val_logits, val_labels)
+    torch.save({"model_state": best_state, "classes": classes, "temperatura": temperatura}, model_path)
+    test_logits, test_labels = coletar_logits(model, test_loader, device)
+    y_true = test_labels.tolist()
+    y_pred = (test_logits / temperatura).argmax(1).tolist()
+    test_acc = sum(t == p for t, p in zip(y_true, y_pred)) / len(y_true) if y_true else 0.0
+    calibracao = {
+        "temperatura": temperatura,
+        "temperatura_calibrada": not val_igual_teste,
+        "ece_validacao_antes": ece(val_logits, val_labels),
+        "ece_validacao_depois": ece(val_logits, val_labels, temperatura),
+        "ece_teste_antes": ece(test_logits, test_labels),
+        "ece_teste_depois": ece(test_logits, test_labels, temperatura),
+    }
+    metricas = save_report(y_true, y_pred, classes, model_dir, test_acc, best_epoch, best_acc,
+                           val_igual_teste, calibracao)
 
     print(f"\nMelhor época: {best_epoch} (Val Acc: {best_acc:.2%})")
     print(f"Acurácia no teste: {test_acc:.2%}")
+    print(f"Temperatura: {temperatura:.3f} | ECE validação {calibracao['ece_validacao_antes']:.4f} -> "
+          f"{calibracao['ece_validacao_depois']:.4f} | ECE teste {calibracao['ece_teste_antes']:.4f} -> "
+          f"{calibracao['ece_teste_depois']:.4f}")
     if val_igual_teste:
         print("ATENÇÃO: sem pasta val/, o teste também escolheu a melhor época; "
               "a acurácia de teste é otimista.")
