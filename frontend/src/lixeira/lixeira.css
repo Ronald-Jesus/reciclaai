@@ -47,7 +47,7 @@
 
 /* Prévia */
 .lx-previa { display: grid; gap: var(--rc-space-2); justify-items: center; width: 100%; }
-.lx-previa__foto, .lx-resumo__foto {
+.lx-previa__foto, .lx-resultado__foto {
   display: block; width: 100%; max-width: 240px; aspect-ratio: 1; object-fit: cover;
   border: var(--rc-border) solid var(--rc-ink); border-radius: var(--md-sys-shape-corner-medium);
   box-shadow: var(--rc-shadow-sm); background: var(--md-sys-color-surface-container-high);
@@ -86,13 +86,71 @@
 .lx-analise__titulo { font-family: var(--md-ref-typeface-brand); font-size: 1.5rem; font-weight: 800; }
 .lx-analise__texto { color: var(--md-sys-color-on-surface-variant); }
 
-/* Resumo provisório (a issue #44 substitui) */
-.lx-resumo {
-  display: flex; flex-wrap: wrap; gap: var(--rc-space-4); align-items: center; max-width: 560px;
-  padding: var(--rc-space-4); border: var(--rc-border) solid var(--rc-ink); border-radius: var(--md-sys-shape-corner-large);
-  background: var(--md-sys-color-surface-container-lowest); box-shadow: var(--rc-shadow-md);
+/* Página: análise à esquerda, sacola e legenda à direita (empilha no celular) */
+.lx-layout { display: grid; gap: var(--rc-space-6); align-items: start; }
+.lx-layout__principal, .lx-layout__lateral { display: grid; gap: var(--rc-space-5); min-width: 0; }
+@media (min-width: 960px) { .lx-layout { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); } }
+
+/* Resultado */
+.lx-resultado { display: grid; gap: var(--rc-space-4); max-width: 640px; animation: lx-entra 350ms ease-out; }
+@keyframes lx-entra { from { opacity: 0; transform: translateY(16px); } }
+@media (prefers-reduced-motion: reduce) { .lx-resultado { animation: none; } }
+.lx-resultado__cabeca { display: flex; flex-wrap: wrap; gap: var(--rc-space-4); align-items: center; }
+.lx-resultado__foto { max-width: 140px; }
+.lx-resultado__titulo { margin: 0; font-family: var(--md-ref-typeface-brand); font-size: 1.5rem; font-weight: 800; }
+.lx-resultado__titulo:focus-visible { outline: var(--rc-focus-ring-width) solid var(--rc-focus-ring-color); outline-offset: 4px; }
+.lx-resultado__sub { margin: 0 0 var(--rc-space-2); font-family: var(--md-ref-typeface-brand); font-size: 1.125rem; font-weight: 800; }
+.lx-resultado__texto { margin: var(--rc-space-1) 0 0; }
+.lx-lixeira { display: flex; gap: var(--rc-space-2); align-items: center; margin: var(--rc-space-2) 0 0; font-weight: 700; }
+
+/* Bolinha na cor da lixeira (CONAMA). A cor vem de MATERIAIS. */
+.lx-cor {
+  flex: none; display: inline-block; width: 20px; height: 20px;
+  border: var(--rc-border-thin) solid var(--rc-ink); border-radius: 6px;
 }
-.lx-resumo__foto { max-width: 140px; }
-.lx-resumo__titulo { margin: 0; font-family: var(--md-ref-typeface-brand); font-size: 1.5rem; font-weight: 800; }
-.lx-resumo__texto { margin: var(--rc-space-1) 0 0; }
-.lx-resumo__acao { margin-top: var(--rc-space-3); }
+
+/* Top 3 */
+.lx-ranking { display: grid; gap: var(--rc-space-2); margin: 0; padding: 0; list-style: none; }
+.lx-ranking li { display: grid; grid-template-columns: 7.5rem 1fr 4.5rem; gap: var(--rc-space-2); align-items: center; }
+.lx-ranking li > :last-child { text-align: right; font-weight: 700; }
+.lx-ranking__barra {
+  height: 14px; overflow: hidden; border: var(--rc-border-thin) solid var(--rc-ink); border-radius: 999px;
+  background: var(--md-sys-color-surface-container-high);
+}
+.lx-ranking__barra span { display: block; height: 100%; background: var(--md-sys-color-primary-container); border-right: var(--rc-border-thin) solid var(--rc-ink); }
+.lx-ranking li:first-child .lx-ranking__barra span { background: var(--rc-mat, var(--md-sys-color-primary-container)); }
+
+.lx-valor {
+  display: flex; gap: var(--rc-space-2); align-items: center; margin: 0; padding: var(--rc-space-3);
+  border: var(--rc-border) solid var(--rc-ink); border-radius: 12px; box-shadow: var(--rc-shadow-sm);
+  background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container);
+}
+.lx-valor strong { font-size: 1.25rem; }
+
+.lx-dicas ul { margin: 0; padding-left: 1.25rem; display: grid; gap: var(--rc-space-1); }
+
+/* Sacola */
+.lx-sacola { display: grid; gap: var(--rc-space-3); }
+.lx-sacola__lista { display: grid; gap: var(--rc-space-2); margin: 0; padding: 0; list-style: none; }
+.lx-sacola__item {
+  display: flex; gap: var(--rc-space-3); align-items: center; padding: var(--rc-space-2);
+  border: var(--rc-border-thin) solid var(--rc-ink); border-radius: 12px; background: var(--md-sys-color-surface-container-low);
+}
+.lx-sacola__foto {
+  flex: none; width: 56px; height: 56px; object-fit: cover;
+  border: var(--rc-border-thin) solid var(--rc-ink); border-radius: 10px; background: var(--md-sys-color-surface-container-high);
+}
+.lx-sacola__info { flex: 1; min-width: 0; }
+.lx-sacola__info p { margin: 0; }
+.lx-sacola__nome { font-weight: 700; }
+.lx-sacola__total {
+  display: flex; justify-content: space-between; align-items: baseline; margin: 0; padding-top: var(--rc-space-3);
+  border-top: var(--rc-border) solid var(--rc-ink); font-weight: 700;
+}
+.lx-sacola__total strong { font-family: var(--md-ref-typeface-brand); font-size: 1.75rem; }
+.lx-sacola .rc-snackbar { width: 100%; }
+
+/* Legenda */
+.lx-legenda__lista { display: grid; gap: var(--rc-space-2); margin: 0; padding: 0; list-style: none; }
+.lx-legenda__lista li { display: flex; gap: var(--rc-space-2); align-items: center; }
+.lx-legenda__fonte { margin: var(--rc-space-3) 0 0; font-size: 0.875rem; color: var(--md-sys-color-on-surface-variant); }

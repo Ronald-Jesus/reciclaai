@@ -1,58 +1,63 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useReducer, useRef, useState } from "react";
 import Topo from "../componentes/Topo.jsx";
 import Rodape from "../componentes/Rodape.jsx";
 import Botao from "../componentes/Botao.jsx";
 import Captura from "../lixeira/Captura.jsx";
-import { MATERIAIS } from "../dados/materiais.js";
+import Resultado from "../lixeira/Resultado.jsx";
+import Sacola from "../lixeira/Sacola.jsx";
+import Legenda from "../lixeira/Legenda.jsx";
+import { sacolaReducer, SACOLA_VAZIA } from "../lixeira/sacola.js";
 import "../lixeira/lixeira.css";
 
-// shortcut: resumo simples do resultado; a issue #44 troca por Resultado.jsx e a sacola.
-function Resumo({ resposta, tituloRef }) {
-  if (resposta.nao_reconhecido) {
-    return (
-      <p ref={tituloRef} tabIndex={-1} className="lx-resumo__titulo">
-        Não reconheci uma embalagem nesta foto.
-      </p>
-    );
-  }
-  const { prediction } = resposta;
-  const material = MATERIAIS[prediction.class];
-  const confianca = String(prediction.confidence).replace(".", ",");
-  return (
-    <>
-      <p ref={tituloRef} tabIndex={-1} className="lx-resumo__titulo">
-        {material?.rotulo ?? prediction.label ?? prediction.class}
-      </p>
-      <p className="lx-resumo__texto">{confianca}% de confiança</p>
-    </>
-  );
-}
-
+// shortcut: a sacola vive só no estado React (some ao recarregar); localStorage não ajuda
+// porque a URL blob: da miniatura morre com a página. Guardar a foto exigiria IndexedDB.
 export default function LixeiraPessoal() {
-  const [resultado, setResultado] = useState(null); // { resposta, url }
+  const [resultado, setResultado] = useState(null); // { id, resposta, url }
+  const [sacola, despachar] = useReducer(sacolaReducer, SACOLA_VAZIA);
   const [focarCaptura, setFocarCaptura] = useState(false);
   const tituloRef = useRef(null);
-  const urlRef = useRef(null);
+  const proximoId = useRef(0);
+  const urlsRef = useRef(new Set()); // URLs de foto que esta página ainda usa
 
   // O botão "Analisar foto" some: o foco vai para o título do resultado.
   useEffect(() => {
     if (resultado) tituloRef.current?.focus();
   }, [resultado]);
 
-  // A URL da foto analisada é desta página: libera ao sair.
-  useEffect(() => () => urlRef.current && URL.revokeObjectURL(urlRef.current), []);
+  // Libera a URL de uma foto quando nada mais a mostra (nem o resultado, nem a sacola,
+  // nem o item que ainda pode voltar com "Desfazer").
+  useEffect(() => {
+    const vivas = new Set(
+      [resultado?.url, ...sacola.itens.map((i) => i.url), sacola.removido?.item.url].filter(Boolean)
+    );
+    urlsRef.current.forEach((url) => vivas.has(url) || URL.revokeObjectURL(url));
+    urlsRef.current = vivas;
+  });
+  useEffect(() => () => urlsRef.current.forEach((url) => URL.revokeObjectURL(url)), []);
 
   function receber(resposta, url) {
-    urlRef.current = url;
-    setResultado({ resposta, url });
+    proximoId.current += 1;
+    setResultado({ id: proximoId.current, resposta, url });
   }
 
   function novaFoto() {
-    URL.revokeObjectURL(urlRef.current);
-    urlRef.current = null;
     setFocarCaptura(true);
     setResultado(null);
   }
+
+  function colocar() {
+    const { id, url, resposta } = resultado;
+    despachar({ tipo: "adicionar", item: { id, url, classe: resposta.prediction.class, machine: resposta.machine } });
+  }
+
+  // "na": já está na sacola; "removido": pode voltar com "Desfazer" (não pode duplicar).
+  const naSacola = !resultado
+    ? undefined
+    : sacola.itens.some((i) => i.id === resultado.id)
+      ? "na"
+      : sacola.removido?.item.id === resultado.id
+        ? "removido"
+        : undefined;
 
   return (
     <>
@@ -67,20 +72,34 @@ export default function LixeiraPessoal() {
               </p>
             </div>
 
-            <div aria-live="polite">
-              {resultado && (
-                <div className="lx-resumo">
-                  <img className="lx-resumo__foto" src={resultado.url} alt="Foto analisada" />
-                  <div>
-                    <Resumo resposta={resultado.resposta} tituloRef={tituloRef} />
-                    <Botao className="lx-resumo__acao" icone="add_a_photo" onClick={novaFoto}>
-                      Analisar outra foto
-                    </Botao>
-                  </div>
+            <div className="lx-layout">
+              <div className="lx-layout__principal">
+                <div aria-live="polite">
+                  {resultado && (
+                    <Resultado
+                      resposta={resultado.resposta}
+                      url={resultado.url}
+                      tituloRef={tituloRef}
+                      naSacola={naSacola}
+                      onColocar={colocar}
+                      onNovaFoto={novaFoto}
+                    />
+                  )}
                 </div>
-              )}
+                {!resultado && <Captura onResultado={receber} focar={focarCaptura} />}
+              </div>
+
+              <div className="lx-layout__lateral">
+                <Sacola
+                  itens={sacola.itens}
+                  removido={sacola.removido}
+                  onRemover={(id) => despachar({ tipo: "remover", id })}
+                  onDesfazer={() => despachar({ tipo: "desfazer" })}
+                  onLimpar={() => despachar({ tipo: "limpar" })}
+                />
+                <Legenda />
+              </div>
             </div>
-            {!resultado && <Captura onResultado={receber} focar={focarCaptura} />}
 
             <div className="hero__acoes">
               <Botao variante="text" para="/">
