@@ -65,6 +65,16 @@ def test_arquivo_publico_do_dist_e_servido(cliente):
     assert cliente.get("/favicon.svg").status_code == 200
 
 
+def test_quadro_webp_sai_como_imagem(cliente):
+    # O Python do Windows não conhece .webp; sem isso a máquina animada cairia no SVG.
+    import app as m
+    (m.FRONTEND_DIST / "maquina" / "frames").mkdir(parents=True)
+    (m.FRONTEND_DIST / "maquina" / "frames" / "frame_0001.webp").write_bytes(b"RIFF0000WEBP")
+    r = cliente.head("/maquina/frames/frame_0001.webp")
+    assert r.status_code == 200
+    assert r.mimetype == "image/webp"
+
+
 def test_path_traversal_nao_vaza_arquivos(cliente):
     for caminho in ("/fotos/../../app.py", "/fotos/%2e%2e/%2e%2e/app.py", "/..%2fapp.py", "/%2e%2e/app.py"):
         r = cliente.get(caminho)

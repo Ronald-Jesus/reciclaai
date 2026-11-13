@@ -108,7 +108,7 @@ depósito na Alemanha (mais de 96%). Mensagem: "o segredo é o valor, não a lix
 | 4 | Balança | Confere o peso: garrafa ainda cheia é devolvida |
 | 5 | Esteira | Gira a embalagem na frente da câmera e do leitor |
 | 6 | Leitor de código de barras | Nas máquinas alemãs, confirma que a embalagem faz parte do sistema; aqui reforça a decisão da IA |
-| 7 | Câmera e IA | O coração da máquina: identifica o material. É a IA que o visitante testa na subpágina |
+| 7 | Câmera e IA | O coração da máquina: identifica o material. É a IA que você testa na lixeira pessoal |
 | 8 | Abertura de entrada | Recebe um item por vez, com luz indicando quando está pronta |
 | 9 | Tela e impressora de voucher | Mostra o resultado e entrega o crédito |
 
