@@ -165,8 +165,9 @@ instalado em `frontend/`. Os 21 testes do Vitest rodam no job `frontend` do CI.
 ## Divergências entre requisitos e testes
 
 1. **HU-03, limite de 5 MB no navegador.** A história pede a mensagem "A foto passa de 5 MB. Envie
-   uma menor" sem chamar o servidor. Hoje só o servidor recusa (413). A tela da lixeira ainda não
-   faz essa checagem; o caso entra com a issue #43 (Parte 8 do plano, `validarArquivo`).
+   uma menor" sem chamar o servidor. **Resolvida em 13/11/2026 (#43):** `frontend/src/lixeira/validarArquivo.js`
+   recusa no navegador acima de 5 MB (com o tamanho na mensagem), HEIC e o que não é imagem;
+   testes em `validarArquivo.test.js` e `Captura.test.jsx`.
 2. **HU-08, texto do voucher já usado.** Resolvida em 12/11/2026: a história passou a citar o
    texto do código e do teste, "Voucher já resgatado em <data>.", e "Voucher não encontrado." para
    o código inexistente.
