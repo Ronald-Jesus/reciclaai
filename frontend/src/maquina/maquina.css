@@ -1,0 +1,26 @@
+/* Ilustração da máquina (MaquinaSVG). Traço e cores vêm do protótipo aprovado. */
+.maquina-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.maquina-svg .rv,
+.maquina-svg .rv2,
+.maquina-svg .rvn {
+  stroke: #111;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.maquina-svg .rv { stroke-width: 3; }
+.maquina-svg .rv2 { stroke-width: 2; }
+.maquina-svg .rvn { fill: none; stroke-width: 3; }
+
+.maquina-svg .maquina-tela-txt {
+  font-family: var(--md-ref-typeface-brand), "Arial Black", Arial, sans-serif;
+  font-weight: 900;
+  font-size: 15px;
+  text-anchor: middle;
+  fill: #111;
+}

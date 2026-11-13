@@ -216,17 +216,19 @@ animação de leitura com "Analisando…" e botão cancelar.
 sacola com miniaturas e total; legenda das lixeiras sempre visível.
 
 ## Parte 10 · Subpágina: mapa do mercado mais próximo
-**Issue:** #45 · **Estimativa:** 1,5 h
+**Issue:** #45 · **Estimativa:** 2 h (1,5 h do mapa mais 0,5 h da busca real, absorvida do antigo
+#49 pela mudança M05)
 
 **Arquivos:** `frontend/src/lixeira/Mapa.jsx` · `frontend/src/lixeira/geo.js` ·
 `frontend/src/dados/mercados-brasilia.json` (extraído do OpenStreetMap, com atribuição)
 
 **Interfaces:** `distanciaKm(a, b): number` (haversine) · `maisProximo(origem, mercados)` ·
-`minutosAPe(km): number` (5 km/h, arredondado para cima).
+`minutosAPe(km): number` (5 km/h, arredondado para cima) · busca real de mercados no OpenStreetMap
+(Overpass), com a lista salva como reserva se a busca falhar (HU-12).
 
 **Testes:** `distância entre dois pontos conhecidos de Brasília` · `maisProximo escolhe o menor` ·
 `minutosAPe(1.2) === 15` · `sem localização usa o centro de Brasília` · `aviso de demonstração
-sempre visível`.
+sempre visível` · `se a busca falhar, usa a lista salva sem erro na tela`.
 
 **Pronto quando:** mapa Leaflet com o mercado mais próximo, distância e tempo a pé, aviso de que
 os mercados não são parceiros e crédito ao OpenStreetMap.
@@ -261,4 +263,4 @@ sobrevivem a reinícios.
 |---|---|---|
 | E1 (#47) | Depósito simulado com voucher na subpágina (visão 7.5) | 1 |
 | E2 (#48) | Seções de impacto com simulador, para quem, painel e dúvidas (6.4 a 6.7), com números aprovados antes | 1,5 |
-| E3 (#49) | Busca real de mercados próximos no OpenStreetMap | 0,5 |
+| ~~E3 (#49)~~ | Busca real de mercados próximos: absorvida pela Parte 10 (#45) na mudança M05 | 0,5 (já contadas no #45) |

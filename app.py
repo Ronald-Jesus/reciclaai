@@ -1,3 +1,4 @@
+import mimetypes
 from pathlib import Path
 
 import torch
@@ -16,6 +17,10 @@ FRONTEND_DIST = BASE_DIR / "frontend" / "dist"
 
 # Limite de upload: acima disso o servidor responde 413 em JSON.
 MAX_UPLOAD_BYTES = 5 * 1024 * 1024
+
+# Alguns sistemas (Python no Windows, imagens Docker enxutas) não conhecem .webp;
+# sem isso os quadros da máquina sairiam como application/octet-stream.
+mimetypes.add_type("image/webp", ".webp")
 
 # Informações de exibição de cada classe. "bin" é a cor da lixeira (CONAMA 275);
 # nao_residuo não é um material: não tem lixeira.

@@ -2,7 +2,8 @@
 
 > Issue #4 · Referência: SOMMERVILLE, Ian. *Engenharia de software*. 10. ed. São Paulo: Pearson,
 > 2018. Seção 23.2.1, p. 636 (introdução e organização do projeto). Critérios de sucesso: p. 607.
-> Versão 1.2 · 08/11/2026 (cronograma antecipado pela mudança M07, [A10](A10-mudancas.md)).
+> Versão 1.3 · 12/11/2026 (defesa em 14/12/2026 pela mudança M08; trabalho até 27/11 pela M07,
+> [A10](A10-mudancas.md)).
 
 | Campo | Conteúdo |
 |---|---|
@@ -40,7 +41,7 @@ de trabalho (linha de base de 41,5 h; ver [A05](A05-estimativas.md)).
 | Mensurável | Acurácia de pelo menos 80% em fotos reais; testes verdes; release v1.0 |
 | Atingível | Reaproveita Flask, `rvm.py` e a simulação existentes; extras só se sobrar tempo |
 | Relevante | Entrega o MVP e os artefatos que a rubrica avalia |
-| Temporal | Trabalho concluído em 27/11/2026, com marcos I1 (13/11), I2 (20/11) e I3 (27/11); defesa em 07/12/2026 |
+| Temporal | Trabalho concluído em 27/11/2026, com marcos I1 (13/11), I2 (20/11) e I3 (27/11); entrega no AVA até 07/12/2026; defesa em 14/12/2026 |
 
 ## Entregas (entregáveis)
 
@@ -69,18 +70,21 @@ e #48 (seções de impacto), só se sobrar tempo.
 | I1 · Jornada e planejamento | 08 a 13/11/2026 (marco em 13/11) | Gestão, requisitos, BPMN, arquitetura e UML |
 | I2 · Construção e qualidade | 09 a 20/11/2026 (marco em 20/11) | Dataset, treino, servidor, site e subpágina |
 | I3 · Entrega e sustentação | 23 a 27/11/2026 (marco "Projeto concluído" em 27/11) | Banco, publicação, release, ADRs e indicadores finais |
-| Preparo da defesa e contingência | 28/11 a 02/12/2026 | Slides, estudo, ensaio e folga de calendário |
-| Defesa final | 03/12/2026 | Apresentação e arguição |
+| Preparo da defesa e contingência | 28/11 a 13/12/2026 | Slides, estudo, ensaio e folga de calendário |
+| Entrega no AVA | 07/12/2026, até 23:59 | Artefatos enviados no AVA, em arquivo com o nome `Nome_Matricula_tema_data` |
+| Defesa final | 14/12/2026 (ou antes, na data que o professor marcar) | Apresentação e arguição |
 
 ## Premissas
 
 Cerca de 10 h de trabalho por semana até 27/11 (28,5 h restantes em 08/11, cerca de 9,5 h por semana); fotos de bancos gratuitos e dados do
 OpenStreetMap continuam acessíveis; planos gratuitos do Hugging Face Spaces e do Neon bastam para a
-demonstração; o professor valida as entregas em cada marco.
+demonstração; o professor valida as entregas em cada marco e divulga a data da defesa.
 
 ## Restrições
 
-- Prazo fixo: defesa em 03/12/2026; o trabalho do projeto termina em 27/11/2026 por decisão do Autor (M07).
+- Prazo fixo: o trabalho do projeto termina em 27/11/2026 por decisão do Autor (M07); entrega dos
+  artefatos no AVA até 07/12/2026, 23:59; defesa em 14/12/2026 (M08), ou antes se o professor
+  marcar outra data.
 - Equipe: projeto individual, com apoio de um assistente de IA no desenvolvimento.
 - Esforço: 41,5 h estimadas para cerca de 40 h disponíveis; contingência tratada em [A05](A05-estimativas.md).
 - Processo: tudo na branch `develop`, com um pull request para a `main` ao fim de cada issue.
@@ -100,7 +104,8 @@ Prazo, custo (esforço), expectativas do cliente e equipe coesa (Sommerville, p.
 - acurácia de pelo menos 80% em fotos reais; abaixo de 70% de confiança, o item é devolvido;
 - foto que não é de resíduo mostra "Não reconheci uma embalagem nesta foto", sem material, valor ou lixeira;
 - testes passando no pipeline; 10 heurísticas de Nielsen documentadas; nenhum número sem fonte;
-- artefatos A01 a A12, release v1.0 e material da defesa entregues até 02/12/2026, com o trabalho concluído em 27/11/2026.
+- artefatos A01 a A12, release v1.0 e material da defesa entregues no AVA até 07/12/2026, 23:59,
+  com o trabalho concluído em 27/11/2026.
 
 ## Aprovação
 

@@ -52,12 +52,18 @@ livre dentro das 40 h. O gatilho para começar a cortar está em [A07](A07-risco
 de desempenho de prazo (IDP) abaixo de 0,9 em duas semanas seguidas ([A09](A09-status-EVM.md)).
 Qualquer corte passa pelo registro de mudanças ([A10](A10-mudancas.md)).
 
-**Contingência de calendário (M07).** Com o cronograma antecipado, o trabalho termina em 27/11 e
-há ainda 28/11 a 02/12 antes da defesa: um fim de semana livre (28 e 29/11) e três dias úteis em
-que só #32, #33 e #34 (5 h) estão planejados. Esse colchão soma-se à reserva de 4 h por corte de
-escopo: um atraso de até cerca de dois dias úteis no I3 pode escorregar para essa janela sem
-mover a defesa, ao custo de comprimir o preparo (#32 a #34). Assim, a contingência passa a ser de
-escopo **e** de calendário ([A04](A04-cronograma.md), [A10](A10-mudancas.md), M07).
+**Contingência de calendário (M07 e M08).** Com o cronograma antecipado (M07), o trabalho termina
+em 27/11. Com a defesa em 14/12 (M08), sobram 28/11 a 13/12 antes dela: 16 dias corridos, dos
+quais 10 são dias úteis, em que só #32, #33 e #34 (5 h) estão planejados. Para os artefatos, o
+limite real é a entrega no AVA em 07/12, às 23:59: até lá são 10 dias corridos (28/11 a 07/12) e
+6 dias úteis (30/11 a 04/12 e 07/12).
+
+Esse colchão soma-se à reserva de 4 h por corte de escopo. Um atraso de até cerca de quatro dias
+úteis no I3 cabe antes da entrega no AVA sem mover a defesa: sobram dois dias úteis para slides e
+estudo (#32 e #33) antes de 07/12, e o ensaio (#34) fica para 08 a 11/12. Antes da M08, o colchão
+era de 28/11 a 02/12 (três dias úteis) e só absorvia cerca de dois dias de atraso. Se o professor
+marcar a defesa antes de 14/12, vale de novo esse colchão menor. Assim, a contingência é de escopo
+**e** de calendário ([A04](A04-cronograma.md), [A10](A10-mudancas.md), M07 e M08).
 
 ## Cone da incerteza
 
