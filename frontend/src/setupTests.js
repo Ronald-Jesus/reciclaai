@@ -18,3 +18,14 @@ if (!window.matchMedia) {
 vi.mock("lenis", () => ({
   default: vi.fn().mockImplementation(() => ({ on: vi.fn(), raf: vi.fn(), destroy: vi.fn() })),
 }));
+
+// MapLibre precisa de WebGL; nos testes é substituído por um duplo.
+vi.mock("maplibre-gl", () => {
+  const Map = vi.fn().mockImplementation(() => ({ addControl: vi.fn(), fitBounds: vi.fn(), remove: vi.fn(), once: vi.fn(), loaded: vi.fn(() => true) }));
+  const Marker = vi.fn().mockImplementation(function () {
+    this.setLngLat = vi.fn(() => this);
+    this.addTo = vi.fn(() => this);
+    this.remove = vi.fn();
+  });
+  return { Map, Marker, NavigationControl: vi.fn(), setWorkerUrl: vi.fn() };
+});

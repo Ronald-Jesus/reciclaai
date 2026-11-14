@@ -6,6 +6,7 @@ import Captura from "../lixeira/Captura.jsx";
 import Resultado from "../lixeira/Resultado.jsx";
 import Sacola from "../lixeira/Sacola.jsx";
 import Legenda from "../lixeira/Legenda.jsx";
+import Mapa from "../lixeira/Mapa.jsx";
 import { sacolaReducer, SACOLA_VAZIA } from "../lixeira/sacola.js";
 import "../lixeira/lixeira.css";
 
@@ -100,6 +101,9 @@ export default function LixeiraPessoal() {
                 <Legenda />
               </div>
             </div>
+
+            {/* Sempre visível: dá para ver onde fica a máquina antes da primeira foto. */}
+            <Mapa />
 
             <div className="hero__acoes">
               <Botao variante="text" para="/">

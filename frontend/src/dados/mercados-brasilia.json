@@ -1,0 +1,10 @@
+{
+  "atribuicao": "© colaboradores do OpenStreetMap",
+  "fonte": "Supermercados (shop=supermarket) do Plano Piloto, extraídos do OpenStreetMap via Overpass em 07/11/2026 (lista do protótipo, docs/prototipo/app/app.js).",
+  "mercados": [
+    { "nome": "Horti Mais", "lat": -15.81032, "lng": -47.88894, "endereco": "CLS 203, Bloco D, Loja 35" },
+    { "nome": "Biomundo", "lat": -15.79521, "lng": -47.8841, "endereco": "SDS" },
+    { "nome": "Supermercado da L2 Sul", "lat": -15.80986, "lng": -47.88449, "endereco": "Ciclovia L2 Sul" },
+    { "nome": "Supermercado da EQN 504/505", "lat": -15.77473, "lng": -47.88761, "endereco": "EQN 504/505" }
+  ]
+}
