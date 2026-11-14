@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Botao from "../componentes/Botao.jsx";
 import Icone from "../componentes/Icone.jsx";
 import useMenosAnimacao from "../hooks/useMenosAnimacao.js";
@@ -8,6 +8,7 @@ import { buscarMercados, LISTA_SALVA } from "./mercados.js";
 const ESTILO = "https://tiles.openfreemap.org/styles/positron"; // OpenFreeMap: sem chave (DEF-03)
 const CREDITO = "© OpenFreeMap © colaboradores do OpenStreetMap";
 const LONGE_KM = 40; // além disso a pessoa está fora do DF: parte do centro (ponto de atenção 4)
+const MAXIMO = 15; // mercados na lista e no mapa
 
 const ORIGEM = {
   centro: "Partindo do centro de Brasília. Use sua localização para ver o mercado mais perto de você.",
@@ -21,32 +22,63 @@ const rota = (de, para) =>
   "https://www.openstreetmap.org/directions?engine=fossgis_osrm_foot&route=" +
   encodeURIComponent(`${de.lat},${de.lng};${para.lat},${para.lng}`);
 
-function pino(classe, icone) {
-  const el = document.createElement("span");
-  el.className = `lx-pino ${classe}`;
-  el.innerHTML = `<span class="rc-icon rc-icon--fill" aria-hidden="true">${icone}</span>`;
+// Pino como no protótipo: o MapLibre posiciona o elemento externo com transform, então a gota
+// girada fica num span interno. Com rótulo vira botão (pino de mercado).
+function pino(classe, icone, rotulo) {
+  const el = document.createElement(rotulo ? "button" : "span");
+  el.className = "lx-pino-alvo";
+  if (rotulo) {
+    el.type = "button";
+    el.setAttribute("aria-label", rotulo);
+  }
+  el.innerHTML = `<span class="lx-pino ${classe}"><span class="rc-icon rc-icon--fill" aria-hidden="true">${icone}</span></span>`;
   return el;
 }
 
-// Mercado mais perto de quem usa (ou do centro de Brasília), com mapa e lista em texto.
+// Conteúdo do popup do pino: nome, distância e "Escolher este".
+function conteudoPopup(m, aoEscolher) {
+  const caixa = document.createElement("div");
+  caixa.className = "lx-popup";
+  const nome = document.createElement("strong");
+  nome.textContent = m.nome;
+  const distancia = document.createElement("span");
+  distancia.textContent = `${km(m.km)} · ${aPe(m.km)} a pé`;
+  const botao = document.createElement("button");
+  botao.type = "button";
+  botao.className = "rc-btn rc-btn--filled rc-btn--small";
+  botao.textContent = "Escolher este";
+  botao.addEventListener("click", aoEscolher);
+  caixa.append(nome, distancia, botao);
+  return caixa;
+}
+
+// Mercados perto de quem usa (ou do centro de Brasília), com mapa e lista em texto.
 export default function Mapa() {
   const [origem, setOrigem] = useState({ ponto: CENTRO_BRASILIA, tipo: "centro" });
   const [busca, setBusca] = useState(null); // { fonte: "provisoria" | "osm" | "salva", mercados ordenados }
+  const [escolhido, setEscolhido] = useState(0); // índice em `mercados`; 0 = o mais perto
   const [mapaPronto, setMapaPronto] = useState(false);
   const [mapaFalhou, setMapaFalhou] = useState(false);
   const caixaRef = useRef(null);
   const mapaRef = useRef(null);
   const libRef = useRef(null);
+  const pinosRef = useRef([]);
   const menosAnimacao = useMenosAnimacao();
   const { ponto } = origem;
-  const perto = busca?.mercados[0];
+  const mercados = useMemo(() => busca?.mercados.slice(0, MAXIMO) ?? [], [busca]);
+  const sel = mercados[escolhido] ?? mercados[0];
 
   useEffect(() => {
     const controle = new AbortController();
     // A lista salva aparece na hora; a busca real a substitui quando chegar.
-    setBusca({ fonte: "provisoria", mercados: ordenarPorDistancia(ponto, LISTA_SALVA.mercados) });
+    // A cada lista nova, o escolhido volta a ser o mais perto.
+    const mostrar = (fonte, lista) => {
+      setBusca({ fonte, mercados: ordenarPorDistancia(ponto, lista) });
+      setEscolhido(0);
+    };
+    mostrar("provisoria", LISTA_SALVA.mercados);
     buscarMercados(ponto, controle.signal)
-      .then((r) => setBusca({ fonte: r.fonte, mercados: ordenarPorDistancia(ponto, r.mercados) }))
+      .then((r) => mostrar(r.fonte, r.mercados))
       .catch(() => {}); // só o cancelamento chega aqui
     return () => controle.abort();
   }, [ponto]);
@@ -77,6 +109,7 @@ export default function Mapa() {
             "NavigationControl.ZoomOut": "Afastar",
             "Map.Title": "Mapa",
             "Marker.Title": "Mercado",
+            "Popup.Close": "Fechar",
           },
         });
         // Estilo ou rede falhou antes de o mapa abrir: mostra o aviso (a lista continua).
@@ -93,22 +126,61 @@ export default function Mapa() {
     };
   }, []);
 
+  // Um pino por mercado; clicar abre o popup com "Escolher este".
   useEffect(() => {
-    if (!mapaPronto || mapaFalhou || !perto) return undefined;
-    const { Marker } = libRef.current;
+    if (!mapaPronto || mapaFalhou || !mercados.length) return undefined;
+    const { Marker, Popup } = libRef.current;
+    const mapa = mapaRef.current;
+    let popup = null;
+    const pinos = mercados.map((m, i) => {
+      const el = pino("lx-pino--mercado", "storefront", `${m.nome}, ${km(m.km)}`);
+      el.addEventListener("click", (evento) => {
+        evento.stopPropagation(); // senão o clique chega ao mapa e o popup (closeOnClick) fecha na hora
+        popup?.remove();
+        const escolherEste = () => {
+          setEscolhido(i);
+          popup?.remove();
+        };
+        popup = new Popup({ offset: 36, maxWidth: "240px" })
+          .setLngLat([m.lng, m.lat])
+          .setDOMContent(conteudoPopup(m, escolherEste))
+          .addTo(mapa);
+      });
+      return el;
+    });
+    pinosRef.current = pinos;
     const marcadores = [
       new Marker({ element: pino("lx-pino--pessoa", "person") }).setLngLat([ponto.lng, ponto.lat]),
-      new Marker({ element: pino("lx-pino--mercado", "storefront"), anchor: "bottom" }).setLngLat([perto.lng, perto.lat]),
-    ].map((m) => m.addTo(mapaRef.current));
-    mapaRef.current.fitBounds(
+      ...mercados.map((m, i) => new Marker({ element: pinos[i], anchor: "bottom" }).setLngLat([m.lng, m.lat])),
+    ].map((mk) => mk.addTo(mapa));
+    // Enquadra a pessoa e os 4 mais perto, como no protótipo.
+    const pontos = [ponto, ...mercados.slice(0, 4)];
+    const lngs = pontos.map((p) => p.lng);
+    const lats = pontos.map((p) => p.lat);
+    mapa.fitBounds(
       [
-        [Math.min(ponto.lng, perto.lng), Math.min(ponto.lat, perto.lat)],
-        [Math.max(ponto.lng, perto.lng), Math.max(ponto.lat, perto.lat)],
+        [Math.min(...lngs), Math.min(...lats)],
+        [Math.max(...lngs), Math.max(...lats)],
       ],
-      { padding: 64, maxZoom: 16, animate: !menosAnimacao }
+      { padding: 56, maxZoom: 15, animate: !menosAnimacao }
     );
-    return () => marcadores.forEach((m) => m.remove());
-  }, [mapaPronto, mapaFalhou, ponto, perto, menosAnimacao]);
+    return () => {
+      popup?.remove();
+      marcadores.forEach((mk) => mk.remove());
+      pinosRef.current = [];
+    };
+  }, [mapaPronto, mapaFalhou, ponto, mercados, menosAnimacao]);
+
+  // Destaca (lima) o pino do mercado escolhido.
+  useEffect(() => {
+    pinosRef.current.forEach((el, i) => el.classList.toggle("is-selected", i === escolhido));
+  }, [escolhido, mercados, mapaPronto, mapaFalhou]);
+
+  function escolher(i) {
+    setEscolhido(i);
+    const m = mercados[i];
+    if (mapaPronto && !mapaFalhou) mapaRef.current[menosAnimacao ? "jumpTo" : "flyTo"]({ center: [m.lng, m.lat], zoom: 16 });
+  }
 
   function usarLocalizacao() {
     if (origem.tipo === "procurando") return;
@@ -165,9 +237,9 @@ export default function Mapa() {
             Não deu para buscar os mercados agora. Mostrando uma lista salva de Brasília.
           </p>
         )}
-        {perto && (
+        {sel && (
           <p className="sr-only">
-            Mais perto: {perto.nome}, {km(perto.km)}, {aPe(perto.km)} a pé.
+            {escolhido === 0 ? "Mais perto" : "Escolhido"}: {sel.nome}, {km(sel.km)}, {aPe(sel.km)} a pé.
           </p>
         )}
       </div>
@@ -187,36 +259,39 @@ export default function Mapa() {
           />
         )}
 
-        {busca && (
+        {sel && (
           <div className="lx-mapa__lado">
-            {perto && (
-              <div className="lx-mapa__destaque">
-                <p className="lx-mapa__selo">Mais perto</p>
-                <h3 className="lx-resultado__sub">{perto.nome}</h3>
-                {perto.endereco && <p className="lx-resultado__texto">{perto.endereco}</p>}
-                <p className="rc-num">
-                  {km(perto.km)} em linha reta · {aPe(perto.km)} a pé
-                </p>
-                <Botao
-                  href={rota(ponto, perto)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  icone="directions_walk"
-                  pequeno
-                  aria-label={`Abrir rota até ${perto.nome} (OpenStreetMap, em nova aba)`}
-                >
-                  Abrir rota
-                </Botao>
-              </div>
-            )}
-            <ol className="lx-mapa__lista" aria-label="Os 3 mercados mais perto">
-              {busca.mercados.slice(0, 3).map((m, i) => (
+            <div className="lx-mapa__destaque">
+              <p className="lx-mapa__selo">{escolhido === 0 ? "Mais perto" : "Escolhido"}</p>
+              <h3 className="lx-resultado__sub">{sel.nome}</h3>
+              {sel.endereco && <p className="lx-resultado__texto">{sel.endereco}</p>}
+              <p className="rc-num">
+                {km(sel.km)} em linha reta · {aPe(sel.km)} a pé
+              </p>
+              <Botao
+                href={rota(ponto, sel)}
+                target="_blank"
+                rel="noopener noreferrer"
+                icone="directions_walk"
+                pequeno
+                aria-label={`Abrir rota até ${sel.nome} (OpenStreetMap, em nova aba)`}
+              >
+                Abrir rota
+              </Botao>
+            </div>
+            <ol className="lx-mapa__lista" aria-label="Mercados mais perto, por distância" data-lenis-prevent>
+              {mercados.map((m, i) => (
                 <li key={`${m.lat},${m.lng},${i}`}>
-                  <strong>{m.nome}</strong>
-                  {m.endereco && <span>{m.endereco}</span>}
-                  <span className="rc-num">
-                    {km(m.km)} · {aPe(m.km)} a pé
-                  </span>
+                  <button type="button" className="lx-mapa__item" aria-pressed={i === escolhido} onClick={() => escolher(i)}>
+                    <Icone nome="storefront" preenchido />
+                    <span className="lx-mapa__item-texto">
+                      <strong>{m.nome}</strong>
+                      {m.endereco && <span>{m.endereco}</span>}
+                      <span className="rc-num">
+                        {km(m.km)} · {aPe(m.km)} a pé
+                      </span>
+                    </span>
+                  </button>
                 </li>
               ))}
             </ol>

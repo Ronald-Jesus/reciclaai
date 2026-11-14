@@ -176,21 +176,49 @@
   padding: 0 var(--rc-space-2); border: var(--rc-border-thin) solid var(--rc-ink); border-radius: 999px;
   background: var(--md-sys-color-surface-container-lowest); font-size: 0.875rem; font-weight: 700;
 }
-.lx-mapa__lista { display: grid; gap: var(--rc-space-2); margin: 0; padding: 0; list-style: none; counter-reset: lx-mapa; }
-.lx-mapa__lista li {
-  display: grid; gap: 2px; padding: var(--rc-space-2) var(--rc-space-3) var(--rc-space-2) 2.75rem; position: relative;
-  border: var(--rc-border-thin) solid var(--rc-ink); border-radius: 12px; background: var(--md-sys-color-surface-container-low);
-  counter-increment: lx-mapa;
+.lx-mapa__lista {
+  display: grid; gap: var(--rc-space-2); margin: 0; padding: 4px 10px 10px 4px; list-style: none;
+  max-height: 360px; overflow-y: auto; overscroll-behavior: contain;
 }
-.lx-mapa__lista li::before {
-  content: counter(lx-mapa); position: absolute; left: var(--rc-space-3); top: var(--rc-space-2);
-  font-family: var(--md-ref-typeface-brand); font-weight: 800; font-size: 1.25rem;
+.lx-mapa__item {
+  display: flex; gap: var(--rc-space-3); align-items: center; width: 100%; padding: var(--rc-space-2) var(--rc-space-3);
+  border: var(--rc-border-thin) solid var(--rc-ink); border-radius: 12px; background: var(--md-sys-color-surface-container-lowest);
+  color: inherit; font: inherit; text-align: left; cursor: pointer; box-shadow: var(--rc-shadow-sm);
+  transition: background-color var(--rc-motion-hover);
 }
+.lx-mapa__item:hover { background: var(--md-sys-color-surface-container-high); }
+.lx-mapa__item[aria-pressed="true"] {
+  background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container);
+  outline: var(--rc-border-thin) solid var(--rc-ink); outline-offset: 0;
+}
+.lx-mapa__item:focus-visible { outline: var(--rc-focus-ring-width) solid var(--rc-focus-ring-color); outline-offset: 3px; }
+.lx-mapa__item > .rc-icon { font-size: 28px; }
+.lx-mapa__item-texto { display: grid; gap: 2px; min-width: 0; flex: 1; }
+.lx-mapa__item-texto strong { font-family: var(--md-ref-typeface-brand); font-size: 1.0625rem; }
+
+/* Pinos (como no protótipo): a gota girada fica dentro do elemento que o MapLibre posiciona */
+.lx-pino-alvo { display: block; padding: 0; margin: 0; border: 0; background: none; cursor: pointer; font: inherit; color: var(--rc-ink); }
+.lx-pino-alvo:focus-visible { outline: var(--rc-focus-ring-width) solid var(--rc-focus-ring-color); outline-offset: 4px; border-radius: 8px; }
 .lx-pino {
-  display: grid; place-items: center; width: 36px; height: 36px;
-  border: var(--rc-border) solid var(--rc-ink); border-radius: 50%; box-shadow: var(--rc-shadow-sm);
+  display: grid; place-items: center; width: 34px; height: 34px;
+  border: var(--rc-border) solid var(--rc-ink); border-radius: 50% 50% 50% 4px; transform: rotate(-45deg);
+  background: var(--md-sys-color-surface-container-lowest); box-shadow: 3px 3px 0 0 var(--rc-ink);
 }
-.lx-pino .rc-icon { font-size: 20px; }
-.lx-pino--pessoa { background: var(--md-sys-color-surface-container-lowest); }
-.lx-pino--mercado { background: var(--md-sys-color-primary-container); border-radius: 50% 50% 50% 0; transform: rotate(-45deg); }
-.lx-pino--mercado .rc-icon { transform: rotate(45deg); }
+.lx-pino .rc-icon { transform: rotate(45deg); font-size: 18px; }
+.lx-pino-alvo.is-selected { z-index: 1; }
+.lx-pino-alvo.is-selected .lx-pino {
+  width: 42px; height: 42px; background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container);
+  box-shadow: 0 0 0 3px var(--md-sys-color-surface), 0 0 0 6px var(--rc-ink);
+}
+.lx-pino--pessoa { width: 26px; height: 26px; border-radius: 50%; transform: none; background: var(--md-sys-color-tertiary-container); }
+.lx-pino--pessoa .rc-icon { transform: none; font-size: 16px; }
+
+/* Popup do pino */
+.lx-mapa .maplibregl-popup-content {
+  padding: var(--rc-space-3); border: var(--rc-border) solid var(--rc-ink); border-radius: 12px; box-shadow: var(--rc-shadow-sm);
+  font-family: inherit; color: var(--md-sys-color-on-surface); background: var(--md-sys-color-surface-container-lowest);
+}
+.lx-mapa .maplibregl-popup-close-button { width: 32px; height: 32px; font-size: 20px; }
+.lx-popup { display: grid; gap: var(--rc-space-1); justify-items: start; padding-right: var(--rc-space-5); }
+.lx-popup strong { font-family: var(--md-ref-typeface-brand); font-size: 1rem; }
+.lx-popup .rc-btn { margin-top: var(--rc-space-1); }

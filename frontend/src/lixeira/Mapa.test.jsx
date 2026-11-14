@@ -3,6 +3,7 @@ import { describe, it, expect, vi, afterEach } from "vitest";
 import Mapa from "./Mapa.jsx";
 import { LISTA_SALVA } from "./mercados.js";
 import * as maplibre from "maplibre-gl";
+import { CENTRO_BRASILIA, ordenarPorDistancia } from "./geo.js";
 
 // O maplibre-gl é substituído por um duplo em setupTests.js.
 const falhar = () => vi.stubGlobal("fetch", vi.fn(() => Promise.reject(new TypeError("Failed to fetch"))));
@@ -24,7 +25,7 @@ describe("Mapa", () => {
     falhar();
     render(<Mapa />);
     const lista = await screen.findByRole("list", { name: /mais perto/i });
-    expect(within(lista).getAllByRole("listitem")).toHaveLength(3);
+    expect(within(lista).getAllByRole("listitem")).toHaveLength(LISTA_SALVA.mercados.length);
     const nomes = LISTA_SALVA.mercados.map((m) => m.nome);
     expect(nomes).toContain(within(lista).getAllByRole("listitem")[0].querySelector("strong").textContent);
     expect(screen.getByRole("link", { name: /abrir rota/i })).toHaveAttribute("href", expect.stringContaining("openstreetmap.org/directions"));
@@ -112,6 +113,61 @@ describe("Mapa", () => {
     render(<Mapa />);
     expect(await screen.findByText(/não deu para carregar o mapa agora/i)).toBeInTheDocument();
     expect(screen.getByRole("list", { name: /mais perto/i })).toBeInTheDocument();
+  });
+
+  describe("pinos e escolha", () => {
+    const ordem = ordenarPorDistancia(CENTRO_BRASILIA, LISTA_SALVA.mercados);
+    // Pinos de mercado ainda no mapa (os marcadores antigos foram removidos ao trocar a lista).
+    const pinosVivos = () =>
+      maplibre.Marker.mock.instances
+        .filter((mk) => !mk.remove.mock.calls.length && mk.element.querySelector(".lx-pino--mercado"))
+        .map((mk) => mk.element);
+
+    async function abrirComListaSalva() {
+      maplibre.Marker.mockClear();
+      falhar();
+      render(<Mapa />);
+      await screen.findByText(/Mostrando uma lista salva de Brasília/);
+      await waitFor(() => expect(pinosVivos()).toHaveLength(ordem.length));
+    }
+
+    it("número de pinos = número de mercados, e o mais perto começa destacado", async () => {
+      await abrirComListaSalva();
+      const pinos = pinosVivos();
+      expect(pinos[0]).toHaveClass("is-selected");
+      expect(pinos.slice(1).every((p) => !p.classList.contains("is-selected"))).toBe(true);
+      expect(pinos[0]).toHaveAccessibleName(new RegExp(ordem[0].nome));
+    });
+
+    it("clicar no item 2 seleciona, atualiza o cartão e a rota, destaca o pino e centraliza o mapa", async () => {
+      await abrirComListaSalva();
+      const segundo = ordem[1];
+      const botao = screen.getByRole("button", { name: new RegExp(segundo.nome) });
+      fireEvent.click(botao);
+      expect(botao).toHaveAttribute("aria-pressed", "true");
+      expect(screen.getByRole("heading", { level: 3 })).toHaveTextContent(segundo.nome);
+      expect(screen.getByText("Escolhido")).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: /abrir rota/i }).getAttribute("href")).toContain(
+        encodeURIComponent(`${segundo.lat},${segundo.lng}`)
+      );
+      expect(screen.getByRole("status")).toHaveTextContent(new RegExp(`Escolhido: ${segundo.nome}`));
+      const pinos = pinosVivos();
+      expect(pinos[1]).toHaveClass("is-selected");
+      expect(pinos[0]).not.toHaveClass("is-selected");
+      const mapa = maplibre.Map.mock.results.at(-1).value;
+      expect(mapa.flyTo).toHaveBeenCalledWith({ center: [segundo.lng, segundo.lat], zoom: 16 });
+    });
+
+    it("clicar num pino abre o popup; 'Escolher este' seleciona o mercado", async () => {
+      await abrirComListaSalva();
+      const terceiro = ordem[2];
+      fireEvent.click(pinosVivos()[2]);
+      expect(screen.getByText(terceiro.nome, { selector: ".lx-popup strong" })).toBeInTheDocument();
+      fireEvent.click(screen.getByRole("button", { name: "Escolher este" }));
+      expect(screen.getByRole("heading", { level: 3 })).toHaveTextContent(terceiro.nome);
+      expect(pinosVivos()[2]).toHaveClass("is-selected");
+      expect(screen.queryByRole("button", { name: "Escolher este" })).not.toBeInTheDocument();
+    });
   });
 
   it("cancela a busca ao desmontar", () => {
