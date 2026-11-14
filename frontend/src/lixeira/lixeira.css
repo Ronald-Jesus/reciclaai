@@ -127,7 +127,7 @@
 }
 .lx-valor strong { font-size: 1.25rem; }
 
-.lx-dicas ul { margin: 0; padding-left: 1.25rem; display: grid; gap: var(--rc-space-1); }
+
 
 /* Sacola */
 .lx-sacola { display: grid; gap: var(--rc-space-3); }
@@ -222,3 +222,94 @@
 .lx-popup { display: grid; gap: var(--rc-space-1); justify-items: start; padding-right: var(--rc-space-5); }
 .lx-popup strong { font-family: var(--md-ref-typeface-brand); font-size: 1rem; }
 .lx-popup .rc-btn { margin-top: var(--rc-space-1); }
+
+/* ---------- Lacunas do protótipo ---------- */
+/* Dicas e "Por que a IA decidiu isso?" (<details>) */
+.lx-dicas { padding: var(--rc-space-3) var(--rc-space-4); box-shadow: var(--rc-shadow-sm); }
+.lx-porque { padding: 0 var(--rc-space-4); border: var(--rc-border) solid var(--rc-ink); border-radius: 12px; background: var(--md-sys-color-surface-container-lowest); }
+.lx-dicas summary, .lx-porque summary {
+  display: flex; gap: var(--rc-space-2); align-items: center; min-height: 48px;
+  cursor: pointer; list-style: none; font-weight: 700;
+}
+.lx-dicas summary::-webkit-details-marker, .lx-porque summary::-webkit-details-marker { display: none; }
+.lx-dicas summary:focus-visible, .lx-porque summary:focus-visible { outline: var(--rc-focus-ring-width) solid var(--rc-focus-ring-color); outline-offset: 3px; border-radius: 8px; }
+.lx-chev { margin-left: auto; transition: transform var(--rc-motion-hover); }
+details[open] > summary .lx-chev { transform: rotate(180deg); }
+.lx-dicas ul { margin: 0 0 var(--rc-space-2); padding-left: 1.25rem; display: grid; gap: var(--rc-space-1); }
+.lx-porque[open] { padding-bottom: var(--rc-space-4); }
+.lx-porque .lx-dica { margin-bottom: var(--rc-space-2); }
+.lx-ranking .rc-progress { height: 14px; }
+.lx-ranking .rc-progress__bar { background: var(--rc-mat, var(--md-sys-color-primary)); }
+
+/* Exemplos */
+.lx-exemplos { display: grid; gap: var(--rc-space-2); }
+.lx-exemplos__titulo { margin: 0; font-weight: 700; }
+
+/* Analisando: cantos de mira e barra */
+.lx-varredura__cantos {
+  position: absolute; inset: 10px; border: 4px solid var(--md-sys-color-surface-container-lowest); border-radius: 20px;
+  -webkit-mask: linear-gradient(#000 0 0) top left/36px 36px no-repeat, linear-gradient(#000 0 0) top right/36px 36px no-repeat, linear-gradient(#000 0 0) bottom left/36px 36px no-repeat, linear-gradient(#000 0 0) bottom right/36px 36px no-repeat;
+  mask: linear-gradient(#000 0 0) top left/36px 36px no-repeat, linear-gradient(#000 0 0) top right/36px 36px no-repeat, linear-gradient(#000 0 0) bottom left/36px 36px no-repeat, linear-gradient(#000 0 0) bottom right/36px 36px no-repeat;
+}
+.lx-analise__texto { font-weight: 700; min-height: 1.5em; }
+.lx-analise__barra { width: 100%; max-width: 340px; }
+
+/* Resultado */
+.lx-resultado__nome { display: grid; gap: var(--rc-space-2); justify-items: start; flex: 1 1 200px; }
+.lx-resultado > .rc-card { padding: var(--rc-space-4); }
+.lx-valor {
+  background: var(--md-sys-color-tertiary-container); color: var(--md-sys-color-on-tertiary-container);
+  gap: var(--rc-space-3); padding: var(--rc-space-3) var(--rc-space-4);
+}
+.lx-valor .rc-icon { font-size: 32px; }
+.lx-valor p { margin: 0; }
+.lx-valor strong { font-family: var(--md-ref-typeface-brand); font-size: 1.5rem; line-height: 1.1; }
+.lx-aviso .rc-icon { font-size: 28px; }
+.lx-aviso .lx-resultado__sub { margin: 0; }
+.lx-aviso .lx-resultado__texto { font-weight: 400; }
+.lx-snackbar { width: 100%; }
+
+/* Faíscas (ClickSpark) e miniatura voando até a sacola */
+.lx-faisca { position: fixed; width: 4px; height: 12px; margin: -6px 0 0 -2px; border-radius: 2px; background: var(--rc-ink); pointer-events: none; z-index: 400; }
+.lx-voo {
+  position: fixed; width: 56px; height: 56px; object-fit: cover; pointer-events: none; z-index: 350;
+  border: var(--rc-border) solid var(--rc-ink); border-radius: 12px; box-shadow: var(--rc-shadow-sm);
+}
+
+/* Sacola: itens, vazio e total */
+.lx-sacola__info { display: grid; gap: 4px; justify-items: start; }
+.lx-sacola__info .rc-tag { font-size: .8125rem; }
+.lx-vazia { display: grid; gap: var(--rc-space-1); justify-items: center; text-align: center; padding: var(--rc-space-4); }
+.lx-vazia p { margin: 0; }
+.lx-vazia__icone { font-size: 40px; }
+.lx-total { padding: var(--rc-space-4); }
+.lx-total p { margin: 0; }
+.lx-total > p:first-child { font-weight: 700; }
+.lx-total__valor strong { font-family: var(--md-ref-typeface-brand); font-size: 2.25rem; font-weight: 800; line-height: 1.1; }
+.lx-total__sufixo { font-weight: 700; }
+
+/* Legenda */
+.lx-legenda__lista li { flex-wrap: wrap; justify-content: space-between; gap: 6px var(--rc-space-3); }
+.lx-legenda__lista .rc-tag { font-size: .8125rem; }
+.lx-aceita { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; font-size: .875rem; }
+.lx-aceita .rc-icon { font-size: 18px; }
+.lx-legenda__nota { margin: var(--rc-space-3) 0 0; font-weight: 700; }
+.lx-legenda__titulo:focus-visible, #lx-legenda-titulo:focus-visible, #lx-sacola-titulo:focus-visible { outline: var(--rc-focus-ring-width) solid var(--rc-focus-ring-color); outline-offset: 4px; }
+
+/* Mapa: "Como chegar" em cada item */
+.lx-mapa__lista li { display: grid; gap: 4px; }
+.lx-mapa__rota { display: inline-flex; gap: 4px; align-items: center; justify-self: end; min-height: 40px; padding: 0 var(--rc-space-2); font-weight: 700; color: inherit; }
+.lx-mapa__rota .rc-icon { font-size: 20px; }
+
+/* Celular: resumo fixo da sacola */
+.lx-resumo {
+  position: fixed; left: 16px; right: 16px; bottom: max(12px, env(safe-area-inset-bottom)); z-index: var(--rc-z-navbar);
+  display: flex; gap: var(--rc-space-2); align-items: center; justify-content: center; min-height: 52px;
+  padding: 0 var(--rc-space-4); border: var(--rc-border) solid var(--rc-ink); border-radius: 999px;
+  background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container);
+  box-shadow: var(--rc-shadow-md); font: inherit; font-weight: 800; cursor: pointer;
+}
+.lx-resumo:focus-visible { outline: var(--rc-focus-ring-width) solid var(--rc-focus-ring-color); outline-offset: 3px; }
+@media (max-width: 719px) { body:has(.lx-resumo) { padding-bottom: 80px; } }
+@media (min-width: 720px) { .lx-resumo { display: none; } }
+.lx-sacola__info .rc-tag { max-width: 100%; flex-wrap: wrap; }

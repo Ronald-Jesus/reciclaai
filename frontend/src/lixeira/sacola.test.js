@@ -15,6 +15,13 @@ describe("sacolaReducer", () => {
     expect(estado.itens).toEqual([pet]);
   });
 
+  it("aceita várias unidades da mesma foto, cada uma com seu id", () => {
+    const outra = { ...pet, id: 9 };
+    const estado = sacolaReducer(com(pet, outra), { tipo: "remover", id: 1 });
+    expect(estado.itens).toEqual([outra]);
+    expect(estado.itens[0].url).toBe(pet.url);
+  });
+
   it("total soma os valores", () => {
     expect(totalSacola(com(pet, vidro, pet).itens)).toBe(0.45);
     expect(totalSacola([])).toBe(0);

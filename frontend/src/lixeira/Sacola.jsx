@@ -1,16 +1,54 @@
 import { useEffect, useRef } from "react";
+import gsap from "gsap";
 import Icone from "../componentes/Icone.jsx";
 import Botao from "../componentes/Botao.jsx";
+import useMenosAnimacao from "../hooks/useMenosAnimacao.js";
 import { MATERIAIS } from "../dados/materiais.js";
 import { brl, totalSacola } from "./sacola.js";
+import { TagMaterial } from "./Resultado.jsx";
+
+export const SACOLA_TITULO = "lx-sacola-titulo";
 
 const nome = (item) => MATERIAIS[item.classe]?.rotulo ?? item.classe;
 
+// Total que conta do valor anterior até o novo (como o CountUp do React Bits).
+// O texto é escrito só pelo efeito: o React não controla o filho deste span.
+function TotalAnimado({ valor }) {
+  const ref = useRef(null);
+  const anterior = useRef(null);
+  const menosAnimacao = useMenosAnimacao();
+
+  useEffect(() => {
+    const el = ref.current;
+    const de = anterior.current;
+    anterior.current = valor;
+    if (menosAnimacao || de === null || de === valor) {
+      el.textContent = brl(valor);
+      return undefined;
+    }
+    const estado = { v: de };
+    const tween = gsap.to(estado, {
+      v: valor,
+      duration: 0.8,
+      ease: "power2.out",
+      onUpdate: () => (el.textContent = brl(Math.round(estado.v * 100) / 100)),
+      onComplete: () => (el.textContent = brl(valor)),
+    });
+    return () => {
+      tween.kill();
+      el.textContent = brl(valor);
+    };
+  }, [valor, menosAnimacao]);
+
+  return <span ref={ref} aria-hidden="true" />;
+}
+
 // Sacola: o que a pessoa leva para a máquina e quanto deve receber lá. Não é saldo.
-export default function Sacola({ itens, removido, onRemover, onDesfazer, onLimpar }) {
+export default function Sacola({ itens, removido, onRemover, onDesfazer, onLimpar, onFotografarMais }) {
   const tituloRef = useRef(null);
   const desfazerRef = useRef(null);
   const tinhaRemovido = useRef(false);
+  const total = totalSacola(itens);
 
   // O botão de remover some com o item: o foco vai para "Desfazer"; depois volta ao título.
   useEffect(() => {
@@ -20,15 +58,17 @@ export default function Sacola({ itens, removido, onRemover, onDesfazer, onLimpa
   }, [removido]);
 
   return (
-    <section className="lx-sacola rc-card" aria-labelledby="lx-sacola-titulo">
-      <h2 id="lx-sacola-titulo" ref={tituloRef} tabIndex={-1} className="lx-resultado__titulo">
+    <section className="lx-sacola rc-card" aria-labelledby={SACOLA_TITULO}>
+      <h2 id={SACOLA_TITULO} ref={tituloRef} tabIndex={-1} className="lx-resultado__titulo">
         Sua sacola
       </h2>
 
       {itens.length === 0 ? (
-        <p className="lx-resultado__texto">
-          Está vazia. Coloque aqui as embalagens que a máquina aceita: plástico, metal e vidro.
-        </p>
+        <div className="lx-vazia rc-card rc-card--filled">
+          <Icone nome="shopping_bag" preenchido className="lx-vazia__icone" />
+          <p className="lx-sacola__nome">Sua sacola está vazia.</p>
+          <p>Fotografe uma embalagem e adicione aqui. A máquina aceita plástico, metal e vidro.</p>
+        </div>
       ) : (
         <ul className="lx-sacola__lista">
           {itens.map((item) => (
@@ -36,7 +76,8 @@ export default function Sacola({ itens, removido, onRemover, onDesfazer, onLimpa
               <img className="lx-sacola__foto" src={item.url} alt={nome(item)} />
               <div className="lx-sacola__info">
                 <p className="lx-sacola__nome">{nome(item)}</p>
-                <p className="rc-num">{brl(item.machine.value)}</p>
+                <TagMaterial classe={item.classe} />
+                <p className="rc-num">Vale {brl(item.machine.value)}</p>
               </div>
               <Botao
                 variante="outlined"
@@ -63,28 +104,40 @@ export default function Sacola({ itens, removido, onRemover, onDesfazer, onLimpa
         )}
       </div>
 
-      <p className="lx-sacola__total">
-        <span>Total estimado</span>
-        <strong className="rc-num">{brl(totalSacola(itens))}</strong>
-      </p>
+      <div className="rc-card rc-card--primary lx-total">
+        <p>Total estimado</p>
+        <p className="lx-total__valor">
+          <strong className="rc-num">
+            <TotalAnimado valor={total} />
+          </strong>{" "}
+          <span className="lx-total__sufixo">a receber na máquina</span>
+        </p>
+        <p className="sr-only" aria-live="polite">
+          {brl(total)} a receber na máquina
+        </p>
+      </div>
       <p className="lx-dica">
         <Icone nome="info" />
         É só uma estimativa. O crédito só existe quando você deposita as embalagens na máquina.
       </p>
 
-      {itens.length > 0 && (
-        <Botao
-          variante="text"
-          pequeno
-          icone="delete_sweep"
-          onClick={() => {
-            onLimpar();
-            tituloRef.current?.focus();
-          }}
-        >
-          Esvaziar sacola
+      <div className="lx-acoes">
+        <Botao variante="outlined" icone="photo_camera" onClick={onFotografarMais}>
+          Fotografar mais
         </Botao>
-      )}
+        {itens.length > 0 && (
+          <Botao
+            variante="text"
+            icone="delete_sweep"
+            onClick={() => {
+              onLimpar();
+              tituloRef.current?.focus();
+            }}
+          >
+            Esvaziar sacola
+          </Botao>
+        )}
+      </div>
     </section>
   );
 }

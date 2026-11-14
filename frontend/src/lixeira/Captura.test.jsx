@@ -167,6 +167,79 @@ describe("Captura", () => {
     expect(screen.getByRole("button", { name: /arraste uma foto aqui/i })).toHaveFocus();
   });
 
+  it("dicas para uma boa foto aparecem na captura, num details fechado", () => {
+    simularServidor();
+    render(<Captura onResultado={() => {}} />);
+    const dicas = screen.getByText("Dicas para uma boa foto").closest("details");
+    expect(dicas).not.toHaveAttribute("open");
+    expect(dicas.querySelectorAll("li")).toHaveLength(4);
+    expect(dicas).toHaveTextContent(/Um item por foto/);
+  });
+
+  it("chip de exemplo carrega a foto como arquivo e manda para a IA", async () => {
+    const corpo = { prediction: { class: "plastic", confidence: 99 }, nao_reconhecido: false };
+    const fetchFalso = simularServidor({ predict: () => json(200, corpo) });
+    const original = fetchFalso.getMockImplementation();
+    fetchFalso.mockImplementation((url, opcoes) =>
+      url === "/exemplos/garrafa.jpg"
+        ? Promise.resolve(new Response(new Blob(["jpg"], { type: "image/jpeg" }), { status: 200 }))
+        : original(url, opcoes)
+    );
+    const onResultado = vi.fn();
+    render(<Captura onResultado={onResultado} />);
+    expect(screen.getByRole("group", { name: /fotos de exemplo/i })).toBeInTheDocument();
+    for (const nome of ["Garrafa", "Casca", "Foto tremida"]) expect(screen.getByRole("button", { name: nome })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Garrafa" }));
+    expect(await screen.findByRole("img", { name: /foto escolhida: exemplo: garrafa/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /analisar foto/i })).toHaveFocus();
+
+    fireEvent.click(screen.getByRole("button", { name: /analisar foto/i }));
+    await waitFor(() => expect(onResultado).toHaveBeenCalledWith(corpo, "blob:foto"));
+    const envio = fetchFalso.mock.calls.find(([url]) => url !== "/api/status" && !url.startsWith("/exemplos"));
+    expect(envio[1].body.get("image").name).toBe("Exemplo: garrafa");
+  });
+
+  it("exemplo que não carrega mostra erro", async () => {
+    const fetchFalso = simularServidor();
+    const original = fetchFalso.getMockImplementation();
+    fetchFalso.mockImplementation((url, opcoes) =>
+      url.startsWith("/exemplos") ? json(404, {}) : original(url, opcoes)
+    );
+    render(<Captura onResultado={() => {}} />);
+    fireEvent.click(screen.getByRole("button", { name: "Casca" }));
+    expect(await screen.findByText(/não consegui abrir a foto de exemplo/i)).toBeInTheDocument();
+  });
+
+  it("analisando: textos se alternam, com mira e barra de progresso", async () => {
+    simularServidor({ predict: () => new Promise(() => {}) }); // nunca responde
+    const { container } = render(<Captura onResultado={() => {}} />);
+    escolherFoto(container);
+    fireEvent.click(screen.getByRole("button", { name: /analisar foto/i }));
+    expect(await screen.findByText("Lendo a imagem…")).toBeInTheDocument();
+    expect(screen.getByRole("progressbar", { name: /analisando a foto/i })).toHaveClass("rc-progress--indeterminate");
+    expect(container.querySelector(".lx-varredura__cantos")).toBeInTheDocument();
+    expect(await screen.findByText("Reconhecendo o material…", {}, { timeout: 1500 })).toBeInTheDocument();
+  });
+
+  it("analisando com menos animação: o texto fica parado", async () => {
+    const original = window.matchMedia;
+    window.matchMedia = vi.fn((q) => ({ matches: true, media: q, addEventListener: vi.fn(), removeEventListener: vi.fn() }));
+    vi.useFakeTimers({ toFake: ["setInterval"] });
+    try {
+      simularServidor({ predict: () => new Promise(() => {}) });
+      const { container } = render(<Captura onResultado={() => {}} />);
+      escolherFoto(container);
+      fireEvent.click(screen.getByRole("button", { name: /analisar foto/i }));
+      expect(screen.getByText("Lendo a imagem…")).toBeInTheDocument();
+      act(() => vi.advanceTimersByTime(3000));
+      expect(screen.getByText("Lendo a imagem…")).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+      window.matchMedia = original;
+    }
+  });
+
   it("desmontar revoga a URL da foto", () => {
     simularServidor();
     const { container, unmount } = render(<Captura onResultado={() => {}} />);

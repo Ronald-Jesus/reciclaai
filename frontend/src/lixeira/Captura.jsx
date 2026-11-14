@@ -5,10 +5,21 @@ import Botao from "../componentes/Botao.jsx";
 import useMenosAnimacao from "../hooks/useMenosAnimacao.js";
 import { validarArquivo } from "./validarArquivo.js";
 import { analisarFoto, statusModelo } from "./api.js";
+import DicasDeFoto from "./DicasDeFoto.jsx";
 
 export const VARREDURA_MINIMA_MS = import.meta.env.MODE === "test" ? 0 : 2500;
 
 const OUTRAS_FORMAS = "Arraste, cole (Ctrl+V) ou escolha uma foto do aparelho.";
+
+// Fotos do dataset de teste em public/exemplos (origem no README de lá). Passam pela IA real.
+export const EXEMPLOS = [
+  { rotulo: "Garrafa", icone: "local_drink", arquivo: "garrafa.jpg", nome: "Exemplo: garrafa" },
+  { rotulo: "Casca", icone: "nutrition", arquivo: "casca.jpg", nome: "Exemplo: casca" },
+  { rotulo: "Foto tremida", icone: "blur_on", arquivo: "tremida.jpg", nome: "Exemplo: foto tremida" },
+];
+
+export const TEXTOS_ANALISE = ["Lendo a imagem…", "Reconhecendo o material…", "Conferindo a lixeira certa…"];
+const TROCA_TEXTO_MS = 900;
 
 function pararFluxo(fluxo) {
   if (typeof fluxo?.getTracks === "function") fluxo.getTracks().forEach((t) => t.stop());
@@ -27,6 +38,7 @@ export default function Captura({ onResultado, focar = false }) {
   const [camera, setCamera] = useState(null); // MediaStream aberto
   const [analisando, setAnalisando] = useState(false);
   const [arrastando, setArrastando] = useState(false);
+  const [passo, setPasso] = useState(0); // índice em TEXTOS_ANALISE
 
   const refs = {
     alvo: useRef(null),
@@ -136,6 +148,27 @@ export default function Captura({ onResultado, focar = false }) {
     );
     return () => tween.kill();
   }, [analisando, menosAnimacao]);
+
+  // Os textos da análise se alternam (parados quando o sistema pede menos animação).
+  useEffect(() => {
+    setPasso(0);
+    if (!analisando || menosAnimacao) return undefined;
+    const id = setInterval(() => setPasso((p) => (p + 1) % TEXTOS_ANALISE.length), TROCA_TEXTO_MS);
+    return () => clearInterval(id);
+  }, [analisando, menosAnimacao]);
+
+  async function usarExemplo(exemplo) {
+    try {
+      const resposta = await fetch(`/exemplos/${exemplo.arquivo}`);
+      if (!resposta.ok) throw new Error(String(resposta.status));
+      const blob = await resposta.blob();
+      if (!vivoRef.current) return;
+      receberArquivo(new File([blob], exemplo.nome, { type: "image/jpeg" })); // os exemplos são JPEG
+      focoRef.current = "analisar";
+    } catch {
+      if (vivoRef.current) setErro("Não consegui abrir a foto de exemplo. Tente de novo.");
+    }
+  }
 
   async function abrirCamera() {
     setAvisoCamera("");
@@ -280,9 +313,15 @@ export default function Captura({ onResultado, focar = false }) {
               className={`lx-varredura__linha${menosAnimacao ? " is-parada" : ""}`}
               aria-hidden="true"
             />
+            <span className="lx-varredura__cantos" aria-hidden="true" />
           </div>
           <p className="lx-analise__titulo">Analisando…</p>
-          <p className="lx-analise__texto">Procurando o material da embalagem na foto.</p>
+          <p className="lx-analise__texto" aria-live="polite">
+            {TEXTOS_ANALISE[passo]}
+          </p>
+          <div className="rc-progress rc-progress--indeterminate lx-analise__barra" role="progressbar" aria-label="Analisando a foto">
+            <div className="rc-progress__bar" />
+          </div>
           <button
             ref={refs.cancelar}
             type="button"
@@ -383,6 +422,20 @@ export default function Captura({ onResultado, focar = false }) {
             <Icone nome="info" />
             Fotos em JPG, PNG ou WEBP, até 5 MB.
           </p>
+
+          <div className="lx-exemplos">
+            <p className="lx-exemplos__titulo">Sem foto à mão? Experimente um exemplo</p>
+            <div className="rc-chip-set" role="group" aria-label="Fotos de exemplo">
+              {EXEMPLOS.map((ex) => (
+                <button key={ex.arquivo} type="button" className="rc-chip rc-chip--assist" onClick={() => usarExemplo(ex)}>
+                  <Icone nome={ex.icone} />
+                  {ex.rotulo}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <DicasDeFoto />
         </>
       )}
 

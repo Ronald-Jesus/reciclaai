@@ -1,9 +1,11 @@
 // Cores das lixeiras: Resolução CONAMA nº 275/2001. As mesmas em todo o site.
+// tag: classe .rc-tag--* do sistema. valor: o que a máquina paga (= rvm.ACCEPTED; só plástico, metal e vidro).
 const ORGANICO = {
   rotulo: "Orgânico",
   lixeira: "marrom",
   cor: "#8a5a36",
   icone: "compost",
+  tag: "organico",
   dica: "Restos de comida e cascas vão na lixeira marrom ou na compostagem.",
 };
 
@@ -13,6 +15,7 @@ export const MATERIAIS = {
     lixeira: "azul",
     cor: "#2f6db5",
     icone: "package_2",
+    tag: "papel",
     dica: "Desmonte a caixa e mantenha o papelão seco e limpo.",
   },
   glass: {
@@ -20,6 +23,8 @@ export const MATERIAIS = {
     lixeira: "verde",
     cor: "#2e8b57",
     icone: "liquor",
+    tag: "vidro",
+    valor: 0.25,
     dica: "Enxágue e não quebre. Cacos devem ir embrulhados e identificados.",
   },
   metal: {
@@ -27,6 +32,8 @@ export const MATERIAIS = {
     lixeira: "amarela",
     cor: "#c99700",
     icone: "sprint",
+    tag: "metal",
+    valor: 0.15,
     dica: "Esvazie e amasse a lata, se der. Não precisa tirar o rótulo.",
   },
   organic: ORGANICO,
@@ -35,6 +42,7 @@ export const MATERIAIS = {
     lixeira: "azul",
     cor: "#2f6db5",
     icone: "description",
+    tag: "papel",
     dica: "Papel limpo e seco. Papel engordurado ou molhado não é reciclado.",
   },
   plastic: {
@@ -42,6 +50,8 @@ export const MATERIAIS = {
     lixeira: "vermelha",
     cor: "#c8453a",
     icone: "water_bottle",
+    tag: "plastico",
+    valor: 0.1,
     dica: "Esvazie e enxágue a garrafa. Tampa e rótulo podem ficar.",
   },
   trash: {
@@ -49,6 +59,7 @@ export const MATERIAIS = {
     lixeira: "cinza",
     cor: "#6b6f6a",
     icone: "delete",
+    tag: "rejeito",
     dica: "Sem reciclagem possível: vai na lixeira de rejeito.",
   },
 };

@@ -14,7 +14,10 @@ const ORIGEM = {
   centro: "Partindo do centro de Brasília. Use sua localização para ver o mercado mais perto de você.",
   procurando: "Procurando sua localização…",
   pessoa: "Partindo da sua localização.",
-  negada: "Não deu para usar sua localização. Partindo do centro de Brasília.",
+  negada: "A permissão de localização foi negada. Partindo do centro de Brasília. Para usar a sua, libere a localização no navegador e toque de novo.",
+  demorou: "A localização demorou mais de 10 segundos. Partindo do centro de Brasília. Toque de novo para tentar outra vez.",
+  semSuporte: "Este navegador ou esta página não permite usar a localização. Partindo do centro de Brasília.",
+  falhou: "Não foi possível descobrir sua localização. Partindo do centro de Brasília.",
   fora: "Você está fora de Brasília, e os mercados da demonstração são daqui. Partindo do centro de Brasília.",
 };
 
@@ -185,7 +188,7 @@ export default function Mapa() {
   function usarLocalizacao() {
     if (origem.tipo === "procurando") return;
     if (!navigator.geolocation) {
-      setOrigem({ ponto: CENTRO_BRASILIA, tipo: "negada" });
+      setOrigem({ ponto: CENTRO_BRASILIA, tipo: "semSuporte" });
       return;
     }
     setOrigem((o) => ({ ...o, tipo: "procurando" }));
@@ -194,12 +197,13 @@ export default function Mapa() {
         const p = { lat: coords.latitude, lng: coords.longitude };
         setOrigem(distanciaKm(p, CENTRO_BRASILIA) > LONGE_KM ? { ponto: CENTRO_BRASILIA, tipo: "fora" } : { ponto: p, tipo: "pessoa" });
       },
-      () => setOrigem({ ponto: CENTRO_BRASILIA, tipo: "negada" }),
+      // err.code: 1 = negada, 3 = passou do tempo, 2 = posição indisponível.
+      (err) => setOrigem({ ponto: CENTRO_BRASILIA, tipo: { 1: "negada", 3: "demorou" }[err?.code] ?? "falhou" }),
       { timeout: 10000, maximumAge: 60000 }
     );
   }
 
-  const avisoOrigem = origem.tipo === "negada" || origem.tipo === "fora";
+  const avisoOrigem = !["centro", "procurando", "pessoa"].includes(origem.tipo);
 
   return (
     <section className="lx-mapa rc-card" aria-labelledby="lx-mapa-titulo">
@@ -292,6 +296,16 @@ export default function Mapa() {
                       </span>
                     </span>
                   </button>
+                  <a
+                    className="lx-mapa__rota"
+                    href={rota(ponto, m)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`Como chegar a ${m.nome} (abre o OpenStreetMap em nova aba)`}
+                  >
+                    <Icone nome="directions" />
+                    Como chegar
+                  </a>
                 </li>
               ))}
             </ol>

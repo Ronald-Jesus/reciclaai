@@ -86,8 +86,37 @@ describe("Mapa", () => {
     expect(screen.getByText(/partindo do centro de Brasília/i)).toBeInTheDocument();
     expect(navigator.geolocation.getCurrentPosition).not.toHaveBeenCalled(); // só pede no clique
     fireEvent.click(screen.getByRole("button", { name: /usar minha localização/i }));
-    expect(await screen.findByText(/não deu para usar sua localização/i)).toBeInTheDocument();
+    expect(await screen.findByText(/permissão de localização foi negada/i)).toBeInTheDocument();
     expect(screen.getByText(/centro de Brasília/i)).toBeInTheDocument();
+  });
+
+  it("o aviso diz o motivo: demorou, indisponível ou navegador sem suporte", async () => {
+    falhar();
+    navigator.geolocation = { getCurrentPosition: vi.fn((_, erro) => erro({ code: 3 })) };
+    const { unmount } = render(<Mapa />);
+    fireEvent.click(screen.getByRole("button", { name: /usar minha localização/i }));
+    expect(await screen.findByText(/demorou mais de 10 segundos/i)).toBeInTheDocument();
+    unmount();
+
+    navigator.geolocation = { getCurrentPosition: vi.fn((_, erro) => erro({ code: 2 })) };
+    const segundo = render(<Mapa />);
+    fireEvent.click(screen.getByRole("button", { name: /usar minha localização/i }));
+    expect(await screen.findByText(/não foi possível descobrir sua localização/i)).toBeInTheDocument();
+    segundo.unmount();
+
+    delete navigator.geolocation;
+    render(<Mapa />);
+    fireEvent.click(screen.getByRole("button", { name: /usar minha localização/i }));
+    expect(await screen.findByText(/não permite usar a localização/i)).toBeInTheDocument();
+  });
+
+  it("cada mercado da lista tem o link Como chegar", async () => {
+    falhar();
+    render(<Mapa />);
+    const links = await screen.findAllByRole("link", { name: /como chegar a/i });
+    expect(links.length).toBeGreaterThan(1);
+    expect(links[0]).toHaveAttribute("href", expect.stringContaining("openstreetmap.org/directions"));
+    expect(links[0]).toHaveAttribute("target", "_blank");
   });
 
   it("com localização, a busca parte da pessoa", async () => {
