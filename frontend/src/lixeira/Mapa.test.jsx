@@ -6,6 +6,8 @@ import * as maplibre from "maplibre-gl";
 import { CENTRO_BRASILIA, ordenarPorDistancia } from "./geo.js";
 
 // O maplibre-gl é substituído por um duplo em setupTests.js.
+// Item da lista marcado como selecionado (aria-pressed).
+const selecionado = () => screen.getByRole("button", { pressed: true });
 const falhar = () => vi.stubGlobal("fetch", vi.fn(() => Promise.reject(new TypeError("Failed to fetch"))));
 
 afterEach(() => {
@@ -29,7 +31,12 @@ describe("Mapa", () => {
     const nomes = LISTA_SALVA.mercados.map((m) => m.nome);
     expect(nomes).toContain(within(lista).getAllByRole("listitem")[0].querySelector("strong").textContent);
     expect(screen.getByRole("link", { name: /abrir rota/i })).toHaveAttribute("href", expect.stringContaining("openstreetmap.org/directions"));
-    expect(screen.getByText(/min a pé/, { selector: ".lx-mapa__destaque *" })).toBeInTheDocument();
+    // O detalhe e a rota ficam dentro do item selecionado: o mais perto não aparece duas vezes.
+    const item = selecionado().closest("li");
+    expect(within(item).getByText(/em linha reta · \d+ min a pé/)).toBeInTheDocument();
+    expect(within(item).getByRole("link", { name: /abrir rota/i })).toBeInTheDocument();
+    expect(screen.getAllByText("Mais perto")).toHaveLength(1);
+    expect(screen.queryByRole("heading", { level: 3 })).not.toBeInTheDocument();
     expect(screen.queryByText(/failed|error|erro/i)).not.toBeInTheDocument();
   });
 
@@ -38,11 +45,11 @@ describe("Mapa", () => {
     vi.stubGlobal("fetch", vi.fn(() => new Promise((ok) => (responder = ok))));
     render(<Mapa />);
     // Na hora: lista salva, ordenada a partir do centro, e o aviso de atualização.
-    expect(screen.getByRole("heading", { level: 3 })).toHaveTextContent("Biomundo");
+    expect(selecionado()).toHaveTextContent("Biomundo");
     expect(screen.getByText("Atualizando com o OpenStreetMap…")).toBeInTheDocument();
     expect(screen.getByRole("status")).toHaveTextContent(/Mais perto: Biomundo, 200 m, 3 min a pé/);
     responder(new Response(JSON.stringify({ elements: [{ lat: -15.794, lon: -47.8829, tags: { name: "Mercado Real" } }] })));
-    expect(await screen.findByRole("heading", { level: 3, name: "Mercado Real" })).toBeInTheDocument();
+    await waitFor(() => expect(selecionado()).toHaveTextContent("Mercado Real"));
     expect(screen.queryByText("Atualizando com o OpenStreetMap…")).not.toBeInTheDocument();
     expect(screen.queryByText(/lista salva/)).not.toBeInTheDocument();
   });
@@ -52,7 +59,7 @@ describe("Mapa", () => {
     render(<Mapa />);
     expect(await screen.findByText(/Mostrando uma lista salva de Brasília/)).toBeInTheDocument();
     expect(screen.queryByText("Atualizando com o OpenStreetMap…")).not.toBeInTheDocument();
-    expect(screen.getByRole("heading", { level: 3 })).toHaveTextContent("Biomundo");
+    expect(selecionado()).toHaveTextContent("Biomundo");
   });
 
   it("fora de Brasília: aviso e busca a partir do centro", async () => {
@@ -174,12 +181,12 @@ describe("Mapa", () => {
       const botao = screen.getByRole("button", { name: new RegExp(segundo.nome) });
       fireEvent.click(botao);
       expect(botao).toHaveAttribute("aria-pressed", "true");
-      expect(screen.getByRole("heading", { level: 3 })).toHaveTextContent(segundo.nome);
-      expect(screen.getByText("Escolhido")).toBeInTheDocument();
+      expect(selecionado()).toHaveTextContent(segundo.nome);
+      expect(within(botao.closest("li")).getByText("Selecionado")).toBeInTheDocument();
       expect(screen.getByRole("link", { name: /abrir rota/i }).getAttribute("href")).toContain(
         encodeURIComponent(`${segundo.lat},${segundo.lng}`)
       );
-      expect(screen.getByRole("status")).toHaveTextContent(new RegExp(`Escolhido: ${segundo.nome}`));
+      expect(screen.getByRole("status")).toHaveTextContent(new RegExp(`Selecionado: ${segundo.nome}`));
       const pinos = pinosVivos();
       expect(pinos[1]).toHaveClass("is-selected");
       expect(pinos[0]).not.toHaveClass("is-selected");
@@ -193,7 +200,7 @@ describe("Mapa", () => {
       fireEvent.click(pinosVivos()[2]);
       expect(screen.getByText(terceiro.nome, { selector: ".lx-popup strong" })).toBeInTheDocument();
       fireEvent.click(screen.getByRole("button", { name: "Escolher este" }));
-      expect(screen.getByRole("heading", { level: 3 })).toHaveTextContent(terceiro.nome);
+      expect(selecionado()).toHaveTextContent(terceiro.nome);
       expect(pinosVivos()[2]).toHaveClass("is-selected");
       expect(screen.queryByRole("button", { name: "Escolher este" })).not.toBeInTheDocument();
     });

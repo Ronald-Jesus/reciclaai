@@ -45,3 +45,19 @@ vi.mock("maplibre-gl", () => {
   });
   return { Map, Marker, Popup, NavigationControl: vi.fn(), setWorkerUrl: vi.fn() };
 });
+
+// O jsdom não implementa <dialog>.showModal(): duplo mínimo com o que o navegador faz
+// (abrir, fechar com o evento "close" e fechar com Esc).
+if (!HTMLDialogElement.prototype.showModal) {
+  HTMLDialogElement.prototype.showModal = function showModal() {
+    this.setAttribute("open", "");
+  };
+  HTMLDialogElement.prototype.close = function close() {
+    if (!this.hasAttribute("open")) return;
+    this.removeAttribute("open");
+    this.dispatchEvent(new Event("close"));
+  };
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") e.target.closest?.("dialog[open]")?.close();
+  });
+}

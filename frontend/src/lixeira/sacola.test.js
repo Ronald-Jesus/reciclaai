@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { sacolaReducer, totalSacola, brl, SACOLA_VAZIA } from "./sacola.js";
+import { sacolaReducer, totalSacola, brl, agruparSacola, SACOLA_VAZIA } from "./sacola.js";
 
 const pet = { id: 1, url: "blob:1", classe: "plastic", machine: { accepted: true, value: 0.1 } };
 const vidro = { id: 2, url: "blob:2", classe: "glass", machine: { accepted: true, value: 0.25 } };
@@ -30,7 +30,7 @@ describe("sacolaReducer", () => {
   it("desfazer devolve o item removido no mesmo lugar", () => {
     const removido = sacolaReducer(com(pet, vidro), { tipo: "remover", id: 1 });
     expect(removido.itens).toEqual([vidro]);
-    expect(removido.removido).toEqual({ item: pet, indice: 0 });
+    expect(removido.removido).toEqual({ itens: [{ item: pet, indice: 0 }] });
 
     const desfeito = sacolaReducer(removido, { tipo: "desfazer" });
     expect(desfeito.itens).toEqual([pet, vidro]);
@@ -45,6 +45,28 @@ describe("sacolaReducer", () => {
   it("limpar esvazia e esquece a remoção", () => {
     const estado = sacolaReducer(com(pet, vidro), { tipo: "remover", id: 2 });
     expect(sacolaReducer(estado, { tipo: "limpar" })).toEqual(SACOLA_VAZIA);
+  });
+});
+
+describe("grupos da sacola", () => {
+  it("agrupa por material, na ordem em que entraram, com a última foto e o subtotal", () => {
+    const pet2 = { ...pet, id: 4, url: "blob:4" };
+    const pet3 = { ...pet, id: 5, url: "blob:4" };
+    const grupos = agruparSacola(com(pet, vidro, pet2, pet3).itens);
+    expect(grupos.map((g) => [g.classe, g.itens.length, g.subtotal])).toEqual([
+      ["plastic", 3, 0.3],
+      ["glass", 1, 0.25],
+    ]);
+    expect(grupos[0].ultimo).toBe(pet3);
+  });
+
+  it("remover o grupo tira todas as unidades; desfazer devolve cada uma no lugar", () => {
+    const pet2 = { ...pet, id: 4 };
+    const antes = com(pet, vidro, pet2);
+    const sem = sacolaReducer(antes, { tipo: "removerGrupo", classe: "plastic" });
+    expect(sem.itens).toEqual([vidro]);
+    expect(sem.removido.itens).toHaveLength(2);
+    expect(sacolaReducer(sem, { tipo: "desfazer" }).itens).toEqual(antes.itens);
   });
 });
 

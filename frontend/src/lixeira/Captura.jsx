@@ -387,6 +387,7 @@ export default function Captura({ onResultado, focar = false }) {
                   add_a_photo
                 </span>
                 <span className="lx-soltar__titulo">Arraste uma foto aqui</span>
+                <span className="lx-soltar__titulo lx-soltar__toque">Tire ou escolha uma foto</span>
                 <span className="lx-soltar__texto">
                   ou cole com <kbd>Ctrl</kbd> + <kbd>V</kbd>. Também dá para clicar e procurar no aparelho.
                 </span>

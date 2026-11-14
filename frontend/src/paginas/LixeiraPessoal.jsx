@@ -2,14 +2,14 @@ import { useEffect, useReducer, useRef, useState } from "react";
 import Topo from "../componentes/Topo.jsx";
 import Rodape from "../componentes/Rodape.jsx";
 import Botao from "../componentes/Botao.jsx";
-import Icone from "../componentes/Icone.jsx";
 import useMenosAnimacao from "../hooks/useMenosAnimacao.js";
 import Captura from "../lixeira/Captura.jsx";
 import Resultado from "../lixeira/Resultado.jsx";
 import Sacola, { SACOLA_TITULO } from "../lixeira/Sacola.jsx";
-import Legenda, { LEGENDA_TITULO } from "../lixeira/Legenda.jsx";
+import Legenda from "../lixeira/Legenda.jsx";
+import BarraLixeira from "../lixeira/BarraLixeira.jsx";
 import Mapa from "../lixeira/Mapa.jsx";
-import { sacolaReducer, SACOLA_VAZIA, brl, totalSacola } from "../lixeira/sacola.js";
+import { sacolaReducer, SACOLA_VAZIA } from "../lixeira/sacola.js";
 import { irPara } from "../lixeira/rolar.js";
 import { faiscas, voar } from "../lixeira/efeitos.js";
 import "../lixeira/lixeira.css";
@@ -27,7 +27,9 @@ export default function LixeiraPessoal() {
   const menosAnimacao = useMenosAnimacao();
   const tituloRef = useRef(null);
   const capturaRef = useRef(null);
-  const resumoRef = useRef(null);
+  const barraSacolaRef = useRef(null); // ícone da sacola na barra inferior (celular)
+  const legendaRef = useRef(null);
+  const origemLegenda = useRef(null); // botão que abriu a legenda: recebe o foco de volta
   const proximoId = useRef(0);
   const urlsRef = useRef(new Set()); // URLs de foto que esta página ainda usa
 
@@ -52,7 +54,7 @@ export default function LixeiraPessoal() {
   // nem o item que ainda pode voltar com "Desfazer"). Várias unidades dividem a mesma URL.
   useEffect(() => {
     const vivas = new Set(
-      [resultado?.url, ...sacola.itens.map((i) => i.url), sacola.removido?.item.url].filter(Boolean)
+      [resultado?.url, ...[...sacola.itens, ...(sacola.removido?.itens.map((r) => r.item) ?? [])].map((i) => i.url)].filter(Boolean)
     );
     urlsRef.current.forEach((url) => vivas.has(url) || URL.revokeObjectURL(url));
     urlsRef.current = vivas;
@@ -71,6 +73,18 @@ export default function LixeiraPessoal() {
     setPedidoCaptura((n) => n + 1);
   }
 
+  function abrirLegenda(evento) {
+    origemLegenda.current = evento.currentTarget;
+    legendaRef.current?.showModal();
+    legendaRef.current?.focus();
+  }
+
+  // "+" na sacola: mais uma unidade igual à última daquele material (mesma foto, id novo).
+  function maisUm(item) {
+    proximoId.current += 1;
+    despachar({ tipo: "adicionar", item: { ...item, id: proximoId.current } });
+  }
+
   // Cada clique põe mais uma unidade (id próprio; a foto é a mesma).
   function colocar(evento) {
     const { url, resposta } = resultado;
@@ -84,14 +98,12 @@ export default function LixeiraPessoal() {
     if (menosAnimacao) return;
     const botao = evento.currentTarget.getBoundingClientRect();
     faiscas(evento.clientX || botao.left + botao.width / 2, evento.clientY || botao.top + botao.height / 2);
-    // No celular a sacola fica longe: a miniatura voa até o resumo fixo no rodapé da tela.
-    const resumo = resumoRef.current;
-    const alvo = resumo && getComputedStyle(resumo).display !== "none" ? resumo : titulo(SACOLA_TITULO);
+    // No celular a sacola fica longe: a miniatura voa até o ícone da sacola na barra inferior.
+    const icone = barraSacolaRef.current;
+    const alvo = icone?.offsetParent ? icone : titulo(SACOLA_TITULO); // offsetParent nulo: barra escondida
     if (alvo) voar(url, botao, alvo.getBoundingClientRect());
   }
 
-  const total = totalSacola(sacola.itens);
-  const n = sacola.itens.length;
   const verSacola = () => irPara(titulo(SACOLA_TITULO));
 
   return (
@@ -101,14 +113,19 @@ export default function LixeiraPessoal() {
         <section className="lx-pagina">
           <div className="secao__in lx-pagina__in">
             <div className="lx-cabeca">
-              <h1 className="secao__titulo">Lixeira pessoal</h1>
-              <p className="secao__lead">
-                Tire ou envie a foto de uma embalagem. A IA diz qual é o material.
-              </p>
+              <div>
+                <h1 className="secao__titulo">Lixeira pessoal</h1>
+                <p className="secao__lead">
+                  Tire ou envie a foto de uma embalagem. A IA diz qual é o material.
+                </p>
+              </div>
+              <Botao variante="tonal" pequeno icone="palette" aria-haspopup="dialog" onClick={abrirLegenda}>
+                Legenda
+              </Botao>
             </div>
 
             <div className="lx-layout">
-              <div className="lx-layout__principal">
+              <div className="lx-layout__principal" id="fotografar">
                 <div aria-live="polite">
                   {resultado && (
                     <Resultado
@@ -120,7 +137,7 @@ export default function LixeiraPessoal() {
                       onColocar={colocar}
                       onNovaFoto={novaFoto}
                       onVerSacola={verSacola} // o snackbar fica até o tempo acabar: sumir antes deslocaria a rolagem
-                      onVerLegenda={() => irPara(titulo(LEGENDA_TITULO))}
+                      onVerLegenda={abrirLegenda}
                     />
                   )}
                 </div>
@@ -132,11 +149,12 @@ export default function LixeiraPessoal() {
                   itens={sacola.itens}
                   removido={sacola.removido}
                   onRemover={(id) => despachar({ tipo: "remover", id })}
+                  onRemoverGrupo={(classe) => despachar({ tipo: "removerGrupo", classe })}
+                  onMais={maisUm}
                   onDesfazer={() => despachar({ tipo: "desfazer" })}
                   onLimpar={() => despachar({ tipo: "limpar" })}
                   onFotografarMais={novaFoto}
                 />
-                <Legenda />
               </div>
             </div>
 
@@ -153,20 +171,8 @@ export default function LixeiraPessoal() {
       </main>
       <Rodape />
 
-      {/* Celular: resumo da sacola sempre à mão (some no CSS a partir de 720 px). */}
-      <button
-        ref={resumoRef}
-        type="button"
-        className="lx-resumo"
-        aria-label={`Sua sacola: ${n} ${n === 1 ? "item" : "itens"}, ${brl(total)}. Ir para a sacola`}
-        onClick={verSacola}
-      >
-        <Icone nome="shopping_bag" preenchido />
-        <span className="rc-num">
-          {n} {n === 1 ? "item" : "itens"} · {brl(total)}
-        </span>
-        <Icone nome="expand_less" />
-      </button>
+      <Legenda dialogRef={legendaRef} onFechar={() => origemLegenda.current?.focus()} />
+      <BarraLixeira quantidade={sacola.itens.length} sacolaRef={barraSacolaRef} />
     </>
   );
 }

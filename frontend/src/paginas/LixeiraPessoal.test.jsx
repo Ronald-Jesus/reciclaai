@@ -84,17 +84,33 @@ describe("LixeiraPessoal", () => {
     expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:foto");
   });
 
-  it("legenda das lixeiras sempre visível, antes de qualquer foto", () => {
+  it("legenda das lixeiras abre num popup pelo botão Legenda, antes de qualquer foto", () => {
     servidorQueResponde({});
     render(
       <MemoryRouter future={futuroDoRouter}>
         <LixeiraPessoal />
       </MemoryRouter>
     );
-    const legenda = screen.getByRole("region", { name: /cores das lixeiras/i });
+    const botao = screen.getByRole("button", { name: "Legenda" });
+    fireEvent.click(botao);
+    const legenda = screen.getByRole("dialog", { name: /cores das lixeiras/i });
+    expect(legenda).toHaveAttribute("open");
+    expect(legenda).toHaveFocus();
     for (const cor of ["azul", "verde", "amarela", "vermelha", "marrom", "cinza"]) {
       expect(within(legenda).getByText(new RegExp(`lixeira ${cor}`, "i"))).toBeInTheDocument();
     }
+
+    // Fechar devolve o foco ao botão; Esc e clique fora também fecham.
+    fireEvent.click(within(legenda).getByRole("button", { name: /fechar/i }));
+    expect(legenda).not.toHaveAttribute("open");
+    expect(botao).toHaveFocus();
+    fireEvent.click(botao);
+    fireEvent.keyDown(legenda, { key: "Escape" });
+    expect(legenda).not.toHaveAttribute("open");
+    expect(botao).toHaveFocus();
+    fireEvent.click(botao);
+    fireEvent.click(legenda); // o próprio <dialog> só recebe o clique no fundo, fora do cartão
+    expect(legenda).not.toHaveAttribute("open");
   });
 
   it("aceito mostra lixeira, top 3, valor e dica", async () => {
@@ -126,9 +142,9 @@ describe("LixeiraPessoal", () => {
     expect(within(r).queryByText(/R\$/)).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /adicionar à sacola/i })).not.toBeInTheDocument();
 
-    // "Ver legenda das lixeiras" leva o foco à legenda.
+    // "Ver legenda das lixeiras" abre o popup da legenda.
     fireEvent.click(within(r).getByRole("button", { name: /ver legenda das lixeiras/i }));
-    expect(screen.getByRole("heading", { name: /cores das lixeiras/i })).toHaveFocus();
+    expect(screen.getByRole("dialog", { name: /cores das lixeiras/i })).toHaveAttribute("open");
   });
 
   it("confiança baixa mostra dicas de foto", async () => {
@@ -188,19 +204,30 @@ describe("LixeiraPessoal", () => {
     expect(screen.getByRole("heading", { name: "Sua sacola" })).toHaveFocus();
   });
 
-  it("Adicionar mais um põe outra unidade; a URL só é liberada quando nenhum item a usa", async () => {
+  it("unidades iguais viram uma linha com quantidade; − e + mudam a quantidade; a URL só é liberada quando nenhum item a usa", async () => {
     await analisar(PET);
     fireEvent.click(await screen.findByRole("button", { name: /adicionar à sacola/i }));
     fireEvent.click(screen.getByRole("button", { name: /adicionar mais um/i }));
+    fireEvent.click(screen.getByRole("button", { name: /adicionar mais um/i }));
     const sacola = screen.getByRole("region", { name: /sua sacola/i });
-    expect(within(sacola).getAllByRole("img", { name: "Plástico" })).toHaveLength(2);
-    expect(within(sacola).getByText(/total estimado/i).parentElement).toHaveTextContent(/R\$\s0,20/);
+    const linha = within(sacola).getByRole("listitem");
+    expect(within(sacola).getAllByRole("listitem")).toHaveLength(1);
+    expect(linha).toHaveTextContent("Plástico × 3");
+    expect(within(linha).getByText(/R\$\s0,30/)).toBeInTheDocument();
+    expect(within(sacola).getByText(/total estimado/i).parentElement).toHaveTextContent(/R\$\s0,30/);
+    expect(screen.getByRole("link", { name: "Sacola, 3 itens" })).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /fotografar outra/i }));
-    fireEvent.click(within(sacola).getAllByRole("button", { name: /remover plástico/i })[0]);
+    fireEvent.click(within(linha).getByRole("button", { name: /tirar uma unidade de plástico/i }));
+    expect(linha).toHaveTextContent("Plástico × 2");
+    expect(screen.getByRole("link", { name: "Sacola, 2 itens" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /desfazer/i }));
-    fireEvent.click(within(sacola).getAllByRole("button", { name: /remover plástico/i })[0]);
-    expect(URL.revokeObjectURL).not.toHaveBeenCalled(); // a outra unidade ainda usa a foto
+    expect(linha).toHaveTextContent("Plástico × 3");
+    fireEvent.click(within(linha).getByRole("button", { name: /pôr mais uma unidade de plástico/i }));
+    expect(linha).toHaveTextContent("Plástico × 4");
+    expect(within(sacola).getByText(/total estimado/i).parentElement).toHaveTextContent(/R\$\s0,40/);
+    fireEvent.click(within(linha).getByRole("button", { name: /tirar uma unidade de plástico/i }));
+    expect(URL.revokeObjectURL).not.toHaveBeenCalled(); // as outras unidades ainda usam a foto
     fireEvent.click(within(sacola).getByRole("button", { name: /esvaziar sacola/i }));
     expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:foto");
   });
@@ -223,20 +250,25 @@ describe("LixeiraPessoal", () => {
     fireEvent.click(await screen.findByRole("button", { name: /adicionar à sacola/i }));
     const item = within(sacola).getByRole("listitem");
     expect(item.querySelector(".rc-tag--plastico")).toHaveTextContent(/Lixeira vermelha/);
-    expect(within(item).getByText(/Vale R\$\s0,10/)).toBeInTheDocument();
+    expect(item).toHaveTextContent("Plástico × 1");
+    expect(within(item).getByText(/R\$\s0,10/)).toBeInTheDocument();
 
     fireEvent.click(within(sacola).getByRole("button", { name: /fotografar mais/i }));
     expect(screen.getByRole("button", { name: /arraste uma foto aqui/i })).toHaveFocus();
   });
 
-  it("resumo fixo para o celular mostra itens e total e leva à sacola", async () => {
+  it("barra inferior do celular: Fotografar, Sacola (com contagem) e Mapa levam às seções", async () => {
     await analisar(PET);
-    expect(screen.getByRole("button", { name: /sua sacola: 0 itens, R\$\s0,00/i })).toBeInTheDocument();
+    const barra = screen.getByRole("navigation", { name: "Seções da lixeira" });
+    const links = within(barra).getAllByRole("link");
+    expect(links.map((l) => l.getAttribute("href"))).toEqual(["#fotografar", "#sacola", "#mapa"]);
+    for (const id of ["fotografar", "sacola", "mapa"]) expect(document.getElementById(id)).not.toBeNull();
+    expect(within(barra).getByRole("link", { name: "Fotografar" })).toHaveAttribute("aria-current", "location");
+    expect(within(barra).getByRole("link", { name: "Sacola, 0 itens" })).toBeInTheDocument();
     fireEvent.click(await screen.findByRole("button", { name: /adicionar à sacola/i }));
-    const resumo = screen.getByRole("button", { name: /sua sacola: 1 item, R\$\s0,10/i });
-    expect(resumo).toHaveTextContent(/1 item · R\$\s0,10/);
-    fireEvent.click(resumo);
-    expect(screen.getByRole("heading", { name: "Sua sacola" })).toHaveFocus();
+    const sacolaLink = within(barra).getByRole("link", { name: "Sacola, 1 item" });
+    expect(sacolaLink).toHaveTextContent("1");
+    expect(screen.queryByRole("button", { name: /sua sacola:/i })).not.toBeInTheDocument();
   });
 
   it("legenda diz quanto a máquina paga por lixeira", () => {
@@ -246,7 +278,8 @@ describe("LixeiraPessoal", () => {
         <LixeiraPessoal />
       </MemoryRouter>
     );
-    const legenda = screen.getByRole("region", { name: /cores das lixeiras/i });
+    fireEvent.click(screen.getByRole("button", { name: "Legenda" }));
+    const legenda = screen.getByRole("dialog", { name: /cores das lixeiras/i });
     const linha = (cor) => within(legenda).getByText(new RegExp(`lixeira ${cor}`, "i")).closest("li");
     expect(linha("vermelha")).toHaveTextContent(/Máquina paga · R\$\s0,10/);
     expect(linha("amarela")).toHaveTextContent(/Máquina paga · R\$\s0,15/);

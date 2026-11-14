@@ -1,7 +1,9 @@
 /* Lixeira pessoal: captura e análise da foto (portado do protótipo do app). Só tokens. */
 .lx-pagina { padding: var(--rc-space-9) 0 var(--rc-space-11); border-bottom: var(--rc-border) solid var(--rc-ink); }
 .lx-pagina__in { display: grid; gap: var(--rc-space-6); }
+.lx-cabeca { display: flex; flex-wrap: wrap; gap: var(--rc-space-4); align-items: flex-start; justify-content: space-between; }
 .lx-cabeca .secao__lead { margin-top: var(--rc-space-3); }
+#fotografar { scroll-margin-top: 72px; }
 
 .lx-captura { display: grid; gap: var(--rc-space-4); max-width: 560px; }
 .lx-mensagens { display: grid; gap: var(--rc-space-2); }
@@ -89,7 +91,11 @@
 /* Página: análise à esquerda, sacola e legenda à direita (empilha no celular) */
 .lx-layout { display: grid; gap: var(--rc-space-6); align-items: start; }
 .lx-layout__principal, .lx-layout__lateral { display: grid; gap: var(--rc-space-5); min-width: 0; }
-@media (min-width: 960px) { .lx-layout { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); } }
+@media (min-width: 960px) {
+  .lx-layout { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); }
+  /* A sacola acompanha a rolagem, logo abaixo do Topo (64 px + borda). */
+  .lx-layout__lateral { position: sticky; top: calc(68px + var(--rc-space-4)); }
+}
 
 /* Resultado */
 .lx-resultado { display: grid; gap: var(--rc-space-4); max-width: 640px; animation: lx-entra 350ms ease-out; }
@@ -131,7 +137,27 @@
 
 /* Sacola */
 .lx-sacola { display: grid; gap: var(--rc-space-3); }
-.lx-sacola__lista { display: grid; gap: var(--rc-space-2); margin: 0; padding: 0; list-style: none; }
+/* Altura máxima com rolagem interna: a sacola nunca estica a página. */
+.lx-sacola__lista {
+  display: grid; gap: var(--rc-space-2); margin: 0; padding: 0 4px 4px 0; list-style: none;
+  max-height: min(340px, 45vh); overflow-y: auto; overscroll-behavior: contain;
+}
+/* Os controles descem para uma linha própria quando a linha fica estreita. */
+.lx-sacola__item { flex-wrap: wrap; }
+.lx-sacola__item .lx-sacola__info { flex: 1 1 140px; }
+.lx-sacola__controles { display: flex; gap: var(--rc-space-2); align-items: center; justify-content: flex-end; flex: 1 0 auto; }
+.lx-qtd {
+  display: inline-flex; align-items: center; border: var(--rc-border-thin) solid var(--rc-ink); border-radius: 999px;
+  background: var(--md-sys-color-surface-container-lowest); box-shadow: 2px 2px 0 0 var(--rc-ink);
+}
+.lx-qtd__botao {
+  display: grid; place-items: center; width: 44px; height: 40px; padding: 0; border: 0; border-radius: 999px;
+  background: none; color: inherit; cursor: pointer; transition: background-color var(--rc-motion-hover);
+}
+.lx-qtd__botao:hover { background: var(--md-sys-color-primary-container); }
+.lx-qtd__botao:focus-visible { outline: var(--rc-focus-ring-width) solid var(--rc-focus-ring-color); outline-offset: 2px; }
+.lx-qtd__valor { min-width: 2ch; text-align: center; font-weight: 800; }
+.lx-sacola__subtotal { font-family: var(--md-ref-typeface-brand); font-weight: 800; font-size: 1.125rem; }
 .lx-sacola__item {
   display: flex; gap: var(--rc-space-3); align-items: center; padding: var(--rc-space-2);
   border: var(--rc-border-thin) solid var(--rc-ink); border-radius: 12px; background: var(--md-sys-color-surface-container-low);
@@ -164,18 +190,13 @@
   min-height: 320px; height: 100%; overflow: hidden; background: var(--md-sys-color-surface-container-high);
   border: var(--rc-border) solid var(--rc-ink); border-radius: var(--md-sys-shape-corner-large); box-shadow: var(--rc-shadow-md);
 }
-.lx-mapa__lado { display: grid; gap: var(--rc-space-3); }
-.lx-mapa__destaque {
-  display: grid; gap: var(--rc-space-1); justify-items: start; padding: var(--rc-space-4);
-  border: var(--rc-border) solid var(--rc-ink); border-radius: var(--md-sys-shape-corner-large);
-  background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container); box-shadow: var(--rc-shadow-sm);
-}
-.lx-mapa__destaque p, .lx-mapa__destaque h3 { margin: 0; }
-.lx-mapa__destaque .rc-btn { margin-top: var(--rc-space-2); }
+.lx-mapa__selos { display: flex; flex-wrap: wrap; gap: 4px; }
 .lx-mapa__selo {
   padding: 0 var(--rc-space-2); border: var(--rc-border-thin) solid var(--rc-ink); border-radius: 999px;
-  background: var(--md-sys-color-surface-container-lowest); font-size: 0.875rem; font-weight: 700;
+  background: var(--md-sys-color-surface-container-lowest); color: var(--md-sys-color-on-surface); font-size: 0.8125rem; font-weight: 700;
 }
+.lx-mapa__selo--sel { background: var(--rc-ink); color: var(--md-sys-color-primary-container); }
+.lx-mapa__abrir { justify-self: end; }
 .lx-mapa__lista {
   display: grid; gap: var(--rc-space-2); margin: 0; padding: 4px 10px 10px 4px; list-style: none;
   max-height: 360px; overflow-y: auto; overscroll-behavior: contain;
@@ -195,6 +216,15 @@
 .lx-mapa__item > .rc-icon { font-size: 28px; }
 .lx-mapa__item-texto { display: grid; gap: 2px; min-width: 0; flex: 1; }
 .lx-mapa__item-texto strong { font-family: var(--md-ref-typeface-brand); font-size: 1.0625rem; }
+@media (min-width: 960px) {
+  .lx-mapa__mapa { height: 440px; }
+  .lx-mapa__lista { max-height: 440px; }
+}
+/* Celular: mapa grande na largura do cartão inteiro e a lista toda embaixo, sem rolagem interna. */
+@media (max-width: 719px) {
+  .lx-mapa__mapa { height: 60dvh; margin-inline: calc(-1 * var(--rc-space-5)); border-radius: 0; border-inline: 0; box-shadow: none; }
+  .lx-mapa__lista { max-height: none; overflow: visible; }
+}
 
 /* Pinos (como no protótipo): a gota girada fica dentro do elemento que o MapLibre posiciona */
 .lx-pino-alvo { display: block; padding: 0; margin: 0; border: 0; background: none; cursor: pointer; font: inherit; color: var(--rc-ink); }
@@ -302,14 +332,37 @@ details[open] > summary .lx-chev { transform: rotate(180deg); }
 .lx-mapa__rota .rc-icon { font-size: 20px; }
 
 /* Celular: resumo fixo da sacola */
-.lx-resumo {
-  position: fixed; left: 16px; right: 16px; bottom: max(12px, env(safe-area-inset-bottom)); z-index: var(--rc-z-navbar);
-  display: flex; gap: var(--rc-space-2); align-items: center; justify-content: center; min-height: 52px;
-  padding: 0 var(--rc-space-4); border: var(--rc-border) solid var(--rc-ink); border-radius: 999px;
-  background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container);
-  box-shadow: var(--rc-shadow-md); font: inherit; font-weight: 800; cursor: pointer;
+/* Barra inferior do celular (como no app do protótipo); no computador a página é larga. */
+.lx-barra .rc-navbar__indicator { overflow: visible; }
+.lx-barra .rc-navbar__item { min-height: var(--rc-touch-target); justify-content: center; }
+@media (max-width: 719px) { body:has(.lx-barra) { padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)); } }
+@media (min-width: 720px) { .lx-barra { display: none; } }
+
+/* Captura no celular (sem mouse): não há o que arrastar nem Ctrl+V. */
+.lx-soltar__toque { display: none; }
+@media (hover: none) {
+  .lx-soltar__titulo, .lx-soltar__texto { display: none; }
+  .lx-soltar__toque { display: block; }
+  .lx-captura .lx-acoes, .lx-resultado .lx-acoes { flex-direction: column; }
+  .lx-captura .lx-acoes > *, .lx-resultado .lx-acoes > * { flex: none; width: 100%; }
 }
-.lx-resumo:focus-visible { outline: var(--rc-focus-ring-width) solid var(--rc-focus-ring-color); outline-offset: 3px; }
-@media (max-width: 719px) { body:has(.lx-resumo) { padding-bottom: 80px; } }
-@media (min-width: 720px) { .lx-resumo { display: none; } }
+
+/* Legenda em popup (<dialog>); no celular sobe do rodapé, como a folha do protótipo. */
+.lx-dialogo {
+  width: min(480px, calc(100vw - 2 * var(--rc-gutter))); max-width: none; max-height: 85dvh;
+  padding: 0; border: 0; background: none; overflow: visible; color: inherit;
+}
+.lx-dialogo::backdrop { background: color-mix(in srgb, var(--md-sys-color-scrim) 45%, transparent); }
+.lx-dialogo[open] { animation: lx-dialogo-entra var(--rc-motion-enter) both; }
+@keyframes lx-dialogo-entra { from { opacity: 0; transform: translateY(16px) scale(.98); } }
+.lx-dialogo:focus-visible { outline: none; }
+.lx-dialogo:focus-visible > .lx-legenda { outline: var(--rc-focus-ring-width) solid var(--rc-focus-ring-color); outline-offset: 3px; }
+.lx-dialogo > .lx-legenda { max-height: 85dvh; overflow-y: auto; box-shadow: var(--rc-shadow-lg); }
+.lx-dialogo__cabeca { display: flex; gap: var(--rc-space-3); align-items: center; justify-content: space-between; margin-bottom: var(--rc-space-3); }
+.lx-dialogo__cabeca h2 { margin: 0; }
+@media (max-width: 719px) {
+  .lx-dialogo { width: 100vw; margin: auto 0 0; }
+  .lx-dialogo > .lx-legenda { border-radius: 28px 28px 0 0; border-bottom: 0; box-shadow: none; padding-bottom: calc(var(--rc-space-6) + env(safe-area-inset-bottom, 0px)); }
+}
+@media (prefers-reduced-motion: reduce) { .lx-dialogo[open] { animation: none; } }
 .lx-sacola__info .rc-tag { max-width: 100%; flex-wrap: wrap; }

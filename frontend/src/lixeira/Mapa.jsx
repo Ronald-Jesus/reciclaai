@@ -206,7 +206,7 @@ export default function Mapa() {
   const avisoOrigem = !["centro", "procurando", "pessoa"].includes(origem.tipo);
 
   return (
-    <section className="lx-mapa rc-card" aria-labelledby="lx-mapa-titulo">
+    <section id="mapa" className="lx-mapa rc-card" aria-labelledby="lx-mapa-titulo">
       <div className="lx-mapa__cabeca">
         <div>
           <h2 id="lx-mapa-titulo" className="lx-resultado__titulo">
@@ -243,7 +243,7 @@ export default function Mapa() {
         )}
         {sel && (
           <p className="sr-only">
-            {escolhido === 0 ? "Mais perto" : "Escolhido"}: {sel.nome}, {km(sel.km)}, {aPe(sel.km)} a pé.
+            {escolhido === 0 ? "Mais perto" : "Selecionado"}: {sel.nome}, {km(sel.km)}, {aPe(sel.km)} a pé.
           </p>
         )}
       </div>
@@ -264,52 +264,62 @@ export default function Mapa() {
         )}
 
         {sel && (
-          <div className="lx-mapa__lado">
-            <div className="lx-mapa__destaque">
-              <p className="lx-mapa__selo">{escolhido === 0 ? "Mais perto" : "Escolhido"}</p>
-              <h3 className="lx-resultado__sub">{sel.nome}</h3>
-              {sel.endereco && <p className="lx-resultado__texto">{sel.endereco}</p>}
-              <p className="rc-num">
-                {km(sel.km)} em linha reta · {aPe(sel.km)} a pé
-              </p>
-              <Botao
-                href={rota(ponto, sel)}
-                target="_blank"
-                rel="noopener noreferrer"
-                icone="directions_walk"
-                pequeno
-                aria-label={`Abrir rota até ${sel.nome} (OpenStreetMap, em nova aba)`}
-              >
-                Abrir rota
-              </Botao>
-            </div>
-            <ol className="lx-mapa__lista" aria-label="Mercados mais perto, por distância" data-lenis-prevent>
-              {mercados.map((m, i) => (
-                <li key={`${m.lat},${m.lng},${i}`}>
-                  <button type="button" className="lx-mapa__item" aria-pressed={i === escolhido} onClick={() => escolher(i)}>
+          // O detalhe e a rota ficam no próprio item selecionado: nada aparece duas vezes.
+          <ol className="lx-mapa__lista" aria-label="Mercados mais perto, por distância" data-lenis-prevent>
+            {mercados.map((m, i) => {
+              const marcado = i === escolhido;
+              return (
+                <li key={`${m.lat},${m.lng},${i}`} className={marcado ? "is-selected" : undefined}>
+                  <button type="button" className="lx-mapa__item" aria-pressed={marcado} onClick={() => escolher(i)}>
                     <Icone nome="storefront" preenchido />
                     <span className="lx-mapa__item-texto">
+                      {(i === 0 || marcado) && (
+                        <span className="lx-mapa__selos">
+                          {i === 0 && <span className="lx-mapa__selo">Mais perto</span>}
+                          {/* aria-pressed já diz isso ao leitor de tela */}
+                          {marcado && (
+                            <span className="lx-mapa__selo lx-mapa__selo--sel" aria-hidden="true">
+                              Selecionado
+                            </span>
+                          )}
+                        </span>
+                      )}
                       <strong>{m.nome}</strong>
                       {m.endereco && <span>{m.endereco}</span>}
                       <span className="rc-num">
-                        {km(m.km)} · {aPe(m.km)} a pé
+                        {km(m.km)}
+                        {marcado && " em linha reta"} · {aPe(m.km)} a pé
                       </span>
                     </span>
                   </button>
-                  <a
-                    className="lx-mapa__rota"
-                    href={rota(ponto, m)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={`Como chegar a ${m.nome} (abre o OpenStreetMap em nova aba)`}
-                  >
-                    <Icone nome="directions" />
-                    Como chegar
-                  </a>
+                  {marcado ? (
+                    <Botao
+                      href={rota(ponto, m)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      icone="directions_walk"
+                      pequeno
+                      className="lx-mapa__abrir"
+                      aria-label={`Abrir rota até ${m.nome} (OpenStreetMap, em nova aba)`}
+                    >
+                      Abrir rota
+                    </Botao>
+                  ) : (
+                    <a
+                      className="lx-mapa__rota"
+                      href={rota(ponto, m)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`Como chegar a ${m.nome} (abre o OpenStreetMap em nova aba)`}
+                    >
+                      <Icone nome="directions" />
+                      Como chegar
+                    </a>
+                  )}
                 </li>
-              ))}
-            </ol>
-          </div>
+              );
+            })}
+          </ol>
         )}
       </div>
 

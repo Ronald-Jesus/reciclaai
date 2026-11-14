@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, it, expect, vi, afterEach } from "vitest";
 import gsap from "gsap";
@@ -32,10 +32,15 @@ describe("Página inicial: hero", () => {
     expect(link).toHaveTextContent("south");
   });
 
-  it("tem o botão 'Por que funciona' para o contraste", () => {
+  it("tem a frase em cartão e uma ação só: 'Ver a máquina por dentro'", () => {
     menosAnimacao(true);
-    renderizar();
-    expect(screen.getByRole("link", { name: "Por que funciona" })).toHaveAttribute("href", "#contraste");
+    const { container } = renderizar();
+    const hero = container.querySelector(".hero");
+    expect(within(hero).getByText(/Seu cliente traz o que ia para o lixo e sai com crédito/)).toHaveClass("hero__lead");
+    const acoes = within(hero.querySelector(".hero__acoes")).getAllByRole("link");
+    expect(acoes.map((a) => a.textContent)).toEqual(["Ver a máquina por dentro"]);
+    expect(acoes[0]).toHaveAttribute("href", "#como-funciona");
+    expect(within(hero).queryByRole("link", { name: /testar o app|por que funciona/i })).not.toBeInTheDocument();
   });
 
   it("o título entra palavra por palavra e o leitor de tela lê a frase inteira", () => {
@@ -46,7 +51,9 @@ describe("Página inicial: hero", () => {
     const palavras = container.querySelectorAll(".hero__titulo .split-w > span");
     expect(palavras).toHaveLength(TITULO.split(" ").length);
     expect(from.mock.calls.some(([alvo]) => alvo?.length === palavras.length)).toBe(true);
-    expect(from.mock.calls.some(([alvo]) => [...(alvo ?? [])].some((el) => el.classList?.contains("hero__acoes")))).toBe(true);
+    const entra = (classe) => from.mock.calls.some(([alvo]) => [...(alvo ?? [])].some((el) => el.classList?.contains(classe)));
+    expect(entra("hero__acoes")).toBe(true);
+    expect(entra("hero__lead")).toBe(true);
   });
 
   it("com menos animação o título fica parado e inteiro", () => {

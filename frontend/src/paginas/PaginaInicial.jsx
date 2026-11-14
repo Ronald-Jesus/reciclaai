@@ -30,7 +30,7 @@ function Hero() {
       gsap.from(ref.current.querySelectorAll(".split-w > span"), {
         yPercent: 110, rotation: 6, duration: 0.9, ease: "back.out(1.4)", stagger: 0.07, delay: 0.15,
       });
-      gsap.from(ref.current.querySelectorAll(".hero__sobre, .hero__acoes, .hero__rolar"), {
+      gsap.from(ref.current.querySelectorAll(".hero__sobre, .hero__lead, .hero__acoes, .hero__rolar"), {
         y: 24, opacity: 0, duration: 0.6, stagger: 0.08, delay: 0.55, ease: "power3.out",
       });
     }, ref);
@@ -61,14 +61,12 @@ function Hero() {
             </>
           )}
         </h1>
+        <p className="hero__lead">
+          Seu cliente traz o que ia para o lixo e sai com crédito para usar na próxima compra. Com você.
+        </p>
+        {/* Uma ação só: "Testar o app" fica no Topo e "Role para ver" segue a história. */}
         <div className="hero__acoes">
           <Botao href="#como-funciona">Ver a máquina por dentro</Botao>
-          <Botao variante="outlined" href="#contraste">
-            Por que funciona
-          </Botao>
-          <Botao variante="outlined" para="/lixeira">
-            Testar o app
-          </Botao>
         </div>
       </div>
       <a className="hero__rolar" href="#problema">
