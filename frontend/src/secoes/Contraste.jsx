@@ -1,9 +1,6 @@
 import NumeroAnimado from "../componentes/NumeroAnimado.jsx";
+import { FONTE_LATAS, FONTE_ALEMANHA } from "../dados/fontes.js";
 
-export const FONTE_LATAS =
-  "https://mercadoeconsumo.com.br/14/08/2025/economia/brasil-reciclou-973-das-latinhas-de-aluminio-em-2024/";
-export const FONTE_ALEMANHA =
-  "https://dpg-pfandsystem.de/en/the-one-way-deposit-system/useful-information/press-releases/twenty-years-of-the-german-one-way-deposit-system-a-success-story.html";
 
 // 6.2 Brasil × Alemanha: dois números com fonte.
 export default function Contraste() {
