@@ -8,7 +8,7 @@ como servidor único: serve o React compilado em `/` e `/lixeira`, mantém a IA 
 regras da máquina (`rvm.py`), a simulação da máquina (agora em `/maquina`) e o painel (`/admin`).
 
 **Tecnologias:** Python 3.12, Flask, PyTorch, pytest · React 18, Vite, Vitest, GSAP (ScrollTrigger),
-Lenis, Vanta, React Bits, Leaflet com OpenStreetMap · PostgreSQL (Neon) e SQLite · GitHub Actions,
+Lenis, Vanta, React Bits, MapLibre GL com OpenFreeMap e OpenStreetMap · PostgreSQL (Neon) e SQLite · GitHub Actions,
 Hugging Face Spaces.
 
 **Especificação:** [docs/visao-do-produto.md](visao-do-produto.md). Toda parte segue a visão;
@@ -230,7 +230,7 @@ sacola com miniaturas e total; legenda das lixeiras sempre visível.
 `minutosAPe(1.2) === 15` · `sem localização usa o centro de Brasília` · `aviso de demonstração
 sempre visível` · `se a busca falhar, usa a lista salva sem erro na tela`.
 
-**Pronto quando:** mapa Leaflet com o mercado mais próximo, distância e tempo a pé, aviso de que
+**Pronto quando:** mapa MapLibre (estilo OpenFreeMap; o Leaflet com tiles do OSM foi trocado no protótipo, ver DEF-03) com o mercado mais próximo, distância e tempo a pé, aviso de que
 os mercados não são parceiros e crédito ao OpenStreetMap.
 
 ## Parte 11 · Documento das heurísticas de Nielsen
@@ -245,7 +245,7 @@ os mercados não são parceiros e crédito ao OpenStreetMap.
 
 **Arquivos:** `rvm.py` (acesso ao banco por uma única camada de conexão que funciona com SQLite e
 PostgreSQL) · `requirements.txt` (acrescenta o driver PostgreSQL com versão fixa) ·
-`tests/test_rvm.py` (continua rodando no SQLite) · `docs/adr/ADR-002-postgresql-neon.md`
+`tests/test_rvm.py` (continua rodando no SQLite) · `docs/adr/ADR-003-postgresql-neon.md`
 
 **Interfaces:** `DATABASE_URL` ausente → SQLite (`rvm.db`); presente → PostgreSQL. As funções de
 `rvm.py` são as mesmas nos dois casos.

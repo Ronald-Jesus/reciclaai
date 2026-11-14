@@ -1,4 +1,5 @@
 import { CREDITOS } from "../dados/creditos.js";
+import { FONTE_LATAS, FONTE_ALEMANHA } from "../dados/fontes.js";
 
 export default function Rodape() {
   return (
@@ -10,6 +11,20 @@ export default function Rodape() {
             <strong>Fontes</strong>
           </p>
           <ul>
+            <li>
+              97,3% das latas recicladas no Brasil: Recicla Latas, via{" "}
+              <a href={FONTE_LATAS} target="_blank" rel="noopener noreferrer">
+                Mercado&amp;Consumo (2025)<span className="sr-only"> (abre em nova aba)</span>
+              </a>
+              .
+            </li>
+            <li>
+              +96% de retorno na Alemanha:{" "}
+              <a href={FONTE_ALEMANHA} target="_blank" rel="noopener noreferrer">
+                DPG Deutsche Pfandsystem<span className="sr-only"> (abre em nova aba)</span>
+              </a>
+              .
+            </li>
             <li>Cores da coleta seletiva: Resolução CONAMA nº 275/2001.</li>
           </ul>
           <p className="rodape__sub">

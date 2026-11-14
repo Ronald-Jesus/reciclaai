@@ -1,6 +1,6 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, act } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import Topo from "./Topo.jsx";
 import { futuroDoRouter } from "../rotas.js";
 
@@ -58,5 +58,40 @@ describe("Topo", () => {
   it("tem o link para pular ao conteúdo", () => {
     renderizar();
     expect(screen.getByRole("link", { name: /pular para o conteúdo/i })).toHaveAttribute("href", "#conteudo");
+  });
+});
+
+describe("Topo: link ativo e CTA", () => {
+  it("o CTA leva para a máquina por dentro", () => {
+    renderizar();
+    expect(screen.getByRole("link", { name: "Ver a máquina por dentro" })).toHaveAttribute("href", "/#como-funciona");
+  });
+
+  it("marca o link da seção visível com aria-current", () => {
+    let aoCruzar;
+    let opcoes;
+    const observe = vi.fn();
+    const disconnect = vi.fn();
+    window.IntersectionObserver = vi.fn().mockImplementation((f, o) => {
+      aoCruzar = f;
+      opcoes = o;
+      return { observe, disconnect };
+    });
+    const secao = document.createElement("section");
+    secao.id = "simulador";
+    document.body.append(secao);
+
+    const { unmount } = renderizar();
+    expect(opcoes).toEqual({ rootMargin: "-45% 0px -50% 0px" });
+    expect(observe).toHaveBeenCalledWith(secao);
+
+    act(() => aoCruzar([{ target: secao, isIntersecting: true }]));
+    expect(screen.getByRole("link", { name: "Simulador" })).toHaveAttribute("aria-current", "true");
+    expect(screen.getByRole("link", { name: "Dúvidas" })).not.toHaveAttribute("aria-current");
+
+    unmount();
+    expect(disconnect).toHaveBeenCalled();
+    secao.remove();
+    delete window.IntersectionObserver;
   });
 });

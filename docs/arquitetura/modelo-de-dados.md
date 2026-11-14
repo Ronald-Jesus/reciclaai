@@ -130,7 +130,7 @@ Regra derivada: lixeira cheia quando `count >= capacity`; aviso ao operador a pa
 1. **`NUMERIC(10,2)`** nas colunas `sessions.total`, `items.value` e `vouchers.amount` do PostgreSQL: aritmética decimal exata e dois dígitos garantidos pelo banco.
 2. Alternativa mais simples de portar entre os dois bancos: **inteiro em centavos** (`value_cents`), que funciona igual no SQLite e no PostgreSQL; a conversão para R$ acontece só na apresentação.
 
-A escolha final cabe ao ADR-002. Em qualquer caso, `Decision.value` e `ACCEPTED[...]["value"]` em `float` devem virar `Decimal` ou centavos para não reintroduzir o erro na camada de regras.
+A escolha final cabe ao ADR-003. Em qualquer caso, `Decision.value` e `ACCEPTED[...]["value"]` em `float` devem virar `Decimal` ou centavos para não reintroduzir o erro na camada de regras.
 
 ## 6. Retenção e privacidade
 

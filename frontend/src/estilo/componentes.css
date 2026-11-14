@@ -533,14 +533,14 @@
   transition: background-color var(--rc-motion-hover), border-color var(--rc-motion-hover);
 }
 .rc-navbar__item:hover .rc-navbar__indicator { background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, transparent); }
-.rc-navbar__item[aria-current="page"] { color: var(--md-sys-color-on-surface); }
-.rc-navbar__item[aria-current="page"] .rc-navbar__indicator {
+.rc-navbar__item[aria-current] { color: var(--md-sys-color-on-surface); }
+.rc-navbar__item[aria-current] .rc-navbar__indicator {
   background: var(--md-sys-color-tertiary-container);
   border-color: var(--rc-ink);
   box-shadow: 2px 2px 0 0 var(--rc-ink);
   color: var(--md-sys-color-on-tertiary-container);
 }
-.rc-navbar__item[aria-current="page"] .rc-icon { font-variation-settings: "FILL" 1, "wght" 600, "GRAD" 0, "opsz" 24; }
+.rc-navbar__item[aria-current] .rc-icon { font-variation-settings: "FILL" 1, "wght" 600, "GRAD" 0, "opsz" 24; }
 .rc-navbar__label { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* --------------------------------------------------------------------------

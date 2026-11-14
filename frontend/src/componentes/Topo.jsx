@@ -13,7 +13,22 @@ const LINKS = [
 export default function Topo() {
   const [aberto, setAberto] = useState(false);
   const botaoMenu = useRef(null);
+  const [ativo, setAtivo] = useState(null);
   const fechar = () => setAberto(false);
+
+  // Marca no menu a seção que está no meio da tela.
+  useEffect(() => {
+    if (!("IntersectionObserver" in window)) return undefined;
+    const obs = new IntersectionObserver(
+      (entradas) => entradas.forEach((e) => e.isIntersecting && setAtivo(e.target.id)),
+      { rootMargin: "-45% 0px -50% 0px" }
+    );
+    LINKS.forEach((l) => {
+      const secao = document.getElementById(l.id);
+      if (secao) obs.observe(secao);
+    });
+    return () => obs.disconnect();
+  }, []);
 
   useEffect(() => {
     if (!aberto) return undefined;
@@ -62,7 +77,7 @@ export default function Topo() {
           <ul>
             {LINKS.map((l) => (
               <li key={l.id}>
-                <a href={`/#${l.id}`} onClick={fechar}>
+                <a href={`/#${l.id}`} onClick={fechar} aria-current={ativo === l.id ? "true" : undefined}>
                   {l.texto}
                 </a>
               </li>
@@ -75,8 +90,8 @@ export default function Topo() {
             </li>
           </ul>
         </nav>
-        <Botao className="topo__cta" pequeno href="/#simulador" onClick={fechar}>
-          Ver o simulador
+        <Botao className="topo__cta" pequeno href="/#como-funciona" onClick={fechar}>
+          Ver a máquina por dentro
         </Botao>
       </div>
     </header>

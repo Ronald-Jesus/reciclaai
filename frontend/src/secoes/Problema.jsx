@@ -1,5 +1,11 @@
+import { useLayoutEffect, useRef } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { FOTOS } from "../dados/creditos.js";
 import FraseRevelada from "../componentes/FraseRevelada.jsx";
+import useMenosAnimacao from "../hooks/useMenosAnimacao.js";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const PASSOS = [
   {
@@ -15,8 +21,26 @@ const PASSOS = [
 
 // 6.1 Abertura com o problema: fotos grandes e frases reveladas ao rolar.
 export default function Problema() {
+  const ref = useRef(null);
+  const menosAnimacao = useMenosAnimacao();
+
+  // Cada foto sobe e desgira enquanto a página rola (como no protótipo).
+  useLayoutEffect(() => {
+    if (menosAnimacao || !ref.current) return undefined;
+    const ctx = gsap.context(() => {
+      ref.current.querySelectorAll(".foto").forEach((f, i) => {
+        gsap.fromTo(
+          f,
+          { y: 60, rotation: i % 2 ? 1.5 : -1.5 },
+          { y: 0, rotation: 0, ease: "none", scrollTrigger: { trigger: f, start: "top bottom", end: "top 40%", scrub: true } }
+        );
+      });
+    }, ref);
+    return () => ctx.revert();
+  }, [menosAnimacao]);
+
   return (
-    <section className="fotos" id="problema" aria-label="O problema, em fotos">
+    <section className="fotos" id="problema" aria-label="O problema, em fotos" ref={ref}>
       {PASSOS.map(({ foto, frase, texto, lado }, i) => (
         <div className={`passo passo--${lado}`} key={foto.arquivo}>
           <figure className="foto">

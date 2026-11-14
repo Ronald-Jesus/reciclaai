@@ -111,7 +111,7 @@ section { scroll-margin-top: 72px; }
    -------------------------------------------------------------------------- */
 .hero {
   position: relative; isolation: isolate; overflow: hidden;
-  min-height: min(calc(100svh - 67px), 720px);
+  min-height: calc(100svh - 67px); /* tela inteira, como no protótipo */
   display: flex; flex-direction: column; justify-content: center;
   background: var(--md-sys-color-primary-container);
   color: var(--md-sys-color-on-primary-container);

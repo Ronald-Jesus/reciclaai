@@ -262,3 +262,67 @@ def test_deduplicacao_pega_imagem_espelhada(tmp_path):
     assert len(removidas) == 1
     assert removidas[0]["motivo"] == "dhash_espelhada"
     assert removidas[0]["distancia"] == 0
+
+
+# --- Temperatura -------------------------------------------------------------
+
+def test_carregar_modelo_sem_temperatura_usa_1(tmp_path):
+    from torchvision import models
+    modelo = models.resnet18(weights=None)
+    modelo.fc = nn.Linear(modelo.fc.in_features, len(CLASSES))
+    torch.save({"model_state": modelo.state_dict(), "classes": CLASSES}, tmp_path / "a.pth")
+    torch.save({"model_state": modelo.state_dict(), "classes": CLASSES, "temperatura": 1.7}, tmp_path / "b.pth")
+    _, classes, t = te.carregar_modelo(tmp_path / "a.pth", torch.device("cpu"))
+    assert classes == CLASSES and t == 1.0
+    assert te.carregar_modelo(tmp_path / "b.pth", torch.device("cpu"))[2] == 1.7
+
+
+def test_prever_com_temperatura_2_baixa_a_confianca(tmp_path):
+    itens = [(_salvar(_imagem(500), tmp_path / "x.png"), "plastic")]
+    modelo = ModeloFalso("plastic", destaque=4.0)
+    normal = te.prever(modelo, CLASSES, itens)[0]
+    calibrada = te.prever(modelo, CLASSES, itens, temperatura=2.0)[0]
+    assert normal["previsto"] == calibrada["previsto"] == "plastic"
+    assert normal["confianca"] == pytest.approx(88.6, abs=0.1)
+    assert calibrada["confianca"] == pytest.approx(51.3, abs=0.1)
+
+
+# --- IA em 2 etapas (--filtro) ------------------------------------------------
+
+class FiltroFalso:
+    """p_residuo fixo pelo conteúdo: imagens em `reprova` têm 0,02; o resto passa com 0,97."""
+
+    def __init__(self, reprova=()):
+        self.reprova = {Image.open(c).convert("RGB").tobytes() for c in reprova}
+
+    def p_residuo(self, imagem) -> float:
+        return 0.02 if imagem.convert("RGB").tobytes() in self.reprova else 0.97
+
+
+def test_prever_com_filtro_usa_a_regra_compartilhada(tmp_path):
+    itens = [(_salvar(_imagem(500), tmp_path / "selfie.png"), "nao_residuo"),
+             (_salvar(_imagem(501), tmp_path / "garrafa.png"), "plastic")]
+    modelo = ModeloFalso("nao_residuo")  # v1 diria nao_residuo para tudo
+    modelo.logits[CLASSES.index("plastic")] = 8.0
+    selfie, garrafa = te.prever(modelo, CLASSES, itens, filtro_clip=FiltroFalso(reprova=[itens[0][0]]))
+    assert selfie["previsto"] == "nao_residuo" and selfie["confianca"] == pytest.approx(98.0)
+    assert selfie["p_residuo"] == pytest.approx(0.02)
+    assert garrafa["previsto"] == "plastic" and garrafa["confianca"] > 95
+
+
+def test_executar_com_filtro_registra_no_resultado(cenario):
+    tmp_path, interno = cenario
+    r = te.executar(tmp_path / "externo", tmp_path / "saida", model=ModeloFalso("plastic"),
+                    classes=CLASSES, referencias=[interno], cache=None,
+                    device=torch.device("cpu"), filtro_clip=FiltroFalso())
+    assert r["filtro"] == {"modelo": "ViT-B-32", "pesos": "laion2b_s34b_b79k", "limiar": 0.5}
+    assert "2 etapas" in (tmp_path / "saida" / "resultados.md").read_text(encoding="utf-8")
+
+
+def test_main_filtro_indisponivel_da_erro_claro(tmp_path, monkeypatch):
+    import filtro
+    monkeypatch.setattr(filtro, "carregar", lambda device=None: None)
+    modelo = tmp_path / "m.pth"
+    modelo.write_bytes(b"x")
+    with pytest.raises(SystemExit, match="filtro"):
+        te.main(["--externo", str(tmp_path), "--modelo", str(modelo), "--filtro"])
