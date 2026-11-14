@@ -4,7 +4,9 @@
 
 Simulação de uma **Reverse Vending Machine (RVM)**, a "máquina que troca lixo por dinheiro" usada em sistemas de depósito e retorno como o *Pfand* alemão. O usuário insere embalagens, uma câmera identifica o material com *deep learning*, a máquina aceita ou devolve o item e, no fim, emite um **voucher** com o crédito acumulado.
 
-O modelo (ResNet18 com *transfer learning*) reconhece 8 classes: **papelão, vidro, metal, papel, plástico, orgânico, rejeito e "não é resíduo"** (fotos de pessoas, animais e ambientes). A camada de regras da máquina (`rvm.py`) decide o que fazer com cada uma. Os resultados do treino estão em [`docs/modelo/resultados.md`](docs/modelo/resultados.md).
+O modelo (ResNet18 com *transfer learning*) reconhece 8 classes: **papelão, vidro, metal, papel, plástico, orgânico, rejeito e "não é resíduo"** (fotos de pessoas, animais e ambientes). A camada de regras da máquina (`rvm.py`) decide o que fazer com cada uma.
+
+Antes do classificador, um filtro CLIP zero-shot (`filtro.py`, OpenCLIP ViT-B-32) decide se a foto mostra um resíduo; selfies e ambientes param ali como "não reconhecido" ([ADR-002](docs/adr/ADR-002-ia-em-duas-etapas.md)). Na primeira execução os pesos do CLIP (~600 MB) são baixados para o cache do Hugging Face; sem eles o servidor sobe só com o classificador. Os resultados do treino estão em [`docs/modelo/resultados.md`](docs/modelo/resultados.md).
 
 O projeto é o Projeto Integrador de Engenharia de Software (CEUB, 2026/2), individual, feito com apoio de um assistente de IA no desenvolvimento. O trabalho termina em 27/11/2026 e a defesa está marcada para 14/12/2026; os documentos de gestão estão em [`docs/gestao/`](docs/gestao/README.md).
 
@@ -14,6 +16,9 @@ O projeto é o Projeto Integrador de Engenharia de Software (CEUB, 2026/2), indi
 
 ```
  usuário ──► [Começar] ──► insere embalagem (câmera ou foto)
+                                │
+                                ▼
+        filtro CLIP: é resíduo? (não: "não reconhecido")
                                 │
                                 ▼
                     ResNet18 classifica o material
@@ -61,7 +66,7 @@ Os valores, a confiança mínima e a capacidade de cada compartimento ficam no t
 | POST | `/api/admin/bins/<material>/empty` | zera um compartimento |
 | POST | `/api/vouchers/<code>/redeem` | resgata um voucher (uso único); recusa com "Voucher já resgatado em <data>." ou "Voucher não encontrado." |
 | POST | `/predict` | classifica a foto e diz o que a máquina faria (`machine`, `low_confidence`, `nao_reconhecido`), sem gerar crédito |
-| GET | `/api/status` | diz se o modelo está carregado (`model_ready`) e quais classes ele conhece |
+| GET | `/api/status` | diz se o modelo está carregado (`model_ready`), se o filtro CLIP está ativo (`filtro_ready`) e quais classes o modelo conhece |
 
 Tudo é persistido em `rvm.db` (SQLite, criado automaticamente e ignorado pelo Git).
 

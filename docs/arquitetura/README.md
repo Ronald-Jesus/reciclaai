@@ -6,7 +6,7 @@
 | [modelo-de-dados.md](modelo-de-dados.md) | Modelo conceitual e físico (sessions, items, vouchers, bins), ER, dicionário, SQLite x PostgreSQL, privacidade |
 | [uml.md](uml.md) | Casos de uso, sequências (analisar foto; depósito e voucher), classes (backend e frontend) e estados da sessão |
 
-Decisões relacionadas: [ADR-001 React servido pelo Flask](../adr/ADR-001-react-servido-pelo-flask.md) · ADR-002 PostgreSQL no Neon (`docs/adr/ADR-002-postgresql-neon.md`, issue #52).
+Decisões relacionadas: [ADR-001 React servido pelo Flask](../adr/ADR-001-react-servido-pelo-flask.md) · [ADR-002 IA em duas etapas](../adr/ADR-002-ia-em-duas-etapas.md) · ADR-003 PostgreSQL no Neon (`docs/adr/ADR-003-postgresql-neon.md`, issue #52).
 
 ## Rastreio com os requisitos
 

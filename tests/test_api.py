@@ -141,7 +141,7 @@ def test_confianca_baixa_vira_nao_reconhecido(com_modelo):
 def test_status_informa_modelo(monkeypatch, com_modelo):
     cliente, _ = com_modelo
     dados = cliente.get("/api/status").get_json()
-    assert dados == {"model_ready": True, "classes": CLASSES}
+    assert dados == {"model_ready": True, "classes": CLASSES, "filtro_ready": False}
     monkeypatch.setattr(app_module, "_model", None)
     monkeypatch.setattr(app_module, "_classes", [])
     assert cliente.get("/api/status").get_json()["model_ready"] is False
@@ -221,3 +221,90 @@ def test_temperatura_2_baixa_a_confianca(com_modelo, monkeypatch):
     assert calibrada["class"] == "plastic"
     assert calibrada["confidence"] < normal
     assert normal == pytest.approx(88.6, abs=0.1) and calibrada["confidence"] == pytest.approx(51.35, abs=0.1)
+
+
+# --- IA em 2 etapas: filtro CLIP falso (o CLIP real não é baixado nos testes) ---
+
+class FiltroFalso:
+    def __init__(self, p: float):
+        self.p = p
+
+    def p_residuo(self, imagem) -> float:
+        return self.p
+
+
+def test_sem_filtro_resposta_tem_filtro_nulo(com_modelo):
+    cliente, _ = com_modelo
+    assert enviar(cliente).get_json()["filtro"] is None
+
+
+def test_filtro_reprova_vira_nao_reconhecido(com_modelo, monkeypatch):
+    cliente, definir = com_modelo
+    definir("paper")  # o v1 diria "papel" com confiança alta, como na selfie
+    monkeypatch.setattr(app_module, "_filtro", FiltroFalso(0.1))
+    dados = enviar(cliente).get_json()
+    assert dados["prediction"]["class"] == "nao_residuo"
+    assert dados["prediction"]["confidence"] == 90.0
+    assert dados["nao_reconhecido"] is True
+    assert dados["machine"]["accepted"] is False
+    assert dados["machine"]["reason"] == rvm.NAO_RECONHECIDO
+    assert dados["filtro"] == {"p_residuo": 0.1, "aprovado": False}
+
+
+def test_filtro_aprova_e_v1_escolhe_entre_materiais(com_modelo, monkeypatch):
+    cliente, definir = com_modelo
+    logits = torch.zeros(len(CLASSES))
+    logits[CLASSES.index("nao_residuo")] = 12.0
+    logits[CLASSES.index("plastic")] = 8.0
+    definir("plastic")
+    app_module._model.logits = logits
+    monkeypatch.setattr(app_module, "_filtro", FiltroFalso(0.95))
+    dados = enviar(cliente).get_json()
+    assert dados["prediction"]["class"] == "plastic"
+    assert dados["prediction"]["confidence"] > 95
+    assert all(r["class"] != "nao_residuo" for r in dados["ranking"])
+    assert dados["nao_reconhecido"] is False
+    assert dados["machine"]["accepted"] is True
+    assert dados["filtro"] == {"p_residuo": 0.95, "aprovado": True}
+
+
+def test_filtro_aprova_mas_confianca_baixa_continua_nao_reconhecido(com_modelo, monkeypatch):
+    cliente, definir = com_modelo
+    definir("plastic", destaque=1.0)
+    monkeypatch.setattr(app_module, "_filtro", FiltroFalso(0.9))
+    dados = enviar(cliente).get_json()
+    assert dados["low_confidence"] is True
+    assert dados["nao_reconhecido"] is True
+    assert dados["machine"]["accepted"] is False
+
+
+def test_insert_com_filtro_reprovado_nao_credita(com_modelo, monkeypatch):
+    cliente, _ = com_modelo
+    monkeypatch.setattr(app_module, "_filtro", FiltroFalso(0.0))
+    dados = inserir(cliente)[1].get_json()
+    assert dados["prediction"]["class"] == "nao_residuo"
+    assert dados["nao_reconhecido"] is True
+    assert dados["accepted"] is False and dados["balance"] == 0
+    assert dados["filtro"]["aprovado"] is False
+
+
+def test_status_informa_filtro(com_modelo, monkeypatch):
+    cliente, _ = com_modelo
+    monkeypatch.setattr(app_module, "_filtro", FiltroFalso(1.0))
+    assert cliente.get("/api/status").get_json()["filtro_ready"] is True
+
+
+def test_foto_de_celular_e_girada_pelo_exif(com_modelo, monkeypatch):
+    # Celular grava a foto deitada e marca a rotação no EXIF; a IA precisa ver em pé.
+    cliente, definir = com_modelo
+    definir("plastic")
+    tamanhos = []
+    original = app_module._transform
+    monkeypatch.setattr(app_module, "_transform", lambda img: (tamanhos.append(img.size), original(img))[1])
+    buffer = io.BytesIO()
+    exif = Image.Exif()
+    exif[0x0112] = 6  # Orientation: girar 90°
+    Image.new("RGB", (40, 20), "white").save(buffer, "JPEG", exif=exif)
+    buffer.seek(0)
+    assert enviar(cliente, buffer, "celular.jpg").status_code == 200
+    assert tamanhos == [(20, 40)]

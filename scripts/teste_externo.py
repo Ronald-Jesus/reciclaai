@@ -5,7 +5,10 @@ Avalia o modelo em imagens que não vieram do dataset de treino, para medir
 como ele se comporta fora do domínio em que foi treinado:
 
     python scripts/teste_externo.py --externo caminho/garbage-classification \
-        [--fotos-proprias caminho/fotos] [--limiar 6] [--saida docs/modelo/teste-externo]
+        [--fotos-proprias caminho/fotos] [--limiar 6] [--saida docs/modelo/teste-externo] [--filtro]
+
+Com --filtro, avalia a IA em 2 etapas (filtro CLIP + classificador), com a mesma
+regra de app.py (filtro.combinar).
 
 Passos:
 1. Acha as subpastas de classe (o zip do Kaggle costuma aninhar pastas).
@@ -30,12 +33,13 @@ from datetime import date
 from pathlib import Path
 
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageOps
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 if str(BASE_DIR) not in sys.path:
     sys.path.insert(0, str(BASE_DIR))
 
+import filtro  # noqa: E402  (regra única das 2 etapas)
 import rvm  # noqa: E402  (regra única de "não reconhecido")
 
 MODEL_PATH = BASE_DIR / "model" / "reciclaai.pth"
@@ -339,10 +343,11 @@ def carregar_modelo(caminho: Path, device):
 
 
 def prever(model, classes: list[str], itens: list[tuple[Path, str]], device=None,
-           batch: int = 64, temperatura: float = 1.0) -> list[dict]:
+           batch: int = 64, temperatura: float = 1.0, filtro_clip=None) -> list[dict]:
     """Roda o modelo em lotes. Devolve [{arquivo, real, previsto, confianca (%)}].
 
     Os logits são divididos pela temperatura do treino antes do softmax.
+    Com `filtro_clip`, cada item ganha p_residuo e passa por filtro.combinar.
     """
     import torch
 
@@ -351,17 +356,23 @@ def prever(model, classes: list[str], itens: list[tuple[Path, str]], device=None
     saida: list[dict] = []
     for i in range(0, len(itens), batch):
         lote = itens[i:i + batch]
-        tensores = []
+        tensores, ps = [], []
         for caminho, _ in lote:
-            with Image.open(caminho) as img:
-                tensores.append(tf(img.convert("RGB")))
+            with Image.open(caminho) as bruta:
+                img = ImageOps.exif_transpose(bruta).convert("RGB")  # foto de celular vem deitada sem isso
+                ps.append(None if filtro_clip is None else filtro_clip.p_residuo(img))
+                tensores.append(tf(img))
         x = torch.stack(tensores).to(device)
         with torch.no_grad():
             prob = torch.softmax(model(x) / temperatura, dim=1).cpu()
-        conf, idx = prob.max(dim=1)
-        for (caminho, real), c, k in zip(lote, conf.tolist(), idx.tolist()):
-            saida.append({"arquivo": str(caminho), "real": real, "previsto": classes[k],
-                          "confianca": round(c * 100, 2)})
+        for (caminho, real), linha, p in zip(lote, prob.tolist(), ps):
+            combinadas = filtro.combinar(dict(zip(classes, linha)), p)
+            previsto = max(combinadas, key=combinadas.get)
+            item = {"arquivo": str(caminho), "real": real, "previsto": previsto,
+                    "confianca": round(combinadas[previsto] * 100, 2)}
+            if p is not None:
+                item["p_residuo"] = round(p, 4)
+            saida.append(item)
     return saida
 
 
@@ -540,6 +551,12 @@ def gerar_md(resultado: dict) -> str:
         f"Gerado por `scripts/teste_externo.py` em {resultado['data']}. "
         "Os números abaixo saem direto do script.",
         "",
+    ]
+    if resultado.get("filtro"):
+        f = resultado["filtro"]
+        linhas += [f"IA em 2 etapas: filtro CLIP {f['modelo']} ({f['pesos']}) com limiar "
+                   f"{f['limiar']}, depois o classificador escolhe o material.", ""]
+    linhas += [
         "## Fonte dos dados",
         "",
         f"- Dataset: {FONTE_EXTERNA}.",
@@ -605,13 +622,14 @@ def gerar_md(resultado: dict) -> str:
 
 def processar(itens: list[tuple[Path, str]], ref: Referencia, limiar: int, model,
               classes: list[str], device, saida: Path, sufixo: str, titulo: str,
-              batch: int = 64, temperatura: float = 1.0) -> dict:
+              batch: int = 64, temperatura: float = 1.0, filtro_clip=None) -> dict:
     mantidas, removidas = deduplicar(itens, ref, limiar)
     motivos: dict[str, int] = {}
     for r in removidas:
         motivos[r["motivo"]] = motivos.get(r["motivo"], 0) + 1
     salvar_removidas(removidas, saida / f"duplicatas{sufixo}.csv")
-    previsoes = prever(model, classes, mantidas, device, batch, temperatura) if mantidas else []
+    previsoes = (prever(model, classes, mantidas, device, batch, temperatura, filtro_clip)
+                 if mantidas else [])
     metricas = calcular_metricas(previsoes, classes)
     png = salvar_confusao(metricas["confusao"], saida / f"confusao{sufixo}.csv",
                           saida / f"confusao{sufixo}.png", titulo)
@@ -627,10 +645,11 @@ def executar(externo: Path, saida: Path, limiar: int = LIMIAR_PADRAO,
              fotos_proprias: Path | None = None, model=None, classes: list[str] | None = None,
              referencias: list[Path] | None = None, cache: Path | None = CACHE_PADRAO,
              modelo_path: Path = MODEL_PATH, device=None, batch: int = 64,
-             temperatura: float = 1.0) -> dict:
+             temperatura: float = 1.0, filtro_clip=None) -> dict:
     """Roda o teste completo e grava os arquivos em `saida`. Devolve o resultado.
 
     Sem `model`, carrega o checkpoint e usa a temperatura dele.
+    Com `filtro_clip`, avalia as 2 etapas.
     """
     import torch
 
@@ -657,13 +676,15 @@ def executar(externo: Path, saida: Path, limiar: int = LIMIAR_PADRAO,
         "referencia": info,
         "temperatura": temperatura,
         "acuracia_teste_interno": acuracia_interna(),
+        "filtro": (None if filtro_clip is None else
+                   {"modelo": filtro.MODELO, "pesos": filtro.PESOS, "limiar": filtro.LIMIAR_FILTRO}),
         "externo": processar(itens_ext, ref, limiar, model, classes, device, saida, "",
-                             "Teste externo", batch, temperatura),
+                             "Teste externo", batch, temperatura, filtro_clip),
     }
     if itens_fotos is not None:
         resultado["fotos_proprias"] = processar(itens_fotos, ref, limiar, model, classes, device,
                                                 saida, "_fotos_proprias", "Fotos do autor", batch,
-                                                temperatura)
+                                                temperatura, filtro_clip)
 
     (saida / "metricas.json").write_text(json.dumps(resultado, ensure_ascii=False, indent=2),
                                          encoding="utf-8")
@@ -681,6 +702,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument("--saida", type=Path, default=SAIDA_PADRAO, help="Pasta de saída.")
     p.add_argument("--modelo", type=Path, default=MODEL_PATH, help="Checkpoint do modelo.")
     p.add_argument("--batch", type=int, default=64, help="Tamanho do lote na avaliação.")
+    p.add_argument("--filtro", action="store_true",
+                   help="Avalia a IA em 2 etapas (filtro CLIP antes do classificador).")
     return p.parse_args(argv)
 
 
@@ -690,14 +713,25 @@ def main(argv: list[str] | None = None) -> None:
         raise SystemExit("Erro: --limiar deve ficar entre 0 e 64.")
     if not args.modelo.exists():
         raise SystemExit(f"Erro: modelo não encontrado em {args.modelo}. Rode 'python treino.py' primeiro.")
+    filtro_clip = None
+    if args.filtro:
+        filtro_clip = filtro.carregar()
+        if filtro_clip is None:
+            raise SystemExit("Erro: --filtro pedido, mas o filtro CLIP não carregou (veja o aviso acima).")
     r = executar(args.externo, args.saida, args.limiar, args.fotos_proprias,
-                 modelo_path=args.modelo, batch=args.batch)
+                 modelo_path=args.modelo, batch=args.batch, filtro_clip=filtro_clip)
     e = r["externo"]
     print(f"\nExterno: {e['dedup']['total']} imagens, {e['dedup']['removidas']} removidas por duplicata, "
           f"{e['metricas']['n']} avaliadas.")
     if e["metricas"]["n"]:
         print(f"Acurácia: {_pct(e['metricas']['acuracia'])} "
               f"(teste interno: {_pct(r['acuracia_teste_interno'])}).")
+    for nome, bloco in [("Externo", e), ("Fotos próprias", r.get("fotos_proprias"))]:
+        if bloco and bloco["metricas"]["n"]:
+            m = bloco["metricas"]
+            print(f"{nome}: acurácia {_pct(m['acuracia'])}, aceitando não reconhecido "
+                  f"{_pct(m['acuracia_aceitando_nao_reconhecido'])}, não reconhecido "
+                  f"{m['nao_reconhecido']}/{m['n']}, erros confiantes {m['erros_confiantes']}.")
     print(f"Arquivos gravados em {args.saida}")
 
 

@@ -44,6 +44,7 @@ flowchart LR
             direction TB
             appPy["app.py<br/>rotas, validação, erros JSON [existe]"]
             loader["Carregador do modelo<br/>load_model + pré-processamento [existe]"]
+            filtroPy["filtro.py<br/>etapa 1: CLIP zero-shot 'é resíduo?' [existe]"]
             rvmPy["rvm.py<br/>regras da máquina, voucher, estatísticas [existe]"]
         end
         pth[("model/reciclaai.pth<br/>ResNet18 de 8 classes, treinada (fora do Git) [existe: #15 #16]")]
@@ -67,23 +68,38 @@ flowchart LR
     usuario -->|"GET /maquina, /admin"| tmpl
     appPy --> loader
     loader -->|"lê pesos"| pth
+    appPy --> filtroPy
     appPy --> rvmPy
     rvmPy -->|"SQL via camada de conexão"| db
     spa -->|"tiles e consultas de mercados"| osm
     actions -->|"build + push para o Space"| hfspace
 ```
 
+### Fluxo da classificação (IA em duas etapas)
+
+```mermaid
+flowchart TB
+    foto["Foto enviada<br/>(/predict ou /api/session/id/insert)"] --> clip["Etapa 1: filtro CLIP (filtro.py)<br/>p_residuo = soma das frases de resíduo"]
+    clip -->|"p_residuo < 0,5"| nr["Não reconhecido<br/>prediction = nao_residuo, confiança (1 - p) x 100<br/>máquina recusa"]
+    clip -->|"p_residuo >= 0,5"| v1["Etapa 2: ResNet18 v1<br/>tira nao_residuo e renormaliza entre os materiais"]
+    v1 -->|"confiança < 70%"| nr2["Não reconhecido (rvm.nao_reconhecido)"]
+    v1 -->|"confiança >= 70%"| decide["rvm.decide: aceita ou devolve com motivo"]
+```
+
+A regra das duas etapas fica em `filtro.combinar`, usada pelo `app.py` e pelo `scripts/teste_externo.py --filtro`. Sem `open_clip` ou sem os pesos, o servidor sobe sem a etapa 1 e classifica só com o v1, como antes. Decisão e números em [ADR-002](../adr/ADR-002-ia-em-duas-etapas.md).
+
 ### Elementos e estado
 
 | Elemento | Estado | Observação |
 |---|---|---|
 | `app.py` (rotas `/` e `/lixeira` via `serve_react()`, `/assets/<nome>`, `/maquina`, `/admin`, `/predict`, `/api/session*`, `/api/admin*`, `/api/vouchers/<code>/redeem`) | existe | Serve o build do React (`frontend/dist`) em `/` e `/lixeira` (503 com aviso se não compilado); a simulação da máquina está em `/maquina` (`templates/maquina.html`) (#38 concluída) |
+| `filtro.py` (CLIP ViT-B-32, `laion2b_s34b_b79k`, limiar 0,5) | existe (ADR-002) | Pesos de ~600 MB baixados na primeira execução; `/api/status` informa `filtro_ready` |
 | `rvm.py` (decide, sessões, voucher, lixeiras, estatísticas) | existe | Hoje só SQLite; camada única de conexão em #52 |
 | Modelo ResNet18 (`treino.py`, `scripts/preparar_dataset.py`, `model/reciclaai.pth`) | existe (8 classes, incluindo `organic` e `nao_residuo`); treinado em 08/11/2026, com 93,51% de acurácia no teste ([resultados](../modelo/resultados.md)); o `.pth` fica fora do Git | Issues #15 e #16 fechadas |
 | `POST /predict` com `machine`, `low_confidence`, `nao_reconhecido`; `GET /api/status`; erros 400, 413, 503 | existe (#20, commit `b24ece7`; a issue segue aberta até o pull request) | A falta do modelo devolve 503 com mensagem em JSON; uploads acima de 5 MB devolvem 413 |
 | React SPA (Vite): `App`, `PaginaInicial`, `LixeiraPessoal` | existe (esqueleto, #38) | Conteúdo provisório; compilado para `frontend/dist/` e servido pelo Flask |
 | Componentes `Captura`, `Resultado`, `Sacola`, `Mapa` e seções do site | planejado (#43, #44, #45 e demais) | |
-| Mapa (Leaflet, OpenFreeMap) e busca real de mercados (Overpass/Photon), com lista salva de Brasília como reserva | planejado (#45) | Chamado pelo navegador; se a busca falhar, usa a lista local |
+| Mapa (MapLibre GL, OpenFreeMap) e busca real de mercados (Overpass/Photon), com lista salva de Brasília como reserva | implementado (#45) | Chamado pelo navegador; se a busca falhar, usa a lista local |
 | PostgreSQL no Neon | planejado (#52) | `DATABASE_URL` escolhe o backend |
 | Deploy Hugging Face + Actions | planejado (#28) | Secret `DATABASE_URL` no Space |
 
@@ -121,7 +137,7 @@ Observações:
 | **Cliente-servidor** | O navegador cuida de apresentação, câmera, sacola e mapa; o servidor cuida de IA, regras e dados |
 | **REST/JSON** | Contrato simples e testável (`/predict`, `/api/session/...`); erros sempre em JSON `{error: ...}` |
 | **SPA React servida pelo Flask** | Habilita React Bits e GSAP; o Vite gera arquivos estáticos simples. Evita CORS e dois deploys (ver ADR-001) |
-| **Banco por `DATABASE_URL`** | SQLite sem instalação nos testes; PostgreSQL com persistência na nuvem (ver ADR-002) |
+| **Banco por `DATABASE_URL`** | SQLite sem instalação nos testes; PostgreSQL com persistência na nuvem (ver ADR-003) |
 
 ## 5. Atributos de qualidade
 
@@ -132,12 +148,13 @@ Observações:
 | Testabilidade | `decide()` é função pura; o modelo é substituível por função falsa nos testes (`tests/test_api.py`, #20); SQLite em testes; Vitest no front; CI roda tudo a cada PR |
 | Portabilidade | Docker no Hugging Face, `flask run` no notebook; `DATABASE_URL` troca o banco sem mudar as funções de `rvm.py` |
 | Privacidade | A foto é lida na requisição, classificada e descartada: nunca é gravada em disco nem no banco. As miniaturas da sacola ficam só na memória do navegador. O banco guarda apenas material, confiança, valor e horários, sem dados pessoais |
-| Desempenho | ResNet18 leve, carregada uma vez na inicialização; inferência em CPU atende a demonstração |
-| Confiabilidade | Abaixo de 70% de confiança o item é recusado; `nao_residuo` evita falso positivo em selfies; mapa cai na lista salva se a busca falhar |
+| Desempenho | ResNet18 leve e CLIP ViT-B-32, carregados uma vez na inicialização; o filtro soma cerca de 0,3 s por foto na CPU, o que atende a demonstração |
+| Confiabilidade | Abaixo de 70% de confiança o item é recusado; o filtro CLIP (etapa 1) recusa selfies e ambientes antes do classificador; mapa cai na lista salva se a busca falhar |
 
 ## 6. Decisões arquiteturais (ADR)
 
 - [ADR-001: React servido pelo Flask](../adr/ADR-001-react-servido-pelo-flask.md) (issue #38)
-- ADR-002: PostgreSQL no Neon com SQLite local, `docs/adr/ADR-002-postgresql-neon.md` (a ser escrito na issue #52)
+- [ADR-002: IA em duas etapas, filtro CLIP antes do classificador](../adr/ADR-002-ia-em-duas-etapas.md)
+- ADR-003: PostgreSQL no Neon com SQLite local, `docs/adr/ADR-003-postgresql-neon.md` (a ser escrito na issue #52)
 
 Ver também: [modelo de dados](modelo-de-dados.md) · [diagramas UML](uml.md) · [índice](README.md).

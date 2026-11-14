@@ -172,7 +172,7 @@ O objetivo é a pessoa **sentir que está funcionando de verdade**.
 | Fundo animado (Vanta) | Fundo animado da seção de abertura (topo), obrigatório | Dá vida ao primeiro contato; desligado com `prefers-reduced-motion` |
 | IA e regras da máquina | O **Flask atual** continua como servidor (modelo PyTorch, `rvm.py`, voucher, painel) | Reaproveita o que já funciona e mantém a IA em Python, onde ela foi treinada |
 | Entrega | O React é compilado e servido pelo próprio Flask | Um único endereço e um único deploy: menos coisa para quebrar na defesa |
-| Mapa | **Leaflet com OpenStreetMap**, com lista salva de Brasília se a busca falhar | Gratuito, sem cadastro nem chave de API; os dados de mercados são públicos |
+| Mapa | **MapLibre GL com OpenFreeMap (dados do OpenStreetMap)**, com lista salva de Brasília se a busca falhar | Gratuito, sem cadastro nem chave de API; os dados de mercados são públicos |
 | Fotos | Unsplash e Pexels, com crédito do fotógrafo | Licença gratuita para uso, com qualidade profissional |
 | Vista da máquina | Vídeo gerado por IA convertido em cerca de 120 quadros WebP (`frontend/public/maquina/frames/`), desenhados num `<canvas>` pelo progresso da rolagem, sobre palco escuro | Vista explodida fotorrealista, como nas páginas de produto da Apple; o progresso do GSAP escolhe o quadro |
 | Alternativa da máquina | SVG 2D desenhado para o projeto, uma camada por peça | Entra quando os quadros faltam e é a base para menos animação; leve e nítido em qualquer tela |

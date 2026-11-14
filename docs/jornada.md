@@ -124,7 +124,7 @@ M05 ([A10](gestao/A10-mudancas.md)), que absorveu a antiga issue #49 no #45.
 protótipo aprovado como referência visual, a construção da U5 segue um plano em partes, cada uma
 com issue, arquivos, testes e critério de pronto ([plano de construção](plano-de-construcao.md)).
 
-**Status:** concluída. O ADR-002 (PostgreSQL no Neon) é citado na arquitetura, mas ainda não
+**Status:** concluída. O ADR-003 (PostgreSQL no Neon) é citado na arquitetura, mas ainda não
 existe; será escrito com a issue #52, na U5.
 
 ## U5 · Ambiente, implementação e versionamento
@@ -168,7 +168,7 @@ chegou a 93,51% de acurácia no conjunto de teste, acima da meta de 85% da issue
 
 **Ainda nesta etapa (planejado).** Foto e análise (#43, 16/11), retorno e sacola (#44, 17 a
 18/11), mapa com busca real (#45, 19 a 20/11), ilustração e montagem da máquina (#41 e #42, 16 a
-18/11), fluxo de branches (#24, 16/11) e banco PostgreSQL no Neon com ADR-002 (#52, 23 a 24/11).
+18/11), fluxo de branches (#24, 16/11) e banco PostgreSQL no Neon com ADR-003 (#52, 23 a 24/11).
 
 **Como leva à próxima etapa.** Cada parte é entregue com testes, e cada correção feita aqui
 (selfie, fotos 404, dataset) precisa de um teste que impeça a volta. A U6 organiza esses testes

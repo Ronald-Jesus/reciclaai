@@ -3,11 +3,12 @@ from pathlib import Path
 
 import torch
 from flask import Flask, abort, jsonify, render_template, request, send_from_directory
-from PIL import Image
+from PIL import Image, ImageOps
 from werkzeug.utils import safe_join
 from torch import nn
 from torchvision import models, transforms
 
+import filtro
 import rvm
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -53,6 +54,7 @@ app.config["MAX_CONTENT_LENGTH"] = MAX_UPLOAD_BYTES
 _model: nn.Module | None = None
 _classes: list[str] = []
 _temperatura: float = 1.0  # calibração do treino; checkpoint antigo não tem e fica 1.0
+_filtro = None  # etapa 1 (filtro.FiltroClip); None = sem filtro, classifica como antes
 
 _transform = transforms.Compose([
     transforms.Resize((224, 224)),
@@ -99,14 +101,17 @@ class BadImage(Exception):
     pass
 
 
-def classify_upload() -> list[dict]:
-    """Lê a imagem do request e devolve o ranking de classes (maior confiança primeiro)."""
+def classify_upload() -> tuple[list[dict], dict | None]:
+    """Lê a imagem do request e classifica em 2 etapas.
+
+    Devolve (ranking com maior confiança primeiro, {"p_residuo", "aprovado"} ou None sem filtro).
+    """
     file = request.files.get("image")
     if file is None or file.filename == "":
         raise BadImage("Nenhuma imagem enviada. Envie um arquivo no campo 'image'.")
 
     try:
-        image = Image.open(file.stream).convert("RGB")
+        image = ImageOps.exif_transpose(Image.open(file.stream)).convert("RGB")  # gira a foto do celular
     except Exception:
         raise BadImage(
             "Não consegui ler o arquivo como imagem. Envie JPG, PNG ou WEBP "
@@ -119,14 +124,18 @@ def classify_upload() -> list[dict]:
         outputs = _model(tensor)
         probabilities = torch.softmax(outputs / _temperatura, dim=1)[0]
 
-    return sorted(
+    p = None if _filtro is None else _filtro.p_residuo(image)
+    combinadas = filtro.combinar(dict(zip(_classes, probabilities.tolist())), p)
+    ranked = sorted(
         (
-            {"class": cls, **display(cls), "confidence": round(prob.item() * 100, 1)}
-            for cls, prob in zip(_classes, probabilities)
+            {"class": cls, **display(cls), "confidence": round(prob * 100, 1)}
+            for cls, prob in combinadas.items()
         ),
         key=lambda item: item["confidence"],
         reverse=True,
     )
+    info = None if p is None else {"p_residuo": round(p, 4), "aprovado": p >= filtro.LIMIAR_FILTRO}
+    return ranked, info
 
 
 @app.errorhandler(BadImage)
@@ -224,7 +233,7 @@ def admin():
 @app.route("/predict", methods=["POST"])
 def predict():
     """Classifica a foto e diz o que a máquina faria. Nunca grava nada no banco."""
-    ranked = classify_upload()
+    ranked, info_filtro = classify_upload()
     top = ranked[0]
     low_confidence = top["confidence"] < rvm.MIN_CONFIDENCE
     nao_reconhecido = rvm.nao_reconhecido(top["class"], top["confidence"])
@@ -237,12 +246,14 @@ def predict():
         "machine": machine,
         "low_confidence": low_confidence,
         "nao_reconhecido": nao_reconhecido,
+        "filtro": info_filtro,
     })
 
 
 @app.route("/api/status")
 def status():
-    return jsonify({"model_ready": _model is not None, "classes": list(_classes)})
+    return jsonify({"model_ready": _model is not None, "classes": list(_classes),
+                    "filtro_ready": _filtro is not None})
 
 
 # ----------------------------------------------------------- máquina RVM
@@ -254,13 +265,14 @@ def start_session():
 
 @app.route("/api/session/<session_id>/insert", methods=["POST"], endpoint="insert")
 def insert(session_id: str):
-    ranked = classify_upload()
+    ranked, info_filtro = classify_upload()
     top = ranked[0]
     result = rvm.insert_item(session_id, top["class"], top["confidence"])
     return jsonify({
         "prediction": top,
         "ranking": ranked,
         "nao_reconhecido": rvm.nao_reconhecido(top["class"], top["confidence"]),
+        "filtro": info_filtro,
         **result,
     })
 
@@ -300,4 +312,5 @@ if __name__ == "__main__":
         load_model()
     except FileNotFoundError as erro:
         print(f"AVISO: {erro} O servidor sobe sem modelo; /predict responderá 503.")
+    _filtro = filtro.carregar(device)
     app.run(debug=True, host="0.0.0.0", port=5000)
