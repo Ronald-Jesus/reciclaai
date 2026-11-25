@@ -6,13 +6,14 @@ import Botao from "../componentes/Botao.jsx";
 import FundoVanta from "../componentes/FundoVanta.jsx";
 import Problema from "../secoes/Problema.jsx";
 import Contraste from "../secoes/Contraste.jsx";
+import Montagem from "../secoes/Montagem.jsx";
+import Fechamento from "../secoes/Fechamento.jsx";
 import Icone from "../componentes/Icone.jsx";
 import useMenosAnimacao from "../hooks/useMenosAnimacao.js";
 
 const TITULO = "Embalagem devolvida é cliente de volta.";
 
 const SECOES = [
-  { id: "como-funciona", titulo: "Como funciona" },
   { id: "para-quem", titulo: "Para quem" },
   { id: "simulador", titulo: "Simulador" },
   { id: "duvidas", titulo: "Dúvidas" },
@@ -85,6 +86,7 @@ export default function PaginaInicial() {
         <Hero />
         <Problema />
         <Contraste />
+        <Montagem />
         {SECOES.map((s) => (
           <section className="secao-provisoria" id={s.id} key={s.id} aria-labelledby={`${s.id}-titulo`}>
             <div className="secao__in">
@@ -95,6 +97,7 @@ export default function PaginaInicial() {
             </div>
           </section>
         ))}
+        <Fechamento />
       </main>
       <Rodape />
     </>

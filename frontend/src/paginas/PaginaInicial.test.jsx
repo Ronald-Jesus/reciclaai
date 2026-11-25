@@ -43,6 +43,15 @@ describe("Página inicial: hero", () => {
     expect(within(hero).queryByRole("link", { name: /testar o app|por que funciona/i })).not.toBeInTheDocument();
   });
 
+  it("'Ver a máquina por dentro' leva à seção real da máquina, não à provisória", () => {
+    menosAnimacao(true);
+    const { container } = renderizar();
+    const alvo = container.querySelector("#como-funciona");
+    expect(alvo).toHaveClass("palco");
+    expect(alvo).not.toHaveClass("secao-provisoria");
+    expect(within(alvo).getByRole("heading", { level: 2 })).toHaveTextContent("A máquina que dá valor à embalagem.");
+  });
+
   it("o título entra palavra por palavra e o leitor de tela lê a frase inteira", () => {
     menosAnimacao(false);
     const from = vi.spyOn(gsap, "from");
