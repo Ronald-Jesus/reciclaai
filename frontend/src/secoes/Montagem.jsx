@@ -30,7 +30,7 @@ function textos(n, ligada) {
       porque: "A tela liga quando a última peça encaixa. A partir daqui, cada garrafa vale crédito.",
     };
   }
-  if (n === 0) return { estado: "Máquina vazia", nome: "Só o contorno.", porque: "Role para a primeira peça entrar." };
+  if (n === 0) return { estado: "Máquina vazia", nome: "Role para montar", porque: "" };
   return { estado: n === N ? "Montada" : "Montando", nome: PECAS[n - 1].nome, porque: PECAS[n - 1].porque };
 }
 
@@ -50,7 +50,7 @@ export default function Montagem() {
   useLayoutEffect(() => {
     if (menosAnimacao) return undefined;
     const ctx = gsap.context(() => {
-      const pecas = pinRef.current.querySelectorAll("[data-peca]");
+      const pecas = pinRef.current.querySelectorAll(".palco__maquina [data-peca]");
       const origens = [{ y: 360 }, { x: -320 }, { x: 320 }];
       // O texto segue o desenho: a linha do tempo já vem com o atraso do scrub.
       const tl = gsap.timeline({ paused: true, onUpdate: () => setProgresso(tl.progress()) });
@@ -110,7 +110,13 @@ export default function Montagem() {
       <div className="palco__pin" ref={pinRef}>
         <div className="palco__cena">
           <div className="palco__luz" aria-hidden="true" />
-          <div className="palco__svg">
+          {/* Silhueta das peças: o começo não fica vazio. */}
+          {!menosAnimacao && (
+            <div className="palco__svg palco__silhueta" aria-hidden="true">
+              <MaquinaSVG />
+            </div>
+          )}
+          <div className="palco__svg palco__maquina">
             {menosAnimacao ? <MaquinaSVG telaLigada /> : <PlayerQuadros progresso={progresso} telaLigada={ligada} />}
           </div>
         </div>

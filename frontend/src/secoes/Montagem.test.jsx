@@ -56,7 +56,9 @@ describe("Montagem da máquina", () => {
     expect(gatilho.scrub).toBeTruthy();
     expect(gatilho.trigger).toBe(container.querySelector(".palco__pin"));
     expect(screen.getByText("0 de 9 peças")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Só o contorno." })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Role para montar" })).toBeInTheDocument();
+    expect(container.querySelectorAll(".palco__silhueta [data-peca]")).toHaveLength(9);
+    expect(container.querySelector(".palco__silhueta")).toHaveAttribute("aria-hidden", "true");
     expect(screen.getByRole("list").closest(".palco__lista")).toHaveClass("sr-only");
   });
 
