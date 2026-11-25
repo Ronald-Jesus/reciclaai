@@ -14,7 +14,7 @@ Hugging Face Spaces.
 **Especificação:** [docs/visao-do-produto.md](visao-do-produto.md). Toda parte segue a visão;
 em caso de dúvida, a visão manda.
 
-**Equipe:** projeto individual, com apoio de um assistente de IA no desenvolvimento.
+**Equipe:** individual até 22/11/2026 e dupla desde 23/11 (M09), com apoio de um assistente de IA no desenvolvimento.
 
 ## Regras que valem para todas as partes
 

@@ -8,7 +8,7 @@ O modelo (ResNet18 com *transfer learning*) reconhece 8 classes: **papelão, vid
 
 Antes do classificador, um filtro CLIP zero-shot (`filtro.py`, OpenCLIP ViT-B-32) decide se a foto mostra um resíduo; selfies e ambientes param ali como "não reconhecido" ([ADR-002](docs/adr/ADR-002-ia-em-duas-etapas.md)). Na primeira execução os pesos do CLIP (~600 MB) são baixados para o cache do Hugging Face; sem eles o servidor sobe só com o classificador. Os resultados do treino estão em [`docs/modelo/resultados.md`](docs/modelo/resultados.md).
 
-O projeto é o Projeto Integrador de Engenharia de Software (CEUB, 2026/2), individual, feito com apoio de um assistente de IA no desenvolvimento. O trabalho termina em 27/11/2026 e a defesa está marcada para 14/12/2026; os documentos de gestão estão em [`docs/gestao/`](docs/gestao/README.md).
+O projeto é o Projeto Integrador de Engenharia de Software (CEUB, 2026/2), individual até 22/11/2026 e em dupla com Amanda Reis Mendes desde 23/11 (mudança M09 em [A10](docs/gestao/A10-mudancas.md)), feito com apoio de um assistente de IA no desenvolvimento. O trabalho termina em 27/11/2026 e a defesa está marcada para 14/12/2026; os documentos de gestão estão em [`docs/gestao/`](docs/gestao/README.md).
 
 **Protótipo de interface online:** [ronald-jesus.github.io/reciclaai/prototipo](https://ronald-jesus.github.io/reciclaai/prototipo/) · detalhes em [`docs/prototipo/`](docs/prototipo/README.md). A ideia completa está em [`docs/visao-do-produto.md`](docs/visao-do-produto.md) e as etapas em [`docs/plano-de-construcao.md`](docs/plano-de-construcao.md).
 

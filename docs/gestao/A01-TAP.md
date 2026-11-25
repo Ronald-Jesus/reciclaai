@@ -2,14 +2,14 @@
 
 > Issue #4 · Referência: SOMMERVILLE, Ian. *Engenharia de software*. 10. ed. São Paulo: Pearson,
 > 2018. Seção 23.2.1, p. 636 (introdução e organização do projeto). Critérios de sucesso: p. 607.
-> Versão 1.3 · 12/11/2026 (defesa em 14/12/2026 pela mudança M08; trabalho até 27/11 pela M07,
+> Versão 1.4 · 25/11/2026 (dupla e defesa em 07/12/2026 pela mudança M09; trabalho até 27/11 pela M07,
 > [A10](A10-mudancas.md)).
 
 | Campo | Conteúdo |
 |---|---|
 | Nome do projeto | **ReciclaAI** · máquina de retorno de embalagens (RVM) com IA, site de vendas e subpágina "Lixeira Pessoal" |
 | Patrocinador | Professor Uender Ferreira Amaral (cliente e avaliador) |
-| Gerente do projeto | Autor do projeto (projeto individual) |
+| Gerente do projeto | Autor do projeto; equipe de duas pessoas desde 23/11/2026 (M09) |
 | Abordagem | **Híbrida**: marcos e plano (I1, I2, I3, Defesa) com quadro Kanban e entregas em releases, a "mistura sensata" de Sommerville 23.2, p. 635–636 |
 
 ## Justificativa
@@ -41,7 +41,7 @@ de trabalho (linha de base de 41,5 h; ver [A05](A05-estimativas.md)).
 | Mensurável | Acurácia de pelo menos 80% em fotos reais; testes verdes; release v1.0 |
 | Atingível | Reaproveita Flask, `rvm.py` e a simulação existentes; extras só se sobrar tempo |
 | Relevante | Entrega o MVP e os artefatos que a rubrica avalia |
-| Temporal | Trabalho concluído em 27/11/2026, com marcos I1 (13/11), I2 (20/11) e I3 (27/11); entrega no AVA até 07/12/2026; defesa em 14/12/2026 |
+| Temporal | Trabalho concluído em 27/11/2026, com marcos I1 (13/11), I2 (20/11) e I3 (27/11); entrega no AVA até 07/12/2026; defesa em 07/12/2026 (M09) |
 
 ## Entregas (entregáveis)
 
@@ -70,9 +70,9 @@ e #48 (seções de impacto), só se sobrar tempo.
 | I1 · Jornada e planejamento | 08 a 13/11/2026 (marco em 13/11) | Gestão, requisitos, BPMN, arquitetura e UML |
 | I2 · Construção e qualidade | 09 a 20/11/2026 (marco em 20/11) | Dataset, treino, servidor, site e subpágina |
 | I3 · Entrega e sustentação | 23 a 27/11/2026 (marco "Projeto concluído" em 27/11) | Banco, publicação, release, ADRs e indicadores finais |
-| Preparo da defesa e contingência | 28/11 a 13/12/2026 | Slides, estudo, ensaio e folga de calendário |
+| Preparo da defesa e contingência | 28/11 a 06/12/2026 (M09) | Slides, estudo, ensaio e folga de calendário |
 | Entrega no AVA | 07/12/2026, até 23:59 | Artefatos enviados no AVA, em arquivo com o nome `Nome_Matricula_tema_data` |
-| Defesa final | 14/12/2026 (ou antes, na data que o professor marcar) | Apresentação e arguição |
+| Defesa final | 07/12/2026 (M09) | Apresentação e arguição |
 
 ## Premissas
 
@@ -83,9 +83,8 @@ demonstração; o professor valida as entregas em cada marco e divulga a data da
 ## Restrições
 
 - Prazo fixo: o trabalho do projeto termina em 27/11/2026 por decisão do Autor (M07); entrega dos
-  artefatos no AVA até 07/12/2026, 23:59; defesa em 14/12/2026 (M08), ou antes se o professor
-  marcar outra data.
-- Equipe: projeto individual, com apoio de um assistente de IA no desenvolvimento.
+  artefatos no AVA até 07/12/2026, 23:59; defesa em 07/12/2026 (M09).
+- Equipe: individual até 22/11/2026 e, desde 23/11, dupla com Amanda Reis Mendes (M09), com apoio de um assistente de IA no desenvolvimento.
 - Esforço: 41,5 h estimadas para cerca de 40 h disponíveis; contingência tratada em [A05](A05-estimativas.md).
 - Processo: tudo na branch `develop`, com um pull request para a `main` ao fim de cada issue.
 - Custo: somente serviços gratuitos. Licenças: fotos com crédito; mapa com "© colaboradores do OpenStreetMap".

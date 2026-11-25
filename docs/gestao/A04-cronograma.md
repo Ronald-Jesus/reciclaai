@@ -44,7 +44,8 @@ projeto.
 |---|---|---|
 | 23/11 ou 30/11/2026 | Prova da disciplina (60% a 70% de gerenciamento de projetos) | Se for em 23/11, disputa horas com o I3; se for em 30/11, o dia fica sem tarefa do projeto. Risco R14 em [A07](A07-riscos.md) |
 | 07/12/2026, até 23:59 | Entrega dos artefatos no AVA, em arquivo `Nome_Matricula_tema_data` | Limite real para documentos, release e slides. Marco MAVA |
-| 14/12/2026 | Defesa (apresentação final e arguição), mudança M08 | Pode ser antes, na data que o professor divulgar. Marco MDEF |
+| 30/11/2026 | Feriado, sem aula | Sem tarefa do projeto |
+| 07/12/2026 | Defesa (apresentação final e arguição), mudança M09; antes era 14/12 (M08) | Coincide com o limite do AVA. Marco MDEF |
 
 Retorno do professor em 11/11/2026: "projeto bem estruturado… no caminho certo". Nenhuma mudança
 foi pedida.
@@ -52,6 +53,21 @@ foi pedida.
 Se o professor marcar a defesa antes de 14/12, o preparo se comprime na janela que a M07 já
 previa (30/11 a 02/12), que basta para as 5 h. Se a data cair antes de 03/12, aplica-se a ordem de
 cortes de [A05](A05-estimativas.md) e a mudança é registrada em [A10](A10-mudancas.md).
+
+## Previsão em 25/11/2026 (M09)
+
+A linha de base abaixo não muda. Com o atraso de 15 a 24/11 e a defesa em 07/12, a previsão é:
+
+| Dias | Trabalho previsto |
+|---|---|
+| 25 a 27/11 | #42, Caderno (#8, #27), #24 a #26 |
+| 28 e 29/11 | #28 |
+| 30/11 | Sem tarefa (feriado) |
+| 01 a 04/12 | #29, #30, #31, #46, #32 |
+| 05 e 06/12 | #33 e #34 |
+| 07/12 | Entrega no AVA e defesa |
+
+#52, #47 e parte da #48 são candidatas a corte, conforme [A05](A05-estimativas.md); falta decidir.
 
 ## Gráfico de barras
 

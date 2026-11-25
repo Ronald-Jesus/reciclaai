@@ -3,7 +3,7 @@
 > Issue #7 · Referência: SOMMERVILLE, Ian. *Engenharia de software*. 10. ed. São Paulo: Pearson,
 > 2018. Seção 22.3, p. 621 (grupo de 4 a 6 pessoas) e p. 627 (vias de comunicação = n × (n − 1)).
 
-Projeto individual: o autor executa tudo; o professor é o cliente e aprova as entregas formais; a
+Até 22/11/2026 o projeto foi individual: o autor executou tudo. A matriz abaixo vale para esse período; o professor é o cliente e aprova as entregas formais; a
 turma testa a subpágina e dá retorno.
 
 ## Legenda
@@ -43,15 +43,30 @@ turma testa a subpágina e dá retorno.
 
 Substituídas e fora da matriz: #18, #19 e #50 (por #38 a #46) e #49 (absorvida por #45).
 
+## Equipe desde 23/11/2026 (M09)
+
+Participação da integrante Amanda Reis Mendes, com atividades a partir de 25/11. São tarefas propostas: só viram contribuição quando
+houver commit, issue, revisão ou decisão com o nome dela. O autor continua responsável pelo que já
+estava feito.
+
+| Tarefa proposta | Issue | Evidência esperada | Situação |
+|---|---|---|---|
+| Escolher, com o autor, o encaixe das peças da máquina | #42 | Comentário datado na issue | a confirmar |
+| Testar o protótipo e o site e registrar defeitos | #25 | Issues abertas por ela | a confirmar |
+| Avaliar as heurísticas de Nielsen | #46 | Documento e commit dela | a confirmar |
+| Autoavaliação na Ficha 2 e acordo na Ficha 9 | #27 | Commit dela | a confirmar |
+| Parte dos slides e do ensaio | #32 #34 | Commit dela e ensaio | a confirmar |
+| Estudo do projeto inteiro para a arguição | #33 | Respostas no ensaio | a confirmar |
+
 ## Vias de comunicação
 
 | Item | Valor |
 |---|---|
-| Integrantes da equipe (n) | 1 |
-| Vias de comunicação n × (n − 1) | 0 |
-| Leitura | Tamanho adequado: não há coordenação interna a gerenciar |
+| Integrantes da equipe (n), desde 23/11 | 2 |
+| Vias de comunicação n × (n − 1) | 2 |
+| Leitura | Duas vias internas: decisões na issue e revisão de PR, sem ritual extra |
 
 Considerando também as partes que interagem com o autor (professor e turma de teste, n = 3), as
-vias formais passam a ser 3 × 2 = 6, tratadas no plano de comunicação ([A08](A08-comunicacao.md)).
-O grupo de 4 a 6 pessoas recomendado por Sommerville não se aplica a um projeto individual; o risco
+vias formais eram 3 × 2 = 6 até 22/11 e passam a 4 × 3 = 12 com a dupla, tratadas no plano de comunicação ([A08](A08-comunicacao.md)).
+O grupo de 4 a 6 pessoas recomendado por Sommerville não se aplica a uma dupla; o risco
 correspondente é a dependência de uma só pessoa (R12 em [A07](A07-riscos.md)).
