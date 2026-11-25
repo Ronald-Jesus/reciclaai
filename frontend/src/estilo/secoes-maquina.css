@@ -1,0 +1,128 @@
+/* ReciclaAI · seção 6.3 (a máquina em palco escuro). Vem do protótipo aprovado; só tokens. */
+
+.palco {
+  background: var(--rc-ink);
+  color: var(--md-sys-color-inverse-on-surface);
+  padding-top: var(--rc-space-11);
+  --rc-focus-ring-color: var(--rc-focus-ring-color-on-dark);
+}
+.palco a { color: var(--rc-brand); }
+.palco .secao__titulo { color: var(--md-sys-color-inverse-on-surface); }
+.palco__lead { margin-top: var(--rc-space-4); max-width: 46ch; font-size: 1.125rem; line-height: 1.6; }
+
+.palco__pin {
+  position: relative;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  height: 100svh;
+  max-width: var(--rc-content-max); margin-inline: auto;
+  padding: 76px var(--rc-gutter) var(--rc-space-5);
+  gap: var(--rc-space-4);
+}
+.palco__cena { position: relative; display: grid; place-items: center; min-height: 0; }
+.palco__luz {
+  position: absolute; left: 50%; top: 50%;
+  width: min(86%, 62svh); aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: var(--md-sys-color-primary-container);
+  border: var(--rc-border-thick) solid var(--md-sys-color-inverse-on-surface);
+  transform: scale(0);
+}
+.palco__svg { position: relative; width: 100%; height: 100%; display: grid; place-items: center; min-height: 0; }
+.palco__svg .maquina-svg { height: 100%; width: auto; max-width: 100%; max-height: 72svh; }
+.palco__canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+/* o contorno tracejado é preto no desenho; no palco escuro precisa aparecer */
+.palco .maquina-svg > rect { stroke: var(--md-sys-color-inverse-on-surface); opacity: 0.7; }
+
+.palco__painel {
+  position: relative;
+  padding: var(--rc-space-4);
+  background: var(--md-sys-color-inverse-surface);
+  border: var(--rc-border) solid var(--md-sys-color-inverse-on-surface);
+  border-radius: var(--md-sys-shape-corner-large);
+  min-height: 256px;
+}
+.palco__contagem { color: var(--md-sys-color-inverse-on-surface); font-size: 1rem; }
+.palco__estado { color: var(--rc-brand); text-align: right; }
+.palco__barra { border-color: var(--md-sys-color-inverse-on-surface); }
+.palco__num {
+  position: absolute; right: var(--rc-space-4); bottom: var(--rc-space-2);
+  font-family: var(--md-ref-typeface-brand); font-weight: 800;
+  font-size: 4rem; line-height: 1; letter-spacing: -0.05em;
+  color: color-mix(in srgb, var(--md-sys-color-inverse-on-surface) 18%, transparent);
+  font-variant-numeric: tabular-nums;
+}
+.palco__nome {
+  position: relative; margin-top: var(--rc-space-4);
+  font-family: var(--md-ref-typeface-brand); font-weight: 800;
+  font-size: clamp(1.5rem, 1.1rem + 1.8vw, 2.75rem); line-height: 1.05; letter-spacing: -0.02em;
+  color: var(--rc-brand);
+  max-width: 16ch;
+}
+.palco__porque { position: relative; margin-top: var(--rc-space-2); max-width: 40ch; padding-right: 3.5rem; line-height: 1.5; font-size: 1.0625rem; }
+@media (max-width: 899px) { .palco__num { font-size: 3rem; } .palco__porque { font-size: 1rem; } }
+
+@media (min-width: 900px) {
+  .palco__pin {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    grid-template-rows: 1fr;
+    align-items: center;
+    padding: 88px var(--rc-space-7) var(--rc-space-7);
+    gap: var(--rc-space-9);
+  }
+  .palco__cena { height: 100%; }
+  .palco__painel { padding: var(--rc-space-7); min-height: 360px; display: flex; flex-direction: column; }
+  .palco__nome { margin-top: var(--rc-space-8); }
+  .palco__porque { font-size: 1.25rem; max-width: 34ch; padding-right: 9rem; }
+  .palco__num { font-size: 9rem; right: var(--rc-space-6); bottom: var(--rc-space-4); }
+}
+
+/* lista das 9 peças: visível sem montagem animada; com ela, só para leitor de tela (.sr-only) */
+.palco__lista.secao__in { padding-block: var(--rc-space-8); }
+.palco__lista-titulo { font-family: var(--md-ref-typeface-brand); font-size: var(--md-sys-typescale-headline-small-size); font-weight: 800; margin-bottom: var(--rc-space-5); }
+.pecas { list-style: none; padding: 0; counter-reset: p; display: grid; gap: var(--rc-space-3); }
+.pecas li {
+  counter-increment: p; display: grid; grid-template-columns: 48px 1fr; column-gap: var(--rc-space-3);
+  padding: var(--rc-space-3) 0; border-top: var(--rc-border-thin) solid color-mix(in srgb, var(--md-sys-color-inverse-on-surface) 30%, transparent);
+}
+.pecas li::before {
+  content: counter(p); grid-row: span 2;
+  font-family: var(--md-ref-typeface-brand); font-weight: 800; font-size: 2rem; line-height: 1;
+  color: var(--rc-brand);
+}
+.pecas strong { font-size: 1.125rem; }
+.pecas span { line-height: 1.5; }
+@media (min-width: 900px) { .pecas { grid-template-columns: 1fr 1fr 1fr; column-gap: var(--rc-space-7); } }
+
+/* modo estático (menos animação): máquina pronta, sem rolagem presa */
+.palco--estatico .palco__pin { height: auto; min-height: 0; padding-top: var(--rc-space-8); }
+.palco--estatico .palco__svg .maquina-svg { max-height: 560px; height: 560px; }
+.palco--estatico .palco__luz { transform: scale(1); }
+@media (max-width: 899px) { .palco--estatico .palco__svg .maquina-svg { height: 420px; } }
+
+.palco__regras {
+  display: flex; flex-wrap: wrap; gap: var(--rc-space-4); align-items: center;
+  padding-block: var(--rc-space-9) var(--rc-space-11);
+}
+.regra .rc-tag { box-shadow: 3px 3px 0 0 var(--md-sys-color-inverse-on-surface); }
+.regra__nota { flex-basis: 100%; max-width: 60ch; line-height: 1.55; color: var(--md-sys-color-inverse-on-surface); }
+
+/* 6.8 Fechamento */
+.fim {
+  padding-block: var(--rc-space-12) var(--rc-space-13);
+  background: var(--rc-ink); color: var(--md-sys-color-inverse-on-surface);
+  --rc-focus-ring-color: var(--rc-focus-ring-color-on-dark);
+}
+.fim__titulo {
+  font-family: var(--md-ref-typeface-brand); font-weight: 800;
+  font-size: clamp(2.75rem, 1.4rem + 6vw, 7rem); line-height: 0.95; letter-spacing: -0.045em;
+  max-width: 12ch; color: var(--rc-brand);
+}
+.fim__lead { margin-top: var(--rc-space-5); max-width: 44ch; font-size: 1.1875rem; line-height: 1.55; }
+.fim__ima { display: inline-block; margin-top: var(--rc-space-8); padding: var(--rc-space-4); margin-left: calc(var(--rc-space-4) * -1); }
+.fim__btn {
+  height: auto; min-height: 80px; width: auto; padding: var(--rc-space-3) var(--rc-space-6);
+  text-decoration: none; font-size: 1.125rem; text-align: left;
+  box-shadow: 6px 6px 0 0 var(--md-sys-color-inverse-on-surface);
+}
