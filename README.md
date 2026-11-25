@@ -256,6 +256,19 @@ Se a pasta `frontend/dist/` não existir, as rotas do site mostram uma mensagem 
 
 > O `app.py` só funciona depois do passo 5 — ele procura o arquivo `model/reciclaai.pth`.
 
+## Rodar com Docker
+
+A imagem junta o site compilado, o Flask, o modelo (`model/reciclaai.pth`) e os pesos do filtro CLIP. O modelo
+não está no Git: ele precisa existir na pasta antes do build.
+
+```bash
+docker build -t reciclaai .
+docker run -d --name reciclaai -p 7860:7860 reciclaai
+```
+
+Abra <http://localhost:7860>. Para parar e remover só este container: `docker rm -f reciclaai`.
+O servidor sobe sem o modo debug do Flask, que só liga com `FLASK_DEBUG=1`.
+
 ## Solução de problemas
 
 **`ModuleNotFoundError: No module named 'torch'`**
