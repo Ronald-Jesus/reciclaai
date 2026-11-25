@@ -7,6 +7,7 @@ import FundoVanta from "../componentes/FundoVanta.jsx";
 import Problema from "../secoes/Problema.jsx";
 import Contraste from "../secoes/Contraste.jsx";
 import Montagem from "../secoes/Montagem.jsx";
+import Duvidas from "../secoes/Duvidas.jsx";
 import Fechamento from "../secoes/Fechamento.jsx";
 import Icone from "../componentes/Icone.jsx";
 import useMenosAnimacao from "../hooks/useMenosAnimacao.js";
@@ -16,7 +17,6 @@ const TITULO = "Embalagem devolvida é cliente de volta.";
 const SECOES = [
   { id: "para-quem", titulo: "Para quem" },
   { id: "simulador", titulo: "Simulador" },
-  { id: "duvidas", titulo: "Dúvidas" },
 ];
 
 // Abertura: título entra palavra por palavra (estilo React Bits "SplitText", refeito com GSAP).
@@ -97,6 +97,7 @@ export default function PaginaInicial() {
             </div>
           </section>
         ))}
+        <Duvidas />
         <Fechamento />
       </main>
       <Rodape />
