@@ -193,6 +193,20 @@ pytest --cov=rvm --cov-report=term-missing
 
 Os testes das regras da máquina (`rvm.py`) usam um banco SQLite temporário e não mexem no `rvm.db`. O mesmo comando roda no GitHub Actions a cada push e pull request, e o pipeline exige pelo menos 70% de cobertura de `rvm.py`.
 
+### Modelo de IA pronto (sem treinar)
+
+O modelo treinado (43 MB) fica fora do Git, anexado à pré-release
+[`modelo-v1`](https://github.com/Ronald-Jesus/reciclaai/releases/tag/modelo-v1). Para usar o site sem
+treinar, baixe para `model/reciclaai.pth` e pule os passos 4 e 5:
+
+```bash
+mkdir model
+curl -L -o model/reciclaai.pth https://github.com/Ronald-Jesus/reciclaai/releases/download/modelo-v1/reciclaai.pth
+```
+
+Confira o arquivo: o SHA-256 está nas notas da release (`certutil -hashfile modeleciclaai.pth SHA256`
+no Windows, `sha256sum model/reciclaai.pth` no Linux e macOS).
+
 ### 4. Baixar e organizar o dataset
 
 O modelo reconhece 8 classes: `cardboard`, `glass`, `metal`, `organic`, `paper`, `plastic`, `trash` e `nao_residuo` (foto que não é de resíduo, como pessoas e ambientes).
@@ -259,7 +273,7 @@ Se a pasta `frontend/dist/` não existir, as rotas do site mostram uma mensagem 
 ## Rodar com Docker
 
 A imagem junta o site compilado, o Flask, o modelo (`model/reciclaai.pth`) e os pesos do filtro CLIP. O modelo
-não está no Git: ele precisa existir na pasta antes do build.
+não está no Git: baixe antes do build (seção "Modelo de IA pronto") ou treine (passo 5).
 
 ```bash
 docker build -t reciclaai .
@@ -283,7 +297,7 @@ pip install torch==2.14.1 torchvision==0.29.1 --index-url https://download.pytor
 Se `nvidia-smi` (no terminal) não reconhecer o comando, sua máquina não tem GPU NVIDIA disponível — o projeto funciona em CPU, só mais lento.
 
 **`FileNotFoundError: Modelo não encontrado em model/reciclaai.pth`**
-Você ainda não rodou o passo 5 (`python treino.py`), ou rodou em outra pasta. O `app.py` precisa ser executado na raiz do projeto.
+Baixe o modelo pronto (seção "Modelo de IA pronto") ou rode o passo 5 (`python treino.py`). Se o arquivo existe, confira se rodou em outra pasta. O `app.py` precisa ser executado na raiz do projeto.
 
 **`FileNotFoundError` ao rodar `treino.py` (pasta `dataset/train` não existe)**
 Volte ao passo 4 — o dataset baixado do Kaggle precisa passar pelo `split_dataset.py` antes, já que ele vem sem divisão treino/teste.
