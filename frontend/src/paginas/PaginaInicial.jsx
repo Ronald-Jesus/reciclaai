@@ -7,6 +7,8 @@ import FundoVanta from "../componentes/FundoVanta.jsx";
 import Problema from "../secoes/Problema.jsx";
 import Contraste from "../secoes/Contraste.jsx";
 import Montagem from "../secoes/Montagem.jsx";
+import Simulador from "../secoes/Simulador.jsx";
+import ParaQuem from "../secoes/ParaQuem.jsx";
 import Painel from "../secoes/Painel.jsx";
 import Duvidas from "../secoes/Duvidas.jsx";
 import Fechamento from "../secoes/Fechamento.jsx";
@@ -14,11 +16,6 @@ import Icone from "../componentes/Icone.jsx";
 import useMenosAnimacao from "../hooks/useMenosAnimacao.js";
 
 const TITULO = "Embalagem devolvida é cliente de volta.";
-
-const SECOES = [
-  { id: "para-quem", titulo: "Para quem" },
-  { id: "simulador", titulo: "Simulador" },
-];
 
 // Abertura: título entra palavra por palavra (estilo React Bits "SplitText", refeito com GSAP).
 // Com menos animação, tudo aparece parado.
@@ -88,16 +85,9 @@ export default function PaginaInicial() {
         <Problema />
         <Contraste />
         <Montagem />
-        {SECOES.map((s) => (
-          <section className="secao-provisoria" id={s.id} key={s.id} aria-labelledby={`${s.id}-titulo`}>
-            <div className="secao__in">
-              <h2 className="secao__titulo" id={`${s.id}-titulo`}>
-                {s.titulo}
-              </h2>
-              <p className="secao__lead">Conteúdo provisório: esta seção será preenchida nas próximas partes.</p>
-            </div>
-          </section>
-        ))}
+        {/* Ordem do protótipo: simulador (6.4) antes de "Para quem" (6.5). */}
+        <Simulador />
+        <ParaQuem />
         <Painel />
         <Duvidas />
         <Fechamento />

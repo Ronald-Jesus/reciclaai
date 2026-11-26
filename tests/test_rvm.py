@@ -72,3 +72,45 @@ def test_sessao_finalizada_recusa_insercao(db_temporario):
     rvm.finish_session(sessao)
     with pytest.raises(rvm.SessionError):
         rvm.insert_item(sessao, "plastic", 90)
+
+
+def contagem(material):
+    return next(b["count"] for b in rvm.bin_status() if b["material"] == material)
+
+
+def test_cancel_desconta_compartimento_e_nao_gera_voucher(db_temporario):
+    outra = rvm.start_session()
+    rvm.insert_item(outra, "plastic", 90)  # de outra pessoa: continua contando
+    sessao = rvm.start_session()
+    rvm.insert_item(sessao, "plastic", 90)
+    rvm.insert_item(sessao, "glass", 90)
+    rvm.insert_item(sessao, "paper", 95)  # recusado: não estava no compartimento
+    assert contagem("plastic") == 2 and contagem("glass") == 1
+
+    rvm.cancel_session(sessao)
+
+    assert contagem("plastic") == 1 and contagem("glass") == 0
+    with rvm.db() as conn:
+        assert conn.execute("SELECT COUNT(*) FROM vouchers").fetchone()[0] == 0
+    assert rvm.stats()["credits_paid"] == 0.10  # só o item da outra sessão
+
+
+def test_cancel_nao_deixa_compartimento_negativo(db_temporario):
+    sessao = rvm.start_session()
+    rvm.insert_item(sessao, "metal", 90)
+    rvm.empty_bin("metal")  # operador esvaziou no meio da sessão
+    rvm.cancel_session(sessao)
+    assert contagem("metal") == 0
+
+
+def test_cancel_encerra_a_sessao(db_temporario):
+    sessao = rvm.start_session()
+    rvm.cancel_session(sessao)
+    with pytest.raises(rvm.SessionError):
+        rvm.insert_item(sessao, "plastic", 90)
+    with pytest.raises(rvm.SessionError):
+        rvm.finish_session(sessao)
+    with pytest.raises(rvm.SessionError):
+        rvm.cancel_session(sessao)
+    with pytest.raises(rvm.SessionError):
+        rvm.cancel_session("nao-existe")

@@ -36,3 +36,8 @@ export async function inserirNaMaquina(sessao, blob, sinal) {
 export async function encerrarSessao(sessao, sinal) {
   return post(`/api/session/${sessao}/finish`, undefined, sinal);
 }
+
+// Sem sinal de propósito: é chamada justamente quando a conferência foi abortada.
+export async function cancelarSessao(sessao) {
+  return post(`/api/session/${sessao}/cancel`);
+}

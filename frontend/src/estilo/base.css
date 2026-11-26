@@ -170,7 +170,6 @@ section { scroll-margin-top: 72px; }
 @media (min-width: 900px) { .rodape__in { grid-template-columns: 1fr 2fr 1.4fr; } }
 
 
-.secao-provisoria { padding: var(--rc-space-11) 0; border-bottom: var(--rc-border) solid var(--rc-ink); }
 #root { min-height: 100svh; display: flex; flex-direction: column; }
 #root > main { flex: 1; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }

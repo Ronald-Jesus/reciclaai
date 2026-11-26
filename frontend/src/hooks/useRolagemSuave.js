@@ -6,6 +6,10 @@ import useMenosAnimacao from "./useMenosAnimacao.js";
 
 gsap.registerPlugin(ScrollTrigger);
 
+// Instância ligada agora (ou null), para quem precisa rolar por código (lixeira/rolar.js).
+let atual = null;
+export const lenisAtual = () => atual;
+
 // Liga a rolagem suave (Lenis), movida pelo ticker do GSAP.
 // Não faz nada quando o sistema pede menos animação.
 export default function useRolagemSuave() {
@@ -14,7 +18,9 @@ export default function useRolagemSuave() {
   useEffect(() => {
     if (menosAnimacao) return undefined;
 
-    const lenis = new Lenis({ anchors: { offset: -72 } });
+    // O Lenis já desconta o scroll-margin-top das seções (72 px): sem offset extra.
+    const lenis = new Lenis({ anchors: true });
+    atual = lenis;
     lenis.on("scroll", ScrollTrigger.update);
     const passo = (tempo) => lenis.raf(tempo * 1000);
     gsap.ticker.add(passo);
@@ -24,6 +30,7 @@ export default function useRolagemSuave() {
       gsap.ticker.remove(passo);
       gsap.ticker.lagSmoothing(500, 33);
       lenis.destroy();
+      if (atual === lenis) atual = null;
     };
   }, [menosAnimacao]);
 }

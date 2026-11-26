@@ -211,6 +211,26 @@ def finish_session(session_id: str) -> dict:
     }
 
 
+def cancel_session(session_id: str) -> None:
+    """Encerra a sessão sem voucher: os itens aceitos voltam ao usuário e saem dos compartimentos."""
+    with db() as conn:
+        _open_session(conn, session_id)
+        conn.execute("UPDATE sessions SET finished_at = ?, total = 0 WHERE id = ?", (_now(), session_id))
+        accepted = conn.execute(
+            "SELECT material, COUNT(*) AS n FROM items WHERE session_id = ? AND accepted = 1 GROUP BY material",
+            (session_id,),
+        ).fetchall()
+        for row in accepted:
+            # MAX: o operador pode ter esvaziado o compartimento no meio da sessão.
+            conn.execute("UPDATE bins SET count = MAX(count - ?, 0) WHERE material = ?", (row["n"], row["material"]))
+        # Sem crédito pago: o item fica no histórico como devolvido.
+        conn.execute(
+            "UPDATE items SET accepted = 0, value = 0, reason = 'Sessão cancelada.' "
+            "WHERE session_id = ? AND accepted = 1",
+            (session_id,),
+        )
+
+
 def redeem_voucher(code: str) -> dict:
     with db() as conn:
         row = conn.execute("SELECT * FROM vouchers WHERE code = ?", (code.strip().upper(),)).fetchone()

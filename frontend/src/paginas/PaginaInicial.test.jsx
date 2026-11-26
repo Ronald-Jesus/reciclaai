@@ -85,4 +85,17 @@ describe("Página inicial: hero", () => {
     expect(within(container.querySelector("#painel")).getByRole("link", { name: /abrir o painel do operador/i })).toHaveAttribute("href", "/admin");
     vi.unstubAllGlobals();
   });
+
+  it("não tem mais conteúdo provisório: simulador e 'Para quem' são as seções reais, na ordem do protótipo", () => {
+    menosAnimacao(true);
+    vi.stubGlobal("fetch", vi.fn(() => new Promise(() => {})));
+    const { container } = renderizar();
+    expect(screen.queryByText(/conteúdo provisório/i)).not.toBeInTheDocument();
+    expect(container.querySelector(".secao-provisoria")).toBeNull();
+    const ids = [...container.querySelectorAll("main > section")].map((s) => s.id);
+    expect(ids.slice(ids.indexOf("simulador"), ids.indexOf("simulador") + 3)).toEqual(["simulador", "para-quem", "painel"]);
+    expect(within(container.querySelector("#simulador")).getByRole("heading", { level: 2 })).toHaveTextContent("Faça a conta do seu local.");
+    expect(within(container.querySelector("#para-quem")).getByRole("tablist")).toBeInTheDocument();
+    vi.unstubAllGlobals();
+  });
 });

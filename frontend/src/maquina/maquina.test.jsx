@@ -2,7 +2,7 @@ import { render } from "@testing-library/react";
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { PECAS } from "./pecas.js";
 import MaquinaSVG from "./MaquinaSVG.jsx";
-import { TOTAL_QUADROS, nomeDoQuadro, existemQuadros } from "./quadros.js";
+import { TOTAL_QUADROS, nomeDoQuadro, existemQuadros, QUADROS_PUBLICADOS } from "./quadros.js";
 
 describe("PECAS", () => {
   it("PECAS tem 9 itens na ordem da visão", () => {
@@ -56,15 +56,24 @@ describe("quadros", () => {
     expect(nomeDoQuadro(120)).toBe("frame_0120.webp");
   });
 
-  it("existemQuadros só aceita resposta de imagem", async () => {
+  it("sem quadros publicados não pede nada ao servidor (evita o 404 no console)", async () => {
+    expect(QUADROS_PUBLICADOS).toBe(false);
+    const f = vi.fn();
+    vi.stubGlobal("fetch", f);
+    expect(await existemQuadros()).toBe(false);
+    expect(f).not.toHaveBeenCalled();
+  });
+
+  it("com quadros publicados, existemQuadros só aceita resposta de imagem", async () => {
     const resposta = (ok, tipo) => ({ ok, headers: new Headers({ "content-type": tipo }) });
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(resposta(true, "image/webp")));
-    expect(await existemQuadros()).toBe(true);
+    expect(await existemQuadros(true)).toBe(true);
+    expect(fetch).toHaveBeenCalledWith(expect.stringMatching(/maquina\/frames\/frame_0001\.webp$/), { method: "HEAD" });
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(resposta(true, "text/html")));
-    expect(await existemQuadros()).toBe(false);
+    expect(await existemQuadros(true)).toBe(false);
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(resposta(false, "text/plain")));
-    expect(await existemQuadros()).toBe(false);
+    expect(await existemQuadros(true)).toBe(false);
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("rede")));
-    expect(await existemQuadros()).toBe(false);
+    expect(await existemQuadros(true)).toBe(false);
   });
 });
