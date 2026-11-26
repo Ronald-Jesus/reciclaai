@@ -204,7 +204,7 @@ mkdir model
 curl -L -o model/reciclaai.pth https://github.com/Ronald-Jesus/reciclaai/releases/download/modelo-v1/reciclaai.pth
 ```
 
-Confira o arquivo: o SHA-256 está nas notas da release (`certutil -hashfile modeleciclaai.pth SHA256`
+Confira o arquivo: o SHA-256 está nas notas da release (`certutil -hashfile model\reciclaai.pth SHA256`
 no Windows, `sha256sum model/reciclaai.pth` no Linux e macOS).
 
 ### 4. Baixar e organizar o dataset
@@ -217,8 +217,7 @@ O modelo reconhece 8 classes: `cardboard`, `glass`, `metal`, `organic`, `paper`,
    - opcional: [Garbage Classification (6 classes)](https://www.kaggle.com/datasets/asdasdasasdas/garbage-classification), o dataset original do projeto.
 2. Monte o dataset bruto com as 8 classes:
    ```bash
-   python scripts/preparar_dataset.py --garbage12 "C:\caminho\garbage12" --natural "C:\caminho
-atural-images" --dest dataset_raw
+   python scripts/preparar_dataset.py --garbage12 "C:\caminho\garbage12" --natural "C:\caminho\natural-images" --dest dataset_raw
    ```
    - Vidros marrom, verde e branco viram `glass`; `biological` vira `organic`; pessoas, animais, carros, motos e aviões formam `nao_residuo`; pilhas, frutas e flores ficam de fora.
    - Até 1000 imagens por classe (`--max-por-classe`), com cotas iguais por pasta de origem e sorteio reprodutível (`--seed 42`). Em `trash`, todo o lixo real entra primeiro e roupas e sapatos completam o restante.
