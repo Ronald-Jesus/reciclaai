@@ -3,6 +3,8 @@ import "./estilo/componentes.css";
 import "./estilo/base.css";
 import "./estilo/secoes-abertura.css";
 import "./estilo/secoes-maquina.css";
+import "./estilo/secoes-simulador.css";
+import "./estilo/secoes-para-quem.css";
 import "./estilo/secoes-painel.css";
 import "./estilo/secoes-duvidas.css";
 import React from "react";

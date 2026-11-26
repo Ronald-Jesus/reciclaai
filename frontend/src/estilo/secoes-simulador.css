@@ -1,0 +1,56 @@
+/* ReciclaAI · seção 6.4 (simulador). Vem do protótipo aprovado; só tokens. Controles deslizantes limitados a .sim. */
+.impacto { padding-block: var(--rc-space-11) var(--rc-space-12); }
+.sim { display: grid; gap: var(--rc-space-6); margin-top: var(--rc-space-8); }
+.sim__entradas { display: grid; gap: var(--rc-space-6); padding: var(--rc-space-6); }
+.sim__campo { border: 0; padding: 0; margin: 0; min-width: 0; }
+.sim__campo label, .sim__campo legend { display: block; font-weight: 700; font-size: 1.0625rem; margin-bottom: var(--rc-space-2); padding: 0; }
+.sim__linha { display: flex; align-items: center; gap: var(--rc-space-4); }
+.sim__linha output {
+  flex: none; width: 4.75rem; box-sizing: border-box; text-align: center;
+  padding: var(--rc-space-1) var(--rc-space-2);
+  background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container);
+  border: var(--rc-border-thin) solid var(--rc-ink); border-radius: var(--md-sys-shape-corner-small);
+  font-weight: 700; font-variant-numeric: tabular-nums;
+}
+.sim input[type="range"] {
+  flex: 1; min-width: 0; height: var(--rc-touch-target); margin: 0;
+  appearance: none; -webkit-appearance: none; background: transparent; cursor: pointer;
+}
+.sim input[type="range"]::-webkit-slider-runnable-track {
+  height: 14px; border: var(--rc-border-thin) solid var(--rc-ink); border-radius: var(--md-sys-shape-corner-full);
+  background: linear-gradient(var(--rc-brand), var(--rc-brand)) 0 / var(--fill, 50%) 100% no-repeat,
+              var(--md-sys-color-surface-container-lowest);
+}
+.sim input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 28px; height: 28px; margin-top: -9px;
+  background: var(--md-sys-color-surface-container-lowest);
+  border: var(--rc-border) solid var(--rc-ink); border-radius: 50%; box-shadow: 2px 2px 0 0 var(--rc-ink);
+}
+.sim input[type="range"]::-moz-range-track {
+  height: 10px; border: var(--rc-border-thin) solid var(--rc-ink); border-radius: var(--md-sys-shape-corner-full);
+  background: var(--md-sys-color-surface-container-lowest);
+}
+.sim input[type="range"]::-moz-range-progress { height: 10px; background: var(--rc-brand); border-radius: var(--md-sys-shape-corner-full); }
+.sim input[type="range"]::-moz-range-thumb {
+  width: 24px; height: 24px; background: var(--md-sys-color-surface-container-lowest);
+  border: var(--rc-border) solid var(--rc-ink); border-radius: 50%; box-shadow: 2px 2px 0 0 var(--rc-ink);
+}
+.sim input[type="range"]:focus-visible { outline-offset: 2px; border-radius: var(--md-sys-shape-corner-small); }
+.sim__mix .rc-segmented__btn { padding: 0 var(--rc-space-2); }
+.sim__mixtxt { margin-top: var(--rc-space-3); font-size: var(--md-sys-typescale-body-medium-size); color: var(--md-sys-color-on-surface-variant); }
+
+.sim__saidas { display: grid; gap: var(--rc-space-5); align-content: start; }
+.saida { padding: var(--rc-space-5) var(--rc-space-6); }
+.saida__rotulo { font-weight: 700; }
+.saida__valor {
+  font-family: var(--md-ref-typeface-brand); font-weight: 800;
+  font-size: clamp(2.5rem, 1.6rem + 3.4vw, 4rem); line-height: 1; letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums; margin-block: var(--rc-space-2);
+  white-space: nowrap;
+}
+.saida__valor--menor { font-size: clamp(2rem, 1.4rem + 2.2vw, 2.75rem); }
+.saida__extra { font-size: var(--md-sys-typescale-body-medium-size); }
+.sim__nota { margin-top: var(--rc-space-6); max-width: 70ch; font-size: var(--md-sys-typescale-body-medium-size); color: var(--md-sys-color-on-surface-variant); line-height: 1.5; }
+@media (min-width: 900px) {
+  .sim { grid-template-columns: 1.1fr 1fr; align-items: start; }
+}

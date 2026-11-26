@@ -1,0 +1,27 @@
+/* ReciclaAI · seção 6.5 (para quem). Vem do protótipo aprovado; só tokens. */
+.quem {
+  padding-block: var(--rc-space-11) var(--rc-space-12);
+  background: var(--md-sys-color-surface-container);
+  border-block: var(--rc-border) solid var(--rc-ink);
+}
+.quem__abas { margin-top: var(--rc-space-7); }
+.quem__abas .rc-segmented__btn { min-height: var(--rc-touch-target); }
+.quem__abas .rc-segmented__btn .rc-icon { display: none !important; }
+@media (max-width: 719px) {
+  .quem__abas { display: grid; grid-template-columns: 1fr 1fr; width: 100%; border-radius: var(--md-sys-shape-corner-large); }
+  .quem__abas .rc-segmented__btn:nth-child(3) { border-inline-start: 0; }
+  .quem__abas .rc-segmented__btn:nth-child(n+3) { border-top: var(--rc-border) solid var(--rc-ink); }
+}
+.quem__painel { margin-top: var(--rc-space-6); padding: var(--rc-space-6); max-width: 760px; display: grid; gap: var(--rc-space-3); }
+.quem__painel h3 { font-family: var(--md-ref-typeface-brand); font-weight: 800; font-size: var(--md-sys-typescale-headline-large-size); }
+.quem__icone {
+  font-size: 32px; width: 56px; height: 56px; display: grid; place-items: center;
+  background: var(--md-sys-color-tertiary-container); color: var(--md-sys-color-on-tertiary-container);
+  border: var(--rc-border-thin) solid var(--rc-ink); border-radius: var(--md-sys-shape-corner-medium);
+}
+.beneficios { padding: 0; list-style: none; display: grid; gap: var(--rc-space-3); }
+.beneficios li { position: relative; padding-left: var(--rc-space-7); font-size: 1.125rem; line-height: 1.5; }
+.beneficios li::before {
+  content: ""; position: absolute; left: 0; top: 0.35em; width: 16px; height: 16px;
+  background: var(--md-sys-color-primary); border: var(--rc-border-thin) solid var(--rc-ink); border-radius: 4px;
+}
