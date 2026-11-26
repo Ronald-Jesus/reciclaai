@@ -22,6 +22,12 @@ describe("sacolaReducer", () => {
     expect(estado.itens[0].url).toBe(pet.url);
   });
 
+  it("depositados saem de vez e os devolvidos ficam", () => {
+    const removido = sacolaReducer(com(pet, vidro), { tipo: "remover", id: 2 });
+    const estado = sacolaReducer(sacolaReducer(removido, { tipo: "desfazer" }), { tipo: "depositados", ids: [1] });
+    expect(estado).toEqual({ itens: [vidro], removido: null });
+  });
+
   it("total soma os valores", () => {
     expect(totalSacola(com(pet, vidro, pet).itens)).toBe(0.45);
     expect(totalSacola([])).toBe(0);

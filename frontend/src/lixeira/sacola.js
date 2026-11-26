@@ -26,6 +26,11 @@ export function sacolaReducer(estado, acao) {
       estado.removido.itens.forEach(({ item, indice }) => itens.splice(indice, 0, item));
       return { itens, removido: null };
     }
+    case "depositados": {
+      // A máquina ficou com estas unidades: saem de vez (sem "Desfazer").
+      const ids = new Set(acao.ids);
+      return { itens: estado.itens.filter((i) => !ids.has(i.id)), removido: null };
+    }
     case "limpar":
       return SACOLA_VAZIA;
     default:

@@ -9,6 +9,7 @@ import Sacola, { SACOLA_TITULO } from "../lixeira/Sacola.jsx";
 import Legenda from "../lixeira/Legenda.jsx";
 import BarraLixeira from "../lixeira/BarraLixeira.jsx";
 import Mapa from "../lixeira/Mapa.jsx";
+import Deposito from "../lixeira/Deposito.jsx";
 import { sacolaReducer, SACOLA_VAZIA } from "../lixeira/sacola.js";
 import { irPara } from "../lixeira/rolar.js";
 import { faiscas, voar } from "../lixeira/efeitos.js";
@@ -32,6 +33,8 @@ export default function LixeiraPessoal() {
   const origemLegenda = useRef(null); // botão que abriu a legenda: recebe o foco de volta
   const proximoId = useRef(0);
   const urlsRef = useRef(new Set()); // URLs de foto que esta página ainda usa
+  const [deposito, setDeposito] = useState(null); // itens levados à máquina ("Cheguei na máquina")
+  const voltarSacola = useRef(false);
 
   // O botão "Analisar foto" some: o foco vai para o título do resultado.
   useEffect(() => {
@@ -44,6 +47,13 @@ export default function LixeiraPessoal() {
     irPara(capturaRef.current?.querySelector("button"));
   }, [pedidoCaptura]);
 
+  // Ao sair da conferência pela sacola, o foco volta ao título dela.
+  useEffect(() => {
+    if (deposito || !voltarSacola.current) return;
+    voltarSacola.current = false;
+    irPara(titulo(SACOLA_TITULO));
+  }, [deposito]);
+
   useEffect(() => {
     if (!avisoSacola) return undefined;
     const t = setTimeout(() => setAvisoSacola(false), AVISO_MS);
@@ -54,7 +64,10 @@ export default function LixeiraPessoal() {
   // nem o item que ainda pode voltar com "Desfazer"). Várias unidades dividem a mesma URL.
   useEffect(() => {
     const vivas = new Set(
-      [resultado?.url, ...[...sacola.itens, ...(sacola.removido?.itens.map((r) => r.item) ?? [])].map((i) => i.url)].filter(Boolean)
+      [
+        resultado?.url,
+        ...[...sacola.itens, ...(sacola.removido?.itens.map((r) => r.item) ?? []), ...(deposito ?? [])].map((i) => i.url),
+      ].filter(Boolean)
     );
     urlsRef.current.forEach((url) => vivas.has(url) || URL.revokeObjectURL(url));
     urlsRef.current = vivas;
@@ -145,16 +158,32 @@ export default function LixeiraPessoal() {
               </div>
 
               <div className="lx-layout__lateral">
-                <Sacola
-                  itens={sacola.itens}
-                  removido={sacola.removido}
-                  onRemover={(id) => despachar({ tipo: "remover", id })}
-                  onRemoverGrupo={(classe) => despachar({ tipo: "removerGrupo", classe })}
-                  onMais={maisUm}
-                  onDesfazer={() => despachar({ tipo: "desfazer" })}
-                  onLimpar={() => despachar({ tipo: "limpar" })}
-                  onFotografarMais={novaFoto}
-                />
+                {deposito ? (
+                  <Deposito
+                    itens={deposito}
+                    onDepositados={(ids) => despachar({ tipo: "depositados", ids })}
+                    onFechar={() => {
+                      voltarSacola.current = true;
+                      setDeposito(null);
+                    }}
+                    onFotografar={() => {
+                      setDeposito(null);
+                      novaFoto();
+                    }}
+                  />
+                ) : (
+                  <Sacola
+                    itens={sacola.itens}
+                    removido={sacola.removido}
+                    onRemover={(id) => despachar({ tipo: "remover", id })}
+                    onRemoverGrupo={(classe) => despachar({ tipo: "removerGrupo", classe })}
+                    onMais={maisUm}
+                    onDesfazer={() => despachar({ tipo: "desfazer" })}
+                    onLimpar={() => despachar({ tipo: "limpar" })}
+                    onFotografarMais={novaFoto}
+                    onCheguei={() => setDeposito(sacola.itens)}
+                  />
+                )}
               </div>
             </div>
 

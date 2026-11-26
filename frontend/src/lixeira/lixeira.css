@@ -366,3 +366,41 @@ details[open] > summary .lx-chev { transform: rotate(180deg); }
 }
 @media (prefers-reduced-motion: reduce) { .lx-dialogo[open] { animation: none; } }
 .lx-sacola__info .rc-tag { max-width: 100%; flex-wrap: wrap; }
+
+/* ---------- Depósito na máquina ("Cheguei na máquina", #47) ---------- */
+.lx-acoes > .lx-acoes__principal { flex-basis: 100%; }
+.lx-deposito .rc-progress-label { margin: 0; }
+.lx-conferencia { transition: background-color var(--rc-motion-hover); }
+.lx-conferencia.is-aceito { background: color-mix(in srgb, var(--md-sys-color-primary-container) 45%, var(--md-sys-color-surface-container-low)); }
+.lx-conferencia.is-fila { opacity: .7; }
+.lx-status { display: inline-flex; align-items: flex-start; gap: 4px; margin: 0; font-weight: 700; font-size: .9375rem; }
+.lx-status .rc-icon { font-size: 20px; flex: none; }
+.lx-status--ok { color: var(--rc-material-vidro-strong); }
+.lx-status--volta { color: var(--md-sys-color-on-surface); }
+.lx-status--fila { font-weight: 500; }
+.lx-gira { animation: lx-gira 1s linear infinite; }
+@keyframes lx-gira { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .lx-gira { animation: none; } }
+
+.lx-voucher { display: grid; gap: var(--rc-space-4); }
+.lx-voucher__cartao { position: relative; display: grid; gap: var(--rc-space-1); padding: var(--rc-space-5); box-shadow: var(--rc-shadow-lg); }
+/* Picotes laterais do bilhete, como no protótipo */
+.lx-voucher__cartao::before, .lx-voucher__cartao::after {
+  content: ""; position: absolute; top: 50%; width: 22px; height: 22px; margin-top: -11px;
+  border: var(--rc-border) solid var(--rc-ink); border-radius: 50%; background: var(--md-sys-color-surface);
+}
+.lx-voucher__cartao::before { left: -13px; }
+.lx-voucher__cartao::after { right: -13px; }
+.lx-voucher__cartao p { margin: 0; }
+.lx-voucher__titulo { display: flex; gap: var(--rc-space-1); align-items: center; margin: 0; font-size: 1rem; font-weight: 700; }
+.lx-voucher__titulo:focus-visible { outline: var(--rc-focus-ring-width) solid var(--rc-focus-ring-color); outline-offset: 4px; }
+.lx-voucher__valor { font-family: var(--md-ref-typeface-brand); font-weight: 800; font-size: clamp(2rem, 7vw, 2.75rem); line-height: 1.1; }
+.lx-voucher__codigo {
+  margin-top: var(--rc-space-2) !important; padding: var(--rc-space-3); text-align: center;
+  font-family: var(--md-ref-typeface-brand); font-weight: 800; font-size: clamp(1rem, 4.6vw, 1.5rem); letter-spacing: .02em;
+  background: var(--md-sys-color-surface-container-lowest); color: var(--md-sys-color-on-surface);
+  border: var(--rc-border) dashed var(--rc-ink); border-radius: 8px; overflow-wrap: anywhere; user-select: all;
+}
+.lx-voucher__copiar { display: flex; flex-wrap: wrap; gap: var(--rc-space-3); align-items: center; margin-top: var(--rc-space-3); }
+.lx-voucher__copia { font-weight: 700; }
+.lx-voucher__copia:empty { display: none; }
