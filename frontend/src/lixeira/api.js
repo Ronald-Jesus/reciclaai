@@ -19,3 +19,20 @@ export async function analisarFoto(blob, sinal) {
 export async function statusModelo() {
   return lerJson(await fetch("/api/status"));
 }
+
+// Máquina (RVM): abre a sessão, insere uma foto por vez e encerra com o voucher.
+const post = async (url, corpo, sinal) => lerJson(await fetch(url, { method: "POST", body: corpo, signal: sinal }));
+
+export async function abrirSessao(sinal) {
+  return (await post("/api/session", undefined, sinal)).session_id;
+}
+
+export async function inserirNaMaquina(sessao, blob, sinal) {
+  const corpo = new FormData();
+  corpo.append("image", blob, blob.name || "foto.jpg");
+  return post(`/api/session/${sessao}/insert`, corpo, sinal);
+}
+
+export async function encerrarSessao(sessao, sinal) {
+  return post(`/api/session/${sessao}/finish`, undefined, sinal);
+}

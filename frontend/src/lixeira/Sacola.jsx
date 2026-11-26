@@ -19,9 +19,10 @@ function textoRemovido({ itens }) {
 
 // Total que conta do valor anterior até o novo (como o CountUp do React Bits).
 // O texto é escrito só pelo efeito: o React não controla o filho deste span.
-function TotalAnimado({ valor }) {
+// `desde`: valor de partida na primeira vez (sem ele, a primeira vez não anima).
+export function TotalAnimado({ valor, desde = null }) {
   const ref = useRef(null);
-  const anterior = useRef(null);
+  const anterior = useRef(desde);
   const menosAnimacao = useMenosAnimacao();
 
   useEffect(() => {
@@ -51,7 +52,7 @@ function TotalAnimado({ valor }) {
 
 // Sacola: o que a pessoa leva para a máquina e quanto deve receber lá. Não é saldo.
 // Itens iguais (mesmo material) ficam numa linha só, com quantidade e − / +.
-export default function Sacola({ itens, removido, onRemover, onRemoverGrupo, onMais, onDesfazer, onLimpar, onFotografarMais }) {
+export default function Sacola({ itens, removido, onRemover, onRemoverGrupo, onMais, onDesfazer, onLimpar, onFotografarMais, onCheguei }) {
   const tituloRef = useRef(null);
   const desfazerRef = useRef(null);
   const tinhaRemovido = useRef(false);
@@ -78,6 +79,10 @@ export default function Sacola({ itens, removido, onRemover, onRemoverGrupo, onM
           <Icone nome="shopping_bag" preenchido className="lx-vazia__icone" />
           <p className="lx-sacola__nome">Sua sacola está vazia.</p>
           <p>Fotografe uma embalagem e adicione aqui. A máquina aceita plástico, metal e vidro.</p>
+          <p className="lx-dica">
+            <Icone nome="info" />
+            Adicione ao menos uma embalagem para usar a máquina.
+          </p>
         </div>
       ) : (
         <ul className="lx-sacola__lista" data-lenis-prevent>
@@ -161,6 +166,11 @@ export default function Sacola({ itens, removido, onRemover, onRemoverGrupo, onM
       </p>
 
       <div className="lx-acoes">
+        {itens.length > 0 && (
+          <Botao icone="location_on" className="lx-acoes__principal" onClick={onCheguei}>
+            Cheguei na máquina
+          </Botao>
+        )}
         <Botao variante="outlined" icone="photo_camera" onClick={onFotografarMais}>
           Fotografar mais
         </Botao>

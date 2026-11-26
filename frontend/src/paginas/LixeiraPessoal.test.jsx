@@ -288,3 +288,173 @@ describe("LixeiraPessoal", () => {
     expect(within(legenda).getByText("A máquina aceita plástico, metal e vidro.")).toBeInTheDocument();
   });
 });
+
+// ---------------------------------------------------------------- depósito na máquina (#47)
+const ACEITO = { accepted: true, reason: "Embalagem aceita!", value: 0.1, balance: 0.1, nao_reconhecido: false, prediction: { class: "plastic" } };
+const RECUSADO = { accepted: false, reason: "Não reconheci uma embalagem nesta foto.", value: 0, balance: 0.1, nao_reconhecido: true, prediction: { class: "nao_residuo" } };
+
+// Servidor falso: /predict devolve PET; a sessão responde na ordem de `insercoes`.
+function servidorDaMaquina({ insercoes = [], fim = { voucher: "RVM-ABC123-DEF456", amount: 0.2, items: [] }, sessao } = {}) {
+  const fila = [...insercoes];
+  const json = (corpo, status = 200) => Promise.resolve(new Response(JSON.stringify(corpo), { status }));
+  const f = vi.fn((url, opcoes) => {
+    if (url === "/api/status") return json({ model_ready: true });
+    if (url === "/predict") return json(PET);
+    if (url.startsWith("blob:")) return Promise.resolve(new Response(new Blob(["x"], { type: "image/jpeg" })));
+    if (url === "/api/session") return sessao ? sessao(opcoes) : json({ session_id: "s1" });
+    if (url === "/api/session/s1/insert") {
+      const r = fila.shift();
+      return typeof r === "function" ? r(opcoes) : json(r);
+    }
+    if (url === "/api/session/s1/finish") return json(fim);
+    return json({ error: "rota desconhecida" }, 404);
+  });
+  vi.stubGlobal("fetch", f);
+  return f;
+}
+
+async function sacolaCom(n, servidor) {
+  servidorDaMaquina(servidor);
+  const { container } = render(
+    <MemoryRouter future={futuroDoRouter}>
+      <LixeiraPessoal />
+    </MemoryRouter>
+  );
+  fireEvent.change(container.querySelector('input[type="file"]'), {
+    target: { files: [new File(["x"], "a.jpg", { type: "image/jpeg" })] },
+  });
+  fireEvent.click(screen.getByRole("button", { name: /analisar foto/i }));
+  fireEvent.click(await screen.findByRole("button", { name: /adicionar à sacola/i }));
+  for (let i = 1; i < n; i += 1) fireEvent.click(screen.getByRole("button", { name: /adicionar mais um/i }));
+  return screen.getByRole("region", { name: /sua sacola/i });
+}
+
+describe("Cheguei na máquina", () => {
+  it("sem itens na sacola o botão não aparece", () => {
+    servidorDaMaquina();
+    render(
+      <MemoryRouter future={futuroDoRouter}>
+        <LixeiraPessoal />
+      </MemoryRouter>
+    );
+    expect(screen.queryByRole("button", { name: /cheguei na máquina/i })).not.toBeInTheDocument();
+    expect(screen.getByText(/adicione ao menos uma embalagem para usar a máquina/i)).toBeInTheDocument();
+  });
+
+  it("confere item a item no servidor, mostra o voucher e esvazia a sacola", async () => {
+    await sacolaCom(2, { insercoes: [ACEITO, { ...ACEITO, balance: 0.2 }] });
+    fireEvent.click(screen.getByRole("button", { name: /cheguei na máquina/i }));
+
+    const deposito = screen.getByRole("region", { name: /conferindo na máquina/i });
+    expect(screen.getByRole("heading", { name: /conferindo na máquina/i })).toHaveFocus();
+    const voucher = await within(deposito).findByRole("article", { name: /voucher reciclaai/i });
+    expect(within(voucher).getByText("RVM-ABC123-DEF456")).toBeInTheDocument();
+    expect(voucher).toHaveTextContent(/R\$\s0,20/);
+    expect(within(deposito).getAllByText("Aceito")).toHaveLength(2);
+    expect(within(deposito).getByText("2 de 2")).toBeInTheDocument();
+    expect(within(deposito).getByRole("progressbar")).toHaveAttribute("aria-valuenow", "100");
+    expect(within(deposito).getByText("Conferência concluída")).toBeInTheDocument();
+
+    // Uma foto por unidade foi enviada no campo "image"; depois a sessão foi encerrada.
+    const chamadas = fetch.mock.calls.map(([url]) => url);
+    expect(chamadas.filter((u) => u === "/api/session/s1/insert")).toHaveLength(2);
+    expect(chamadas.at(-1)).toBe("/api/session/s1/finish");
+    const corpo = fetch.mock.calls.find(([u]) => u === "/api/session/s1/insert")[1].body;
+    expect(corpo.get("image")).toBeInstanceOf(Blob);
+
+    expect(screen.getByRole("link", { name: "Sacola, 0 itens" })).toBeInTheDocument();
+    expect(URL.revokeObjectURL).not.toHaveBeenCalled(); // a conferência ainda mostra as fotos
+
+    fireEvent.click(within(deposito).getByRole("button", { name: /fotografar outra embalagem/i }));
+    expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:foto");
+    expect(screen.queryByRole("region", { name: /conferindo na máquina/i })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /arraste uma foto aqui/i })).toHaveFocus();
+  });
+
+  it("a máquina pode devolver um item que a lixeira estimou como aceito", async () => {
+    await sacolaCom(2, {
+      insercoes: [ACEITO, RECUSADO],
+      fim: { voucher: "RVM-111111-222222", amount: 0.1, items: [] },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /cheguei na máquina/i }));
+    const deposito = screen.getByRole("region", { name: /conferindo na máquina/i });
+    await within(deposito).findByRole("article", { name: /voucher reciclaai/i });
+    expect(within(deposito).getByText("Aceito")).toBeInTheDocument();
+    expect(within(deposito).getByText(/devolvido/i)).toHaveTextContent(/Não reconheci uma embalagem nesta foto/);
+    // O item devolvido volta para a sacola; o aceito sai.
+    expect(screen.getByRole("link", { name: "Sacola, 1 item" })).toBeInTheDocument();
+  });
+
+  it("sem nada aceito não há voucher nem botão de copiar", async () => {
+    await sacolaCom(1, { insercoes: [RECUSADO], fim: { voucher: null, amount: 0, items: [] } });
+    fireEvent.click(screen.getByRole("button", { name: /cheguei na máquina/i }));
+    const deposito = screen.getByRole("region", { name: /conferindo na máquina/i });
+    expect(await within(deposito).findByText("Sem voucher desta vez")).toBeInTheDocument();
+    expect(within(deposito).getByRole("article", { name: /nenhuma embalagem aceita/i })).toBeInTheDocument();
+    expect(within(deposito).queryByRole("button", { name: /copiar código/i })).not.toBeInTheDocument();
+  });
+
+  it("erro 503 mostra a mensagem do servidor e não perde a sacola", async () => {
+    const msg = "O modelo ainda não foi treinado neste servidor. Rode 'python treino.py' e reinicie.";
+    await sacolaCom(2, {
+      insercoes: [() => Promise.resolve(new Response(JSON.stringify({ error: msg }), { status: 503 }))],
+    });
+    fireEvent.click(screen.getByRole("button", { name: /cheguei na máquina/i }));
+    const deposito = screen.getByRole("region", { name: /conferindo na máquina/i });
+    expect(await within(deposito).findByRole("alert")).toHaveTextContent(msg);
+    expect(within(deposito).getByRole("alert")).toHaveTextContent(/sua sacola continua igual/i);
+    expect(fetch.mock.calls.some(([u]) => u.endsWith("/finish"))).toBe(false);
+    expect(URL.revokeObjectURL).not.toHaveBeenCalled();
+
+    fireEvent.click(within(deposito).getByRole("button", { name: /voltar para a sacola/i }));
+    const sacola = screen.getByRole("region", { name: /sua sacola/i });
+    expect(within(sacola).getByRole("listitem")).toHaveTextContent("Plástico × 2");
+    expect(screen.getByRole("heading", { name: "Sua sacola" })).toHaveFocus();
+  });
+
+  it("sem conexão também avisa e mantém a sacola", async () => {
+    await sacolaCom(1, { sessao: () => Promise.reject(new TypeError("Failed to fetch")) });
+    fireEvent.click(screen.getByRole("button", { name: /cheguei na máquina/i }));
+    expect(await screen.findByRole("alert")).toHaveTextContent(/não consegui falar com a máquina/i);
+    expect(screen.getByRole("link", { name: "Sacola, 1 item" })).toBeInTheDocument();
+  });
+
+  it("cancelar no meio para a conferência e mantém a sacola", async () => {
+    let sinal;
+    await sacolaCom(2, {
+      insercoes: [
+        (opcoes) => {
+          sinal = opcoes.signal;
+          return new Promise((_, rejeitar) =>
+            opcoes.signal.addEventListener("abort", () => rejeitar(new DOMException("cancelado", "AbortError")))
+          );
+        },
+      ],
+    });
+    fireEvent.click(screen.getByRole("button", { name: /cheguei na máquina/i }));
+    const deposito = screen.getByRole("region", { name: /conferindo na máquina/i });
+    await vi.waitFor(() => expect(sinal).toBeDefined());
+    fireEvent.click(within(deposito).getByRole("button", { name: /cancelar/i }));
+    expect(sinal.aborted).toBe(true);
+    expect(screen.queryByRole("region", { name: /conferindo na máquina/i })).not.toBeInTheDocument();
+    expect(within(screen.getByRole("region", { name: /sua sacola/i })).getByRole("listitem")).toHaveTextContent("Plástico × 2");
+    expect(fetch.mock.calls.some(([u]) => u.endsWith("/finish"))).toBe(false);
+  });
+
+  it("Copiar código usa a área de transferência e avisa; se falhar, mostra como copiar", async () => {
+    const escrever = vi.fn(() => Promise.resolve());
+    Object.defineProperty(navigator, "clipboard", { value: { writeText: escrever }, configurable: true });
+    await sacolaCom(1, { insercoes: [ACEITO], fim: { voucher: "RVM-ABC123-DEF456", amount: 0.1, items: [] } });
+    fireEvent.click(screen.getByRole("button", { name: /cheguei na máquina/i }));
+    const copiar = await screen.findByRole("button", { name: /copiar código/i });
+    fireEvent.click(copiar);
+    expect(escrever).toHaveBeenCalledWith("RVM-ABC123-DEF456");
+    expect(await screen.findByText("Código copiado")).toBeInTheDocument();
+
+    escrever.mockImplementation(() => Promise.reject(new Error("negado")));
+    document.execCommand = vi.fn(() => false);
+    fireEvent.click(copiar);
+    expect(await screen.findByText(/não deu para copiar/i)).toBeInTheDocument();
+    delete navigator.clipboard;
+  });
+});
