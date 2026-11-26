@@ -255,6 +255,7 @@ describe("LixeiraPessoal", () => {
 
     fireEvent.click(within(sacola).getByRole("button", { name: /fotografar mais/i }));
     expect(screen.getByRole("button", { name: /arraste uma foto aqui/i })).toHaveFocus();
+    expect(fetch.mock.calls.some(([u]) => u.endsWith("/cancel"))).toBe(false); // sessão já encerrada
   });
 
   it("barra inferior do celular: Fotografar, Sacola (com contagem) e Mapa levam às seções", async () => {
@@ -294,7 +295,7 @@ const ACEITO = { accepted: true, reason: "Embalagem aceita!", value: 0.1, balanc
 const RECUSADO = { accepted: false, reason: "Não reconheci uma embalagem nesta foto.", value: 0, balance: 0.1, nao_reconhecido: true, prediction: { class: "nao_residuo" } };
 
 // Servidor falso: /predict devolve PET; a sessão responde na ordem de `insercoes`.
-function servidorDaMaquina({ insercoes = [], fim = { voucher: "RVM-ABC123-DEF456", amount: 0.2, items: [] }, sessao } = {}) {
+function servidorDaMaquina({ insercoes = [], fim = { voucher: "RVM-ABC123-DEF456", amount: 0.2, items: [] }, sessao, cancelar } = {}) {
   const fila = [...insercoes];
   const json = (corpo, status = 200) => Promise.resolve(new Response(JSON.stringify(corpo), { status }));
   const f = vi.fn((url, opcoes) => {
@@ -307,6 +308,7 @@ function servidorDaMaquina({ insercoes = [], fim = { voucher: "RVM-ABC123-DEF456
       return typeof r === "function" ? r(opcoes) : json(r);
     }
     if (url === "/api/session/s1/finish") return json(fim);
+    if (url === "/api/session/s1/cancel") return cancelar ? cancelar() : json({ ok: true });
     return json({ error: "rota desconhecida" }, 404);
   });
   vi.stubGlobal("fetch", f);
@@ -359,6 +361,7 @@ describe("Cheguei na máquina", () => {
     const chamadas = fetch.mock.calls.map(([url]) => url);
     expect(chamadas.filter((u) => u === "/api/session/s1/insert")).toHaveLength(2);
     expect(chamadas.at(-1)).toBe("/api/session/s1/finish");
+    expect(chamadas).not.toContain("/api/session/s1/cancel");
     const corpo = fetch.mock.calls.find(([u]) => u === "/api/session/s1/insert")[1].body;
     expect(corpo.get("image")).toBeInstanceOf(Blob);
 
@@ -404,6 +407,7 @@ describe("Cheguei na máquina", () => {
     expect(await within(deposito).findByRole("alert")).toHaveTextContent(msg);
     expect(within(deposito).getByRole("alert")).toHaveTextContent(/sua sacola continua igual/i);
     expect(fetch.mock.calls.some(([u]) => u.endsWith("/finish"))).toBe(false);
+    expect(fetch.mock.calls.filter(([u]) => u === "/api/session/s1/cancel")).toHaveLength(1);
     expect(URL.revokeObjectURL).not.toHaveBeenCalled();
 
     fireEvent.click(within(deposito).getByRole("button", { name: /voltar para a sacola/i }));
@@ -439,6 +443,26 @@ describe("Cheguei na máquina", () => {
     expect(screen.queryByRole("region", { name: /conferindo na máquina/i })).not.toBeInTheDocument();
     expect(within(screen.getByRole("region", { name: /sua sacola/i })).getByRole("listitem")).toHaveTextContent("Plástico × 2");
     expect(fetch.mock.calls.some(([u]) => u.endsWith("/finish"))).toBe(false);
+    // A sessão aberta é cancelada no servidor, sem o sinal abortado.
+    const cancelamentos = fetch.mock.calls.filter(([u]) => u === "/api/session/s1/cancel");
+    expect(cancelamentos).toHaveLength(1);
+    expect(cancelamentos[0][1].method).toBe("POST");
+    expect(cancelamentos[0][1].signal).toBeUndefined();
+  });
+
+  it("se cancelar no servidor falhar, a tela continua de pé", async () => {
+    const msg = "O modelo ainda não foi treinado neste servidor. Rode 'python treino.py' e reinicie.";
+    await sacolaCom(1, {
+      insercoes: [() => Promise.resolve(new Response(JSON.stringify({ error: msg }), { status: 503 }))],
+      cancelar: () => Promise.reject(new TypeError("Failed to fetch")),
+    });
+    fireEvent.click(screen.getByRole("button", { name: /cheguei na máquina/i }));
+    const deposito = screen.getByRole("region", { name: /conferindo na máquina/i });
+    expect(await within(deposito).findByRole("alert")).toHaveTextContent(msg);
+    await vi.waitFor(() => expect(fetch.mock.calls.some(([u]) => u.endsWith("/cancel"))).toBe(true));
+    fireEvent.click(within(deposito).getByRole("button", { name: /voltar para a sacola/i }));
+    expect(screen.getByRole("heading", { name: "Sua sacola" })).toHaveFocus();
+    expect(fetch.mock.calls.filter(([u]) => u.endsWith("/cancel"))).toHaveLength(1);
   });
 
   it("Copiar código usa a área de transferência e avisa; se falhar, mostra como copiar", async () => {

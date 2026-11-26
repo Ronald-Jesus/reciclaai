@@ -4,7 +4,7 @@ import Icone from "../componentes/Icone.jsx";
 import Botao from "../componentes/Botao.jsx";
 import useMenosAnimacao from "../hooks/useMenosAnimacao.js";
 import { MATERIAIS } from "../dados/materiais.js";
-import { abrirSessao, encerrarSessao, inserirNaMaquina } from "./api.js";
+import { abrirSessao, cancelarSessao, encerrarSessao, inserirNaMaquina } from "./api.js";
 import { brl } from "./sacola.js";
 import { TotalAnimado } from "./Sacola.jsx";
 
@@ -90,9 +90,18 @@ export default function Deposito({ itens, onDepositados, onFechar, onFotografar 
     const marcar = (i, dados) => setLinhas((ls) => ls.map((l, j) => (j === i ? { ...l, ...dados } : l)));
     setLinhas(linhasDe(itens));
     setErro("");
+    // Sessão interrompida (cancelar, erro, sair da tela) é cancelada no servidor: devolve os
+    // itens aceitos e libera o compartimento. Se o cancelamento falhar, a tela segue igual.
+    let aberta = null;
+    const largar = () => {
+      if (aberta) cancelarSessao(aberta).catch(() => {});
+      aberta = null;
+    };
     (async () => {
       try {
         const sessao = await abrirSessao(sinal);
+        if (sinal.aborted) return void cancelarSessao(sessao).catch(() => {});
+        aberta = sessao;
         const fotos = new Map(); // várias unidades dividem a mesma foto
         const aceitos = [];
         for (let i = 0; i < itens.length; i += 1) {
@@ -104,15 +113,19 @@ export default function Deposito({ itens, onDepositados, onFechar, onFotografar 
           marcar(i, { estado: r.accepted ? "aceito" : "devolvido", motivo: r.reason, valor: r.value });
         }
         const fim = await encerrarSessao(sessao, sinal);
+        aberta = null;
         setVoucher({ codigo: fim.voucher, valor: fim.amount });
         aoDepositar.current(aceitos);
       } catch (e) {
+        largar();
         if (e?.name === "AbortError") return;
-        // shortcut: a sessão que falhou no meio fica aberta no servidor, sem voucher; tentar de novo abre outra.
         setErro(`${e?.status ? e.message : SEM_CONEXAO} Sua sacola continua igual.`);
       }
     })();
-    return () => controle.abort();
+    return () => {
+      controle.abort();
+      largar();
+    };
   }, [itens, tentativa]);
 
   // Linhas entram em cascata; o voucher "imprime" como no protótipo.
