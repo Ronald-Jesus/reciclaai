@@ -2,12 +2,13 @@ import gsap from "gsap";
 
 // Faíscas no ponto do clique: o "ClickSpark" do React Bits, recriado com GSAP (o React Bits
 // não está instalado). Quem chama confere antes se o sistema pede menos animação.
-export function faiscas(x, y, n = 10) {
+export function faiscas(x, y, n = 10, cor = "") {
   for (let i = 0; i < n; i += 1) {
     const s = document.createElement("span");
     s.className = "lx-faisca";
     s.style.left = `${x}px`;
     s.style.top = `${y}px`;
+    s.style.background = cor;
     document.body.append(s);
     const a = ((360 / n) * i * Math.PI) / 180;
     gsap.fromTo(

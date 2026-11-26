@@ -43,6 +43,11 @@ A mudança M08 (12/11/2026) só move o fim de S4 de 03/12 para 14/12, data da de
 | S3 | 27/11/2026 | 36,5 | | | | | | | A preencher |
 | S4 | 14/12/2026 | 41,5 | | | | | | | A preencher |
 
+**Status de 25/11/2026.** Sem atividade registrada no repositório de 15 a 24/11, e o marco I2 (20/11)
+não foi fechado: #42, #24 a #27 e #8 seguem abertas. Os valores de VA de S1 e S2 ainda precisam ser
+calculados (#26). A previsão de término passa a 04/12 e a defesa a 07/12 (M09,
+[A10](A10-mudancas.md)); a linha de base não muda.
+
 **Primeiro status (08/11/2026).** Início do período de execução. As issues #21, #22, #23 e #13
 estão concluídas, mas pertencem ao trabalho anterior à linha de base. O caminho crítico começa em
 12/11 com o dataset (#15). Riscos altos em observação: R1, R2, R6 e R8 ([A07](A07-riscos.md)).

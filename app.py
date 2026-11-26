@@ -1,4 +1,5 @@
 import mimetypes
+import os
 from pathlib import Path
 
 import torch
@@ -313,4 +314,5 @@ if __name__ == "__main__":
     except FileNotFoundError as erro:
         print(f"AVISO: {erro} O servidor sobe sem modelo; /predict responderá 503.")
     _filtro = filtro.carregar(device)
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    # O debug do Flask deixa rodar código pelo navegador: só liga de propósito, no PC.
+    app.run(debug=os.environ.get("FLASK_DEBUG") == "1", host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))

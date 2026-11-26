@@ -1,0 +1,27 @@
+/* ReciclaAI · seção 6.7 (dúvidas). Vem do protótipo aprovado; só tokens. */
+.duvidas { padding-block: var(--rc-space-11) var(--rc-space-12); background: var(--md-sys-color-surface-container); border-top: var(--rc-border) solid var(--rc-ink); }
+.duvidas__in { display: grid; gap: var(--rc-space-7); }
+.faq { display: grid; gap: var(--rc-space-4); }
+.faq details {
+  background: var(--md-sys-color-surface-container-lowest);
+  border: var(--rc-border) solid var(--rc-ink); border-radius: var(--md-sys-shape-corner-medium);
+  box-shadow: var(--rc-shadow-sm);
+}
+.faq details[open] { box-shadow: var(--rc-shadow-md); }
+.faq summary {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--rc-space-3);
+  min-height: 56px; padding: var(--rc-space-3) var(--rc-space-5);
+  font-weight: 700; font-size: 1.125rem; cursor: pointer; list-style: none;
+  border-radius: var(--md-sys-shape-corner-medium);
+}
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after {
+  content: "add"; font-family: var(--md-ref-typeface-icon); font-size: 24px; font-weight: 600;
+  flex: none; width: 32px; height: 32px; display: grid; place-items: center;
+  border: var(--rc-border-thin) solid var(--rc-ink); border-radius: var(--md-sys-shape-corner-small);
+  background: var(--md-sys-color-tertiary-container); color: var(--md-sys-color-on-tertiary-container);
+}
+.faq details[open] summary::after { content: "remove"; }
+.faq summary:focus-visible { outline-offset: -6px; }
+.faq details p { padding: 0 var(--rc-space-5) var(--rc-space-5); line-height: 1.6; max-width: 62ch; }
+@media (min-width: 900px) { .duvidas__in { grid-template-columns: 1fr 1.6fr; align-items: start; } }

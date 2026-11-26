@@ -1,0 +1,11 @@
+*
+!app.py
+!rvm.py
+!filtro.py
+!templates
+!model
+model/*
+!model/reciclaai.pth
+!frontend
+frontend/node_modules
+frontend/dist

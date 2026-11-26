@@ -18,7 +18,7 @@ projeto. Os canais com asterisco devem ser confirmados com o professor.
 | Notas de versão (release v1.0, #29) | Professor, banca e usuários | No lançamento | GitHub Releases | Autor |
 | Datas da prova (23/11 ou 30/11) e da defesa | Autor | A cada aula, até o professor divulgar | AVA e aula | Autor |
 | Entrega dos artefatos (arquivo `Nome_Matricula_tema_data`) | Professor | Uma vez, até 07/12/2026, 23:59 | AVA | Autor |
-| Defesa final | Professor e banca | 14/12/2026, ou antes se o professor marcar | Apresentação presencial | Autor |
+| Defesa final | Professor e banca | 07/12/2026 (M09) | Apresentação presencial | Autor |
 
 **Retornos recebidos.**
 
@@ -26,5 +26,5 @@ projeto. Os canais com asterisco devem ser confirmados com o professor.
 |---|---|---|---|
 | 11/11/2026 | Professor | "Projeto bem estruturado… no caminho certo" | Manter o plano; nenhuma mudança pedida |
 
-**Vias de comunicação.** Com um integrante, não há vias internas (n × (n − 1) = 0). As vias
+**Vias de comunicação.** Com dois integrantes, há duas vias internas (n × (n − 1) = 2): decisões nas issues e revisão de PR. As vias
 externas são com o professor e com a turma de teste, tratadas nas linhas acima ([A06](A06-RACI.md)).
