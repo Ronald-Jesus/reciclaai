@@ -18,7 +18,8 @@ export default function useRolagemSuave() {
   useEffect(() => {
     if (menosAnimacao) return undefined;
 
-    const lenis = new Lenis({ anchors: { offset: -72 } });
+    // O Lenis já desconta o scroll-margin-top das seções (72 px): sem offset extra.
+    const lenis = new Lenis({ anchors: true });
     atual = lenis;
     lenis.on("scroll", ScrollTrigger.update);
     const passo = (tempo) => lenis.raf(tempo * 1000);
