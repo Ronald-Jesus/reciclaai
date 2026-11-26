@@ -308,3 +308,119 @@ def test_foto_de_celular_e_girada_pelo_exif(com_modelo, monkeypatch):
     buffer.seek(0)
     assert enviar(cliente, buffer, "celular.jpg").status_code == 200
     assert tamanhos == [(20, 40)]
+
+
+# --- máquina: sessões, vouchers e painel do operador ---
+
+def test_insert_em_sessao_inexistente_da_409(com_modelo):
+    cliente, _ = com_modelo
+    resposta = cliente.post("/api/session/nao-existe/insert", data={"image": (foto(), "foto.png")},
+                            content_type="multipart/form-data")
+    assert resposta.status_code == 409
+    assert resposta.get_json()["error"] == "Sessão inexistente."
+
+
+def test_finish_em_sessao_inexistente_da_409(com_modelo):
+    cliente, _ = com_modelo
+    resposta = cliente.post("/api/session/nao-existe/finish")
+    assert resposta.status_code == 409
+    assert resposta.get_json()["error"] == "Sessão inexistente."
+
+
+def test_sessao_finalizada_da_409_no_insert_e_no_finish(com_modelo):
+    cliente, _ = com_modelo
+    sessao, _ = inserir(cliente)
+    assert cliente.post(f"/api/session/{sessao}/finish").status_code == 200
+    de_novo = cliente.post(f"/api/session/{sessao}/finish")
+    assert de_novo.status_code == 409
+    assert de_novo.get_json()["error"] == "Sessão já finalizada."
+    insert = cliente.post(f"/api/session/{sessao}/insert", data={"image": (foto(), "foto.png")},
+                          content_type="multipart/form-data")
+    assert insert.status_code == 409
+
+
+def test_finish_devolve_voucher_e_itens(com_modelo):
+    cliente, _ = com_modelo
+    sessao, _ = inserir(cliente)
+    dados = cliente.post(f"/api/session/{sessao}/finish").get_json()
+    assert dados["voucher"].startswith("RVM-")
+    assert dados["items"] == [{"class": "plastic", "label": "Plástico", "bin": "vermelha",
+                               "color": "#c8453a", "count": 1}]
+
+
+def test_voucher_inexistente_da_400(com_modelo):
+    cliente, _ = com_modelo
+    resposta = cliente.post("/api/vouchers/RVM-000000-000000/redeem")
+    assert resposta.status_code == 400
+    assert resposta.get_json() == {"ok": False, "error": "Voucher não encontrado."}
+
+
+def test_voucher_resgatado_duas_vezes_falha_na_segunda(com_modelo):
+    cliente, _ = com_modelo
+    sessao, _ = inserir(cliente)
+    codigo = cliente.post(f"/api/session/{sessao}/finish").get_json()["voucher"]
+    primeiro = cliente.post(f"/api/vouchers/{codigo.lower()}/redeem")  # aceita minúsculas
+    assert primeiro.status_code == 200
+    assert primeiro.get_json() == {"ok": True, "amount": rvm.ACCEPTED["plastic"]["value"]}
+    segundo = cliente.post(f"/api/vouchers/{codigo}/redeem")
+    assert segundo.status_code == 400
+    assert "já resgatado" in segundo.get_json()["error"]
+
+
+def test_cancel_encerra_sem_voucher_e_devolve_o_espaco(com_modelo):
+    cliente, _ = com_modelo
+    sessao, _ = inserir(cliente)
+    resposta = cliente.post(f"/api/session/{sessao}/cancel")
+    assert resposta.status_code == 200
+    assert resposta.get_json() == {"ok": True}
+    bins = {b["material"]: b["count"] for b in cliente.get("/api/admin/status").get_json()["bins"]}
+    assert bins["plastic"] == 0
+    assert cliente.post(f"/api/session/{sessao}/finish").status_code == 409
+    assert cliente.post(f"/api/session/{sessao}/cancel").status_code == 409
+    assert cliente.post("/api/session/nao-existe/cancel").status_code == 409
+
+
+def test_admin_status_mostra_compartimentos_e_estatisticas(com_modelo):
+    cliente, definir = com_modelo
+    inserir(cliente)
+    definir("paper")
+    inserir(cliente)
+    dados = cliente.get("/api/admin/status").get_json()
+    assert [b["material"] for b in dados["bins"]] == sorted(rvm.ACCEPTED)
+    plastico = next(b for b in dados["bins"] if b["material"] == "plastic")
+    assert plastico == {"material": "plastic", "count": 1, "capacity": rvm.ACCEPTED["plastic"]["capacity"],
+                        "percent": 0.5, "warning": False, "full": False}
+    stats = dados["stats"]
+    assert stats["items_total"] == 2 and stats["items_accepted"] == 1 and stats["items_rejected"] == 1
+    assert stats["credits_paid"] == rvm.ACCEPTED["plastic"]["value"]
+    assert stats["sessions"] == 2
+    assert {m["material"] for m in stats["by_material"]} == {"paper", "plastic"}
+    assert len(stats["recent"]) == 2
+
+
+def test_admin_status_avisa_compartimento_quase_cheio(com_modelo, monkeypatch):
+    cliente, definir = com_modelo
+    definir("glass")
+    with rvm.db() as conn:
+        conn.execute("UPDATE bins SET count = capacity WHERE material = 'glass'")
+    vidro = next(b for b in cliente.get("/api/admin/status").get_json()["bins"] if b["material"] == "glass")
+    assert vidro["warning"] is True and vidro["full"] is True
+    dados = inserir(cliente)[1].get_json()
+    assert dados["accepted"] is False and "cheio" in dados["reason"]
+
+
+def test_admin_esvazia_compartimento(com_modelo):
+    cliente, _ = com_modelo
+    inserir(cliente)
+    resposta = cliente.post("/api/admin/bins/plastic/empty")
+    assert resposta.status_code == 200
+    assert resposta.get_json() == {"ok": True}
+    bins = {b["material"]: b["count"] for b in cliente.get("/api/admin/status").get_json()["bins"]}
+    assert bins["plastic"] == 0
+
+
+def test_admin_esvaziar_material_inexistente_da_404(com_modelo):
+    cliente, _ = com_modelo
+    resposta = cliente.post("/api/admin/bins/isopor/empty")
+    assert resposta.status_code == 404
+    assert resposta.get_json()["error"] == "Compartimento inexistente."

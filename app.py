@@ -287,6 +287,12 @@ def finish_session(session_id: str):
     return jsonify(result)
 
 
+@app.route("/api/session/<session_id>/cancel", methods=["POST"])
+def cancel_session(session_id: str):
+    rvm.cancel_session(session_id)
+    return jsonify({"ok": True})
+
+
 # ------------------------------------------------------------- operador
 
 @app.route("/api/admin/status")
