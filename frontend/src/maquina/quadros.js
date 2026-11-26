@@ -1,4 +1,7 @@
-// Quadros WebP do vídeo da máquina, em public/maquina/frames/ (ainda não gerados).
+// Quadros WebP do vídeo da máquina, em public/maquina/frames/.
+// Não existem: ficou a montagem em SVG do protótipo (25/11). Sem eles a página não pede o
+// primeiro quadro (o 404 aparecia no console). Gerou os quadros? Troque para true.
+export const QUADROS_PUBLICADOS = false;
 export const TOTAL_QUADROS = 120;
 export const PASTA_QUADROS = `${import.meta.env.BASE_URL}maquina/frames/`;
 
@@ -8,7 +11,8 @@ export function nomeDoQuadro(i) {
 
 // Confere se o primeiro quadro existe. Sem a pasta, o servidor devolve 404 ou o index.html
 // (fallback de SPA), por isso o tipo precisa ser imagem. Falha de rede conta como "não existe".
-export async function existemQuadros() {
+export async function existemQuadros(publicados = QUADROS_PUBLICADOS) {
+  if (!publicados) return false;
   try {
     const resposta = await fetch(PASTA_QUADROS + nomeDoQuadro(1), { method: "HEAD" });
     return resposta.ok && (resposta.headers.get("content-type") || "").startsWith("image/");
