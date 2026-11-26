@@ -7,6 +7,7 @@ import FundoVanta from "../componentes/FundoVanta.jsx";
 import Problema from "../secoes/Problema.jsx";
 import Contraste from "../secoes/Contraste.jsx";
 import Montagem from "../secoes/Montagem.jsx";
+import Painel from "../secoes/Painel.jsx";
 import Duvidas from "../secoes/Duvidas.jsx";
 import Fechamento from "../secoes/Fechamento.jsx";
 import Icone from "../componentes/Icone.jsx";
@@ -97,6 +98,7 @@ export default function PaginaInicial() {
             </div>
           </section>
         ))}
+        <Painel />
         <Duvidas />
         <Fechamento />
       </main>

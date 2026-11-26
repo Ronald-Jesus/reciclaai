@@ -1,0 +1,23 @@
+/* ReciclaAI · seção 6.6 (painel do operador). Vem do protótipo aprovado; só tokens. */
+.operador { padding-block: var(--rc-space-11) var(--rc-space-12); }
+.operador__grade { display: grid; gap: var(--rc-space-8); align-items: center; }
+.operador .rc-btn { margin-top: var(--rc-space-6); }
+.operador__nota { margin-top: var(--rc-space-3); font-size: var(--md-sys-typescale-body-medium-size); color: var(--md-sys-color-on-surface-variant); }
+.painel { padding: var(--rc-space-6); box-shadow: var(--rc-shadow-lg); }
+.painel__topo { display: flex; align-items: center; gap: var(--rc-space-2); font-weight: 700; padding-bottom: var(--rc-space-3); border-bottom: var(--rc-border-thin) solid var(--rc-ink); }
+.niveis { list-style: none; padding: 0; display: grid; gap: var(--rc-space-4); margin-top: var(--rc-space-5); }
+.niveis li { display: grid; grid-template-columns: 92px 1fr 4ch; align-items: center; gap: var(--rc-space-3); }
+.niveis .rc-tag { justify-self: start; }
+.niveis b { text-align: right; font-variant-numeric: tabular-nums; }
+.nivel { height: 22px; border: var(--rc-border-thin) solid var(--rc-ink); border-radius: var(--md-sys-shape-corner-extra-small); background: var(--md-sys-color-surface-container); overflow: hidden; }
+.nivel span { display: block; height: 100%; width: var(--n); background: var(--rc-mat); border-right: var(--rc-border-thin) solid var(--rc-ink); }
+.painel__alerta {
+  display: flex; gap: var(--rc-space-2); align-items: flex-start; margin-top: var(--rc-space-5);
+  padding: var(--rc-space-3); background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container);
+  border: var(--rc-border-thin) solid var(--rc-ink); border-radius: var(--md-sys-shape-corner-small);
+}
+.painel__alerta + .painel__alerta { margin-top: var(--rc-space-2); }
+.painel__alerta--ok { background: var(--md-sys-color-surface-container); color: var(--md-sys-color-on-surface); }
+.painel__carregando, .painel__stats { margin-top: var(--rc-space-5); }
+.painel__exemplo { margin-top: var(--rc-space-3); font-size: var(--md-sys-typescale-body-small-size); color: var(--md-sys-color-on-surface-variant); }
+@media (min-width: 900px) { .operador__grade { grid-template-columns: 1fr 1fr; gap: var(--rc-space-10); } }

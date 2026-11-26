@@ -73,4 +73,16 @@ describe("Página inicial: hero", () => {
     expect(container.querySelector(".split-w")).toBeNull();
     expect(from).not.toHaveBeenCalled();
   });
+
+  it("o painel do operador vem depois de 'Para quem' e antes das dúvidas, como no protótipo", () => {
+    menosAnimacao(true);
+    vi.stubGlobal("fetch", vi.fn(() => new Promise(() => {})));
+    const { container } = renderizar();
+    const ids = [...container.querySelectorAll("main > section")].map((s) => s.id);
+    const i = ids.indexOf("painel");
+    expect(i).toBeGreaterThan(ids.indexOf("para-quem"));
+    expect(ids[i + 1]).toBe("duvidas");
+    expect(within(container.querySelector("#painel")).getByRole("link", { name: /abrir o painel do operador/i })).toHaveAttribute("href", "/admin");
+    vi.unstubAllGlobals();
+  });
 });
